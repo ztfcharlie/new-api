@@ -101,7 +101,7 @@ export default function ModelSettingsVisualEditor(props) {
         if (results.includes(undefined)) return;
       } else if (requestQueue.length > 1) {
         if (results.includes(undefined)) {
-          return showError('部分保存失败，请重试');
+          return showError(t('部分保存失败，请重试'));
         }
       }
 
@@ -112,12 +112,12 @@ export default function ModelSettingsVisualEditor(props) {
         }
       }
 
-      showSuccess('保存成功');
+      showSuccess(t('保存成功'));
       props.refresh();
 
     } catch (error) {
       console.error('保存失败:', error);
-      showError('保存失败，请重试');
+      showError(t('保存失败，请重试'));
     } finally {
       setLoading(false);
     }
@@ -182,7 +182,7 @@ export default function ModelSettingsVisualEditor(props) {
 
   const updateModel = (name, field, value) => {
     if (isNaN(value)) {
-      showError('请输入数字');
+      showError(t('请输入数字'));
       return;
     }
     setModels(prev =>
@@ -200,7 +200,7 @@ export default function ModelSettingsVisualEditor(props) {
   const addModel = (values) => {
     // 检查模型名称是否存在, 如果存在则拒绝添加
     if (models.some(model => model.name === values.name)) {
-      showError('模型名称已存在');
+      showError(t('模型名称已存在'));
       return;
     }
     setModels(prev => [{
@@ -210,7 +210,7 @@ export default function ModelSettingsVisualEditor(props) {
       completionRatio: values.completionRatio || ''
     }, ...prev]);
     setVisible(false);
-    showSuccess('添加成功');
+    showSuccess(t('添加成功'));
   };
 
 

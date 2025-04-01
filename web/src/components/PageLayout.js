@@ -4,15 +4,20 @@ import SiderBar from './SiderBar.js';
 import App from '../App.js';
 import FooterBar from './Footer.js';
 import { ToastContainer } from 'react-toastify';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleContext } from '../context/Style/index.js';
 import { useTranslation } from 'react-i18next';
 import { API, getLogo, getSystemName, showError } from '../helpers/index.js';
 import { setStatusData } from '../helpers/data.js';
 import { UserContext } from '../context/User/index.js';
 import { StatusContext } from '../context/Status/index.js';
+import Loading from './Loading';
+import cookie from 'js-cookie';
 const { Sider, Content, Header, Footer } = Layout;
 
+import { LocaleProvider } from '@douyinfe/semi-ui';
+import zh_CN from '@douyinfe/semi-ui/lib/es/locale/source/zh_CN';
+import en_GB from '@douyinfe/semi-ui/lib/es/locale/source/en_GB';
 
 const PageLayout = () => {
   const [userState, userDispatch] = useContext(UserContext);
@@ -143,4 +148,16 @@ const PageLayout = () => {
   )
 }
 
-export default PageLayout;
+function PageLayoutContainer() {
+  const { i18n } = useTranslation();
+  const [page, setPage] = useState(true);
+  const [_, userDispatch] = useContext(UserContext);
+  return page ?
+    <LocaleProvider locale={i18n.language == 'en' ? en_GB : zh_CN}>
+      <PageLayout />
+    </LocaleProvider>
+    : <Loading />;
+}
+
+
+export default PageLayoutContainer;

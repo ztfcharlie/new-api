@@ -44,7 +44,12 @@ export function renderGroup(group) {
             if (await copy(group)) {
               showSuccess(i18next.t('已复制：') + group);
             } else {
-              Modal.error({ title: t('无法复制到剪贴板，请手动复制'), content: group });
+              Modal.error({ 
+                title: i18next.t('无法复制到剪贴板，请手动复制'), 
+                content: group,
+                okText: i18next.t('确定'),
+                cancelText: i18next.t('取消'),
+               });
             }
           }}
         >
@@ -314,14 +319,14 @@ export function renderModelPrice(
     let inputRatioPrice = modelRatio * 2.0;
     let completionRatioPrice = modelRatio * 2.0 * completionRatio;
     let cacheRatioPrice = modelRatio * 2.0 * cacheRatio;
-    
+
     // Calculate effective input tokens (non-cached + cached with ratio applied)
     const effectiveInputTokens = (inputTokens - cacheTokens) + (cacheTokens * cacheRatio);
-    
+
     let price =
       (effectiveInputTokens / 1000000) * inputRatioPrice * groupRatio +
       (completionTokens / 1000000) * completionRatioPrice * groupRatio;
-    
+
     return (
       <>
         <article>

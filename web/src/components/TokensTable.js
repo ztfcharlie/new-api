@@ -145,7 +145,7 @@ const TokensTable = () => {
         let chats = localStorage.getItem('chats');
         let chatsArray = []
         let shouldUseCustom = true;
-
+        
         if (shouldUseCustom) {
           try {
             // console.log(chats);
@@ -351,6 +351,8 @@ const TokensTable = () => {
         title: t('无法复制到剪贴板，请手动复制'),
         content: text,
         size: 'large',
+        okText: t('确定'),
+        cancelText: t('取消'),
       });
     }
   };

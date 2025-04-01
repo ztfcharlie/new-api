@@ -1,8 +1,15 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig, transformWithEsbuild } from 'vite';
-
+import {resolve} from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    /* 设置路径别名 */
+    alias: {
+      '@': resolve(__dirname, './src')
+    },
+    
+  },
   plugins: [
     {
       name: 'treat-js-files-as-jsx',
@@ -52,7 +59,6 @@ export default defineConfig({
     },
   },
   server: {
-    host: '0.0.0.0',
     proxy: {
       '/api': {
         target: 'http://localhost:3000',

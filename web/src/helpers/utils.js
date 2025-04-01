@@ -2,7 +2,7 @@ import { Toast } from '@douyinfe/semi-ui';
 import { toastConstants } from '../constants';
 import React from 'react';
 import { toast } from 'react-toastify';
-
+import { t } from 'i18next';
 const HTMLToastContent = ({ htmlContent }) => {
   return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />;
 };
@@ -99,22 +99,22 @@ export function showError(error) {
           window.location.href = '/login?expired=true';
           break;
         case 429:
-          Toast.error('错误：请求次数过多，请稍后再试！');
+          Toast.error(t('错误：请求次数过多，请稍后再试！'));
           break;
         case 500:
-          Toast.error('错误：服务器内部错误，请联系管理员！');
+          Toast.error(t('错误：服务器内部错误，请联系管理员！'));
           break;
         case 405:
-          Toast.info('本站仅作演示之用，无服务端！');
+          Toast.info(t('本站仅作演示之用，无服务端！'));
           break;
         default:
-          Toast.error('错误：' + error.message);
+          Toast.error(t('错误：') + error.message);
       }
       return;
     }
-    Toast.error('错误：' + error.message);
+    Toast.error(t('错误：') + error.message);
   } else {
-    Toast.error('错误：' + error);
+    Toast.error(t('错误：') + error);
   }
 }
 
@@ -243,7 +243,7 @@ export function verifyJSONPromise(value) {
     JSON.parse(value);
     return Promise.resolve();
   } catch (e) {
-    return Promise.reject('不是合法的 JSON 字符串');
+    return Promise.reject(t('不是合法的 JSON 字符串'));
   }
 }
 

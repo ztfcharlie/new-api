@@ -6,7 +6,7 @@ import { Button, Card, Divider, Form, Icon, Layout, Modal } from '@douyinfe/semi
 import Title from '@douyinfe/semi-ui/lib/es/typography/title';
 import Text from '@douyinfe/semi-ui/lib/es/typography/text';
 import { IconGithubLogo } from '@douyinfe/semi-icons';
-import {onGitHubOAuthClicked, onLinuxDOOAuthClicked, onOIDCClicked} from './utils.js';
+import { onBurnCloudOAuthClicked, onGitHubOAuthClicked, onOIDCClicked, onLinuxDOOAuthClicked } from './utils.js';
 import OIDCIcon from "./OIDCIcon.js";
 import LinuxDoIcon from './LinuxDoIcon.js';
 import WeChatIcon from './WeChatIcon.js';
@@ -14,7 +14,7 @@ import TelegramLoginButton from 'react-telegram-login/src';
 import { setUserData } from '../helpers/data.js';
 import { UserContext } from '../context/User/index.js';
 import { useTranslation } from 'react-i18next';
-
+import {  Image } from 'semantic-ui-react';
 const RegisterForm = () => {
   const { t } = useTranslation();
   const [inputs, setInputs] = useState({
@@ -61,7 +61,7 @@ const RegisterForm = () => {
 
   const onSubmitWeChatVerificationCode = async () => {
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo(t('请稍后几秒重试，Turnstile 正在检查用户环境！'));
       return;
     }
     const res = await API.get(
@@ -74,7 +74,7 @@ const RegisterForm = () => {
       setUserData(data);
       updateAPI();
       navigate('/');
-      showSuccess('登录成功！');
+      showSuccess(t('登录成功！'));
       setShowWeChatLoginModal(false);
     } else {
       showError(message);
@@ -87,16 +87,16 @@ const RegisterForm = () => {
 
   async function handleSubmit(e) {
     if (password.length < 8) {
-      showInfo('密码长度不得小于 8 位！');
+      showInfo(t('密码长度不得小于 8 位！'));
       return;
     }
     if (password !== password2) {
-      showInfo('两次输入的密码不一致');
+      showInfo(t('两次输入的密码不一致'));
       return;
     }
     if (username && password) {
       if (turnstileEnabled && turnstileToken === '') {
-        showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+        showInfo(t('请稍后几秒重试，Turnstile 正在检查用户环境！'));
         return;
       }
       setLoading(true);
@@ -111,7 +111,7 @@ const RegisterForm = () => {
       const { success, message } = res.data;
       if (success) {
         navigate('/login');
-        showSuccess('注册成功！');
+        showSuccess(t('注册成功！'));
       } else {
         showError(message);
       }
@@ -122,7 +122,7 @@ const RegisterForm = () => {
   const sendVerificationCode = async () => {
     if (inputs.email === '') return;
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo(t('请稍后几秒重试，Turnstile 正在检查用户环境！'));
       return;
     }
     setLoading(true);
@@ -131,7 +131,7 @@ const RegisterForm = () => {
     );
     const { success, message } = res.data;
     if (success) {
-      showSuccess('验证码发送成功，请检查你的邮箱！');
+      showSuccess(t('验证码发送成功，请检查你的邮箱！'));
     } else {
       showError(message);
     }
@@ -160,7 +160,7 @@ const RegisterForm = () => {
     if (success) {
       userDispatch({ type: 'login', payload: data });
       localStorage.setItem('user', JSON.stringify(data));
-      showSuccess('登录成功！');
+      showSuccess(t('登录成功！'));
       setUserData(data);
       updateAPI();
       navigate('/');
@@ -262,7 +262,9 @@ const RegisterForm = () => {
                     </Link>
                   </Text>
                 </div>
-                {status.github_oauth ||
+                {
+                status.burncloud_oauth ||
+                status.github_oauth ||
                 status.oidc_enabled ||
                 status.wechat_login ||
                 status.telegram_oauth ||
@@ -278,7 +280,18 @@ const RegisterForm = () => {
                         marginTop: 20,
                       }}
                     >
-                      {status.github_oauth ? (
+                      {status.burncloud_oauth ? (
+                        <Button
+                          type='primary'
+                          icon={<Image src='/burncloud_logo.png' />}
+                          onClick={() =>
+                            onBurnCloudOAuthClicked(status.burncloud_client_id)
+                          }
+                        />
+                      ) : (
+                        <></>
+                      )}
+                       {status.github_oauth ? (
                         <Button
                           type='primary'
                           icon={<IconGithubLogo />}

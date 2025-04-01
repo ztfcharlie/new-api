@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Grid, Header, Image, Segment } from 'semantic-ui-react';
 import { API, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
-
+import { useTranslation } from 'react-i18next';
 const PasswordResetForm = () => {
+  const { t } = useTranslation();
   const [inputs, setInputs] = useState({
     email: '',
   });
@@ -38,7 +39,7 @@ const PasswordResetForm = () => {
     setDisableButton(true);
     if (!email) return;
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo(t('请稍后几秒重试，Turnstile 正在检查用户环境！'));
       return;
     }
     setLoading(true);
@@ -47,7 +48,7 @@ const PasswordResetForm = () => {
     );
     const { success, message } = res.data;
     if (success) {
-      showSuccess('重置邮件发送成功，请检查邮箱！');
+      showSuccess(t('重置邮件发送成功，请检查邮箱！'));
       setInputs({ ...inputs, email: '' });
     } else {
       showError(message);
@@ -59,7 +60,7 @@ const PasswordResetForm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src='/logo.png' /> 密码重置
+          <Image src='/logo.png' /> {t('密码重置')}
         </Header>
         <Form size='large'>
           <Segment>
@@ -67,7 +68,7 @@ const PasswordResetForm = () => {
               fluid
               icon='mail'
               iconPosition='left'
-              placeholder='邮箱地址'
+              placeholder={t('邮箱地址')}
               name='email'
               value={email}
               onChange={handleChange}
@@ -90,7 +91,7 @@ const PasswordResetForm = () => {
               loading={loading}
               disabled={disableButton}
             >
-              {disableButton ? `重试 (${countdown})` : '提交'}
+              {disableButton ? `${t('重试')} (${countdown})` : t('提交')}
             </Button>
           </Segment>
         </Form>

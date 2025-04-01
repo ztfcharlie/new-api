@@ -15,7 +15,22 @@ export async function getOAuthState() {
     return '';
   }
 }
+function geBurnCloudOAuthRedirectUri() {
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  const port = window.location.port;
+  const fullDomain = port ? `${hostname}:${port}` : hostname;
+  return `${protocol}//${fullDomain}/oauth/burncloud`;
+}
 
+export async function onBurnCloudOAuthClicked(burncloud_client_id) {
+  const state = await getOAuthState();
+  if (!state) return;
+  const redirect_uri = encodeURIComponent(geBurnCloudOAuthRedirectUri())
+  window.open(
+    `${import.meta.env.VITE_CONSOLE_DOMAIN}clogin?client_id=${burncloud_client_id}&state=${state}&redirect_uri=${redirect_uri}`,
+  );
+}
 export async function onOIDCClicked(auth_url, client_id, openInNewTab = false) {
   const state = await getOAuthState();
   if (!state) return;
