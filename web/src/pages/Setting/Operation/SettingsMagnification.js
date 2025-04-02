@@ -7,59 +7,70 @@ import {
   showSuccess,
   showWarning,
   verifyJSON,
+  verifyJSONPromise
 } from '../../../helpers';
 import { useTranslation } from 'react-i18next';
 
-export default function ModelRatioSettings(props) {
+export default function SettingsMagnification(props) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [inputs, setInputs] = useState({
     ModelPrice: '',
     ModelRatio: '',
-    CacheRatio: '',
     CompletionRatio: '',
+    GroupRatio: '',
+    UserUsableGroups: ''
   });
   const refForm = useRef();
   const [inputsRow, setInputsRow] = useState(inputs);
-  const { t } = useTranslation();
 
   async function onSubmit() {
     try {
+      console.log('Starting validation...');
       await refForm.current.validate().then(() => {
+        console.log('Validation passed');
         const updateArray = compareObjects(inputs, inputsRow);
         if (!updateArray.length) return showWarning(t('你似乎并没有修改什么'));
-        
         const requestQueue = updateArray.map((item) => {
-          const value = typeof inputs[item.key] === 'boolean' 
-            ? String(inputs[item.key]) 
-            : inputs[item.key];
-          return API.put('/api/option/', { key: item.key, value });
+          let value = '';
+          if (typeof inputs[item.key] === 'boolean') {
+            value = String(inputs[item.key]);
+          } else {
+            value = inputs[item.key];
+          }
+          return API.put('/api/option/', {
+            key: item.key,
+            value
+          });
         });
-
         setLoading(true);
         Promise.all(requestQueue)
           .then((res) => {
-            if (res.includes(undefined)) {
-              return showError(requestQueue.length > 1 ? t('部分保存失败，请重试') : t('保存失败'));
+            if (requestQueue.length === 1) {
+              if (res.includes(undefined)) return;
+            } else if (requestQueue.length > 1) {
+              if (res.includes(undefined))
+                return showError(t('部分保存失败，请重试'));
             }
-            
             for (let i = 0; i < res.length; i++) {
               if (!res[i].data.success) {
-                return showError(res[i].data.message);
+                return showError(res[i].data.message)
               }
             }
-            
             showSuccess(t('保存成功'));
             props.refresh();
           })
           .catch(error => {
-            console.error('Unexpected error:', error);
+            console.error('Unexpected error in Promise.all:', error);
+
             showError(t('保存失败，请重试'));
           })
           .finally(() => {
             setLoading(false);
           });
-      }).catch(() => {
-        showError(t('请检查输入'));
+      }).catch((error) => {
+        console.error('Validation failed:', error);
+        showError(t("'请检查输入'"));
       });
     } catch (error) {
       showError(t('请检查输入'));
@@ -70,6 +81,7 @@ export default function ModelRatioSettings(props) {
   async function resetModelRatio() {
     try {
       let res = await API.post(`/api/option/rest_model_ratio`);
+      // return {success, message}
       if (res.data.success) {
         showSuccess(res.data.message);
         props.refresh();
@@ -100,31 +112,41 @@ export default function ModelRatioSettings(props) {
         getFormApi={(formAPI) => (refForm.current = formAPI)}
         style={{ marginBottom: 15 }}
       >
-        <Form.Section>
+        <Form.Section text={t('倍率设置')}>
           <Row gutter={16}>
-            <Col xs={24} sm={16}>
+            <Col span={16}>
               <Form.TextArea
                 label={t('模型固定价格')}
                 extraText={t('一次调用消耗多少刀，优先级大于模型倍率')}
-                placeholder={t('为一个 JSON 文本，键为模型名称，值为一次调用消耗多少刀，比如 "gpt-4-gizmo-*": 0.1，一次消耗0.1刀')}
+                placeholder={
+                  t('为一个 JSON 文本，键为模型名称，值为一次调用消耗多少刀，比如 "gpt-4-gizmo-*": 0.1，一次消耗0.1刀')
+                }
                 field={'ModelPrice'}
                 autosize={{ minRows: 6, maxRows: 12 }}
                 trigger='blur'
                 stopValidateWithError
                 rules={[
                   {
-                    validator: (rule, value) => verifyJSON(value),
+                    validator: (rule, value) => {
+                      return verifyJSON(value);
+                    },
                     message: t('不是合法的 JSON 字符串')
                   }
                 ]}
-                onChange={(value) => setInputs({ ...inputs, ModelPrice: value })}
+                onChange={(value) =>
+                  setInputs({
+                    ...inputs,
+                    ModelPrice: value
+                  })
+                }
               />
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col xs={24} sm={16}>
+            <Col span={16}>
               <Form.TextArea
                 label={t('模型倍率')}
+                extraText={''}
                 placeholder={t('为一个 JSON 文本，键为模型名称，值为倍率')}
                 field={'ModelRatio'}
                 autosize={{ minRows: 6, maxRows: 12 }}
@@ -132,35 +154,23 @@ export default function ModelRatioSettings(props) {
                 stopValidateWithError
                 rules={[
                   {
-                    validator: (rule, value) => verifyJSON(value),
+                    validator: (rule, value) => {
+                      return verifyJSON(value);
+                    },
                     message: t('不是合法的 JSON 字符串')
                   }
                 ]}
-                onChange={(value) => setInputs({ ...inputs, ModelRatio: value })}
+                onChange={(value) =>
+                  setInputs({
+                    ...inputs,
+                    ModelRatio: value
+                  })
+                }
               />
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col xs={24} sm={16}>
-              <Form.TextArea
-                label={t('提示缓存倍率')}
-                placeholder={t('为一个 JSON 文本，键为模型名称，值为倍率')}
-                field={'CacheRatio'}
-                autosize={{ minRows: 6, maxRows: 12 }}
-                trigger='blur'
-                stopValidateWithError
-                rules={[
-                  {
-                    validator: (rule, value) => verifyJSON(value),
-                    message: '不是合法的 JSON 字符串'
-                  }
-                ]}
-                onChange={(value) => setInputs({ ...inputs, CacheRatio: value })}
-              />
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col xs={24} sm={16}>
+            <Col span={16}>
               <Form.TextArea
                 label={t('模型补全倍率（仅对自定义模型有效）')}
                 extraText={t('仅对自定义模型有效')}
@@ -171,28 +181,95 @@ export default function ModelRatioSettings(props) {
                 stopValidateWithError
                 rules={[
                   {
-                    validator: (rule, value) => verifyJSON(value),
+                    validator: (rule, value) => {
+                      return verifyJSON(value);
+                    },
                     message: t('不是合法的 JSON 字符串')
                   }
                 ]}
-                onChange={(value) => setInputs({ ...inputs, CompletionRatio: value })}
+                onChange={(value) =>
+                  setInputs({
+                    ...inputs,
+                    CompletionRatio: value
+                  })
+                }
+              />
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={16}>
+              <Form.TextArea
+                label={'分组倍率'}
+                extraText={''}
+                placeholder={t('为一个 JSON 文本，键为分组名称，值为倍率')}
+                field={'GroupRatio'}
+                autosize={{ minRows: 6, maxRows: 12 }}
+                trigger='blur'
+                stopValidateWithError
+                rules={[
+                  {
+                    validator: (rule, value) => {
+                      return verifyJSON(value);
+                    },
+                    message: t('不是合法的 JSON 字符串')
+                  }
+                ]}
+                onChange={(value) =>
+                  setInputs({
+                    ...inputs,
+                    GroupRatio: value
+                  })
+                }
+              />
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={16}>
+              <Form.TextArea
+                  label={t('用户可选分组')}
+                  extraText={''}
+                  placeholder={t('为一个 JSON 文本，键为分组名称，值为倍率')}
+                  field={'UserUsableGroups'}
+                  autosize={{ minRows: 6, maxRows: 12 }}
+                  trigger='blur'
+                  stopValidateWithError
+                  rules={[
+                    {
+                      validator: (rule, value) => {
+                        return verifyJSON(value);
+                      },
+                      message: t('不是合法的 JSON 字符串')
+                    }
+                  ]}
+                  onChange={(value) =>
+                      setInputs({
+                        ...inputs,
+                        UserUsableGroups: value
+                      })
+                  }
               />
             </Col>
           </Row>
         </Form.Section>
       </Form>
       <Space>
-        <Button onClick={onSubmit}>{t('保存模型倍率设置')}</Button>
+        <Button onClick={onSubmit}>
+          {t('保存倍率设置')}
+        </Button>
         <Popconfirm
           title={t('确定重置模型倍率吗？')}
           content={t('此修改将不可逆')}
           okType={'danger'}
           position={'top'}
-          onConfirm={resetModelRatio}
+          onConfirm={() => {
+            resetModelRatio();
+          }}
         >
-          <Button type={'danger'}>{t('重置模型倍率')}</Button>
+          <Button type={'danger'}>
+            {t('重置模型倍率')}
+          </Button>
         </Popconfirm>
       </Space>
     </Spin>
   );
-} 
+}

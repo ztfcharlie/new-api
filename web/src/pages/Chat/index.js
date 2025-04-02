@@ -2,11 +2,12 @@ import React, {useEffect} from 'react';
 import { useTokenKeys } from '../../components/fetchTokenKeys';
 import {Banner, Layout} from '@douyinfe/semi-ui';
 import { useParams } from 'react-router-dom';
-
+import { useTranslation } from 'react-i18next';
 const ChatPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { keys, serverAddress, isLoading } = useTokenKeys(id);
-
+  
   const comLink = (key) => {
     // console.log('chatLink:', chatLink);
     if (!serverAddress || !key) return '';
@@ -41,7 +42,7 @@ const ChatPage = () => {
       <Layout>
         <Layout.Header>
           <Banner
-              description={"正在跳转......"}
+              description={t("正在跳转......")}
               type={"warning"}
           />
         </Layout.Header>

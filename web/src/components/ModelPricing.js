@@ -314,10 +314,15 @@ const ModelPricing = () => {
 
   const copyText = async (text) => {
     if (await copy(text)) {
-      showSuccess('已复制：' + text);
+      showSuccess(t('已复制：') + text);
     } else {
       // setSearchKeyword(text);
-      Modal.error({ title: '无法复制到剪贴板，请手动复制', content: text });
+      Modal.error({ 
+        title: t('无法复制到剪贴板，请手动复制'), 
+        content: text,
+        okText: t('确定'),
+        cancelText: t('取消'),
+       });
     }
   };
 

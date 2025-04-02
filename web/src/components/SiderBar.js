@@ -276,7 +276,7 @@ const SiderBar = () => {
         }
       } catch (e) {
         console.error(e);
-        showError('聊天数据解析失败')
+        showError(t('聊天数据解析失败'))
       }
     }
   }, []);

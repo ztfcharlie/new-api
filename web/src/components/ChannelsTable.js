@@ -34,7 +34,7 @@ import {
   Layout
 } from '@douyinfe/semi-ui';
 import EditChannel from '../pages/Channel/EditChannel';
-import { IconList, IconTreeTriangleDown, IconClose, IconFilter, IconPlus, IconRefresh, IconSetting } from '@douyinfe/semi-icons';
+import { IconList, IconTreeTriangleDown, IconClose, IconFilter, IconPlus, IconRefresh, IconSetting } from '@douyinfe/semi-icons'
 import { loadChannelModels } from './utils.js';
 import EditTagModal from '../pages/Channel/EditTagModal.js';
 import TextNumberInput from './custom/TextNumberInput.js';
@@ -156,7 +156,6 @@ const ChannelsTable = () => {
     WEIGHT: 'weight',
     OPERATE: 'operate'
   };
-
   // State for column visibility
   const [visibleColumns, setVisibleColumns] = useState({});
   const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -384,6 +383,8 @@ const ChannelsTable = () => {
                       priority: e.target.value
                     })
                   },
+                  okText: t('确定'),
+                  cancelText: t('取消'),
                 })
               }}
               innerButtons
@@ -434,6 +435,8 @@ const ChannelsTable = () => {
                       weight: e.target.value
                     })
                   },
+                  okText: t('确定'),
+                  cancelText: t('取消'),
                 })
               }}
               innerButtons
@@ -578,7 +581,6 @@ const ChannelsTable = () => {
       }
     }
   ];
-
   // Filter columns based on visibility settings
   const getVisibleColumns = () => {
     return allColumns.filter(column => visibleColumns[column.key]);
@@ -946,7 +948,6 @@ const ChannelsTable = () => {
     }
     setSearching(false);
   };
-
   const updateChannelProperty = (channelId, updateFn) => {
     // Create a new copy of channels array
     const newChannels = [...channels];
@@ -990,7 +991,6 @@ const ChannelsTable = () => {
       showError(message);
     }
   };
-
   const updateChannelBalance = async (record) => {
     const res = await API.get(`/api/channel/update_balance/${record.id}/`);
     const { success, message, balance } = res.data;
@@ -1025,7 +1025,7 @@ const ChannelsTable = () => {
       showError(message);
     }
   };
-
+  
   const updateAllChannelsBalance = async () => {
     setUpdatingBalance(true);
     const res = await API.get(`/api/channel/update_balance`);
@@ -1118,14 +1118,14 @@ const ChannelsTable = () => {
     switch (type) {
       case 'priority':
         if (data.priority === undefined || data.priority === '') {
-          showInfo('优先级必须是整数！');
+          showInfo(t('优先级必须是整数！'));
           return;
         }
         data.priority = parseInt(data.priority);
         break;
       case 'weight':
         if (data.weight === undefined || data.weight < 0 || data.weight === '') {
-          showInfo('权重必须是非负整数！');
+          showInfo(t('权重必须是非负整数！'));
           return;
         }
         data.weight = parseInt(data.weight);
@@ -1135,7 +1135,7 @@ const ChannelsTable = () => {
     try {
       const res = await API.put('/api/channel/tag', data);
       if (res?.data?.success) {
-        showSuccess('更新成功！');
+        showSuccess(t('更新成功！'));
         await refresh();
       }
     } catch (error) {

@@ -21,27 +21,11 @@ const FooterBar = () => {
   const defaultFooter = (
     <div className='custom-footer'>
       <a
-        href='https://github.com/Calcium-Ion/new-api'
+        href='https://www.burncloud.com'
         target='_blank'
         rel='noreferrer'
       >
-        New API {import.meta.env.VITE_REACT_APP_VERSION}{' '}
-      </a>
-      {t('由')}{' '}
-      <a
-        href='https://github.com/Calcium-Ion'
-        target='_blank'
-        rel='noreferrer'
-      >
-        Calcium-Ion
-      </a>{' '}
-      {t('开发，基于')}{' '}
-      <a
-        href='https://github.com/songquanpeng/one-api'
-        target='_blank'
-        rel='noreferrer'
-      >
-        One API
+        Burncloud Inc.
       </a>
     </div>
   );
@@ -59,10 +43,7 @@ const FooterBar = () => {
   }, []);
 
   return (
-    <div style={{
-      textAlign: 'center',
-      paddingBottom: '5px',
-    }}>
+    <div style={{ textAlign: 'center' }}>
       {footer ? (
         <div
           className='custom-footer'
