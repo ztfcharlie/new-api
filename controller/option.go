@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"one-api/setting"
 	"one-api/setting/system_setting"
@@ -39,7 +40,7 @@ func UpdateOption(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "无效的参数",
+			"message": lang.T(c, "option.error.invalid_params"),
 		})
 		return
 	}
@@ -48,7 +49,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.GitHubClientId == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 GitHub OAuth，请先填入 GitHub Client Id 以及 GitHub Client Secret！",
+				"message": lang.T(c, "option.error.github_oauth"),
 			})
 			return
 		}
@@ -56,7 +57,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && system_setting.GetOIDCSettings().ClientId == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 OIDC 登录，请先填入 OIDC Client Id 以及 OIDC Client Secret！",
+				"message": lang.T(c, "option.error.oidc_login"),
 			})
 			return
 		}
@@ -64,7 +65,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.LinuxDOClientId == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 LinuxDO OAuth，请先填入 LinuxDO Client Id 以及 LinuxDO Client Secret！",
+				"message": lang.T(c, "option.error.linuxdo_oauth"),
 			})
 			return
 		}
@@ -72,7 +73,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && len(common.EmailDomainWhitelist) == 0 {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用邮箱域名限制，请先填入限制的邮箱域名！",
+				"message": lang.T(c, "option.error.email_domain"),
 			})
 			return
 		}
@@ -80,7 +81,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.WeChatServerAddress == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用微信登录，请先填入微信登录相关配置信息！",
+				"message": lang.T(c, "option.error.wechat_login"),
 			})
 			return
 		}
@@ -88,16 +89,15 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.TurnstileSiteKey == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 Turnstile 校验，请先填入 Turnstile 校验相关配置信息！",
+				"message": lang.T(c, "option.error.turnstile"),
 			})
-
 			return
 		}
 	case "TelegramOAuthEnabled":
 		if option.Value == "true" && common.TelegramBotToken == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 Telegram OAuth，请先填入 Telegram Bot Token！",
+				"message": lang.T(c, "option.error.telegram_oauth"),
 			})
 			return
 		}
@@ -110,8 +110,8 @@ func UpdateOption(c *gin.Context) {
 			})
 			return
 		}
-
 	}
+
 	err = model.UpdateOption(option.Key, option.Value)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{

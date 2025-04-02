@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"one-api/lang"
 	"one-api/model"
 	"one-api/setting"
 	"one-api/setting/operation_setting"
@@ -59,6 +60,6 @@ func ResetModelRatio(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{
 		"success": true,
-		"message": "重置模型倍率成功",
+		"message": lang.T(c, "pricing.success.reset_ratio"),
 	})
 }

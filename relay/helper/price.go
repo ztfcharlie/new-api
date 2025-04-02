@@ -2,11 +2,13 @@ package helper
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"one-api/common"
+	"one-api/lang"
 	relaycommon "one-api/relay/common"
 	"one-api/setting"
 	"one-api/setting/operation_setting"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PriceData struct {
@@ -41,9 +43,17 @@ func ModelPriceHelper(c *gin.Context, info *relaycommon.RelayInfo, promptTokens 
 		modelRatio, success = operation_setting.GetModelRatio(info.OriginModelName)
 		if !success {
 			if info.UserId == 1 {
-				return PriceData{}, fmt.Errorf("模型 %s 倍率或价格未配置，请设置或开始自用模式；Model %s ratio or price not set, please set or start self-use mode", info.OriginModelName, info.OriginModelName)
+				return PriceData{}, fmt.Errorf(
+					lang.T(c, "price.error.model_ratio_admin"),
+					info.OriginModelName,
+					info.OriginModelName,
+				)
 			} else {
-				return PriceData{}, fmt.Errorf("模型 %s 倍率或价格未配置, 请联系管理员设置；Model %s ratio or price not set, please contact administrator to set", info.OriginModelName, info.OriginModelName)
+				return PriceData{}, fmt.Errorf(
+					lang.T(c, "price.error.model_ratio_user"),
+					info.OriginModelName,
+					info.OriginModelName,
+				)
 			}
 		}
 		completionRatio = operation_setting.GetCompletionRatio(info.OriginModelName)
@@ -67,7 +77,7 @@ func ModelPriceHelper(c *gin.Context, info *relaycommon.RelayInfo, promptTokens 
 	}
 
 	if common.DebugEnabled {
-		println(fmt.Sprintf("model_price_helper result: %s", priceData.ToSetting()))
+		println(fmt.Sprintf(lang.T(c, "price.debug.helper_result"), priceData.ToSetting()))
 	}
 
 	return priceData, nil

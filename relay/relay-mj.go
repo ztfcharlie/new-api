@@ -10,6 +10,7 @@ import (
 	"one-api/common"
 	"one-api/constant"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/model"
 	relaycommon "one-api/relay/common"
 	relayconstant "one-api/relay/constant"
@@ -196,15 +197,11 @@ func RelaySwapFace(c *gin.Context) *dto.MidjourneyResponse {
 		if mjResp.StatusCode == 200 && mjResp.Response.Code == 1 {
 			err := service.PostConsumeQuota(relayInfo, quota, 0, true)
 			if err != nil {
-				common.SysError("error consuming token remain quota: " + err.Error())
-			}
-			//err = model.CacheUpdateUserQuota(userId)
-			if err != nil {
-				common.SysError("error update user quota cache: " + err.Error())
+				common.SysError(fmt.Sprintf(lang.T(c, "mj.log.consume_error"), err.Error()))
 			}
 			if quota != 0 {
 				tokenName := c.GetString("token_name")
-				logContent := fmt.Sprintf("模型固定价格 %.2f，分组倍率 %.2f，操作 %s", modelPrice, groupRatio, constant.MjActionSwapFace)
+				logContent := fmt.Sprintf(lang.T(c, "mj.log.operation"), modelPrice, groupRatio, constant.MjActionSwapFace)
 				other := make(map[string]interface{})
 				other["model_price"] = modelPrice
 				other["group_ratio"] = groupRatio
@@ -264,7 +261,7 @@ func RelayMidjourneyTaskImageSeed(c *gin.Context) *dto.MidjourneyResponse {
 		return service.MidjourneyErrorWrapper(constant.MjRequestError, "get_channel_info_failed")
 	}
 	if channel.Status != common.ChannelStatusEnabled {
-		return service.MidjourneyErrorWrapper(constant.MjRequestError, "该任务所属渠道已被禁用")
+		return service.MidjourneyErrorWrapper(constant.MjRequestError, lang.T(c, "mj.error.channel_disabled"))
 	}
 	c.Set("channel_id", originTask.ChannelId)
 	c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
@@ -433,12 +430,12 @@ func RelayMidjourneySubmit(c *gin.Context, relayMode int) *dto.MidjourneyRespons
 				return service.MidjourneyErrorWrapper(constant.MjRequestError, "get_channel_info_failed")
 			}
 			if channel.Status != common.ChannelStatusEnabled {
-				return service.MidjourneyErrorWrapper(constant.MjRequestError, "该任务所属渠道已被禁用")
+				return service.MidjourneyErrorWrapper(constant.MjRequestError, lang.T(c, "mj.error.channel_disabled"))
 			}
 			c.Set("base_url", channel.GetBaseURL())
 			c.Set("channel_id", originTask.ChannelId)
 			c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
-			log.Printf("检测到此操作为放大、变换、重绘，获取原channel信息: %s,%s", strconv.Itoa(originTask.ChannelId), channel.GetBaseURL())
+			log.Printf(lang.T(c, "mj.log.channel_info"), strconv.Itoa(originTask.ChannelId), channel.GetBaseURL())
 		}
 		midjRequest.Prompt = originTask.Prompt
 
@@ -502,11 +499,11 @@ func RelayMidjourneySubmit(c *gin.Context, relayMode int) *dto.MidjourneyRespons
 		if consumeQuota && midjResponseWithStatus.StatusCode == 200 {
 			err := service.PostConsumeQuota(relayInfo, quota, 0, true)
 			if err != nil {
-				common.SysError("error consuming token remain quota: " + err.Error())
+				common.SysError(fmt.Sprintf(lang.T(c, "mj.log.consume_error"), err.Error()))
 			}
 			if quota != 0 {
 				tokenName := c.GetString("token_name")
-				logContent := fmt.Sprintf("模型固定价格 %.2f，分组倍率 %.2f，操作 %s，ID %s", modelPrice, groupRatio, midjRequest.Action, midjResponse.Result)
+				logContent := fmt.Sprintf(lang.T(c, "mj.log.operation"), modelPrice, groupRatio, midjRequest.Action, midjResponse.Result)
 				other := make(map[string]interface{})
 				other["model_price"] = modelPrice
 				other["group_ratio"] = groupRatio

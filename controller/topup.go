@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/url"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"one-api/service"
 	"one-api/setting"
@@ -78,23 +79,23 @@ func RequestEpay(c *gin.Context) {
 	var req EpayRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		c.JSON(200, gin.H{"message": "error", "data": "参数错误"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.params")})
 		return
 	}
 	if req.Amount < getMinTopup() {
-		c.JSON(200, gin.H{"message": "error", "data": fmt.Sprintf("充值数量不能小于 %d", getMinTopup())})
+		c.JSON(200, gin.H{"message": "error", "data": fmt.Sprintf(lang.T(c, "topup.error.min_amount"), getMinTopup())})
 		return
 	}
 
 	id := c.GetInt("id")
 	group, err := model.GetUserGroup(id, true)
 	if err != nil {
-		c.JSON(200, gin.H{"message": "error", "data": "获取用户分组失败"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.get_group")})
 		return
 	}
 	payMoney := getPayMoney(req.Amount, group)
 	if payMoney < 0.01 {
-		c.JSON(200, gin.H{"message": "error", "data": "充值金额过低"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.amount_too_low")})
 		return
 	}
 	payType := "wxpay"
@@ -112,7 +113,7 @@ func RequestEpay(c *gin.Context) {
 	tradeNo = fmt.Sprintf("USR%dNO%s", id, tradeNo)
 	client := GetEpayClient()
 	if client == nil {
-		c.JSON(200, gin.H{"message": "error", "data": "当前管理员未配置支付信息"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.no_payment_config")})
 		return
 	}
 	uri, params, err := client.Purchase(&epay.PurchaseArgs{
@@ -125,7 +126,7 @@ func RequestEpay(c *gin.Context) {
 		ReturnUrl:      returnUrl,
 	})
 	if err != nil {
-		c.JSON(200, gin.H{"message": "error", "data": "拉起支付失败"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.payment_failed")})
 		return
 	}
 	amount := req.Amount
@@ -144,7 +145,7 @@ func RequestEpay(c *gin.Context) {
 	}
 	err = topUp.Insert()
 	if err != nil {
-		c.JSON(200, gin.H{"message": "error", "data": "创建订单失败"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.create_order")})
 		return
 	}
 	c.JSON(200, gin.H{"message": "success", "data": params, "url": uri})
@@ -184,10 +185,10 @@ func EpayNotify(c *gin.Context) {
 	}, map[string]string{})
 	client := GetEpayClient()
 	if client == nil {
-		log.Println("易支付回调失败 未找到配置信息")
+		log.Println(lang.T(c, "topup.log.epay_notify_failed"))
 		_, err := c.Writer.Write([]byte("fail"))
 		if err != nil {
-			log.Println("易支付回调写入失败")
+			log.Println(lang.T(c, "topup.log.epay_write_failed"))
 			return
 		}
 	}
@@ -195,14 +196,14 @@ func EpayNotify(c *gin.Context) {
 	if err == nil && verifyInfo.VerifyStatus {
 		_, err := c.Writer.Write([]byte("success"))
 		if err != nil {
-			log.Println("易支付回调写入失败")
+			log.Println(lang.T(c, "topup.log.epay_write_failed"))
 		}
 	} else {
 		_, err := c.Writer.Write([]byte("fail"))
 		if err != nil {
-			log.Println("易支付回调写入失败")
+			log.Println(lang.T(c, "topup.log.epay_write_failed"))
 		}
-		log.Println("易支付回调签名验证失败")
+		log.Println(lang.T(c, "topup.log.epay_verify_failed"))
 		return
 	}
 
@@ -212,14 +213,14 @@ func EpayNotify(c *gin.Context) {
 		defer UnlockOrder(verifyInfo.ServiceTradeNo)
 		topUp := model.GetTopUpByTradeNo(verifyInfo.ServiceTradeNo)
 		if topUp == nil {
-			log.Printf("易支付回调未找到订单: %v", verifyInfo)
+			log.Printf(lang.T(c, "topup.log.epay_order_not_found"), verifyInfo)
 			return
 		}
 		if topUp.Status == "pending" {
 			topUp.Status = "success"
 			err := topUp.Update()
 			if err != nil {
-				log.Printf("易支付回调更新订单失败: %v", topUp)
+				log.Printf(lang.T(c, "topup.log.epay_update_order_failed"), topUp)
 				return
 			}
 			//user, _ := model.GetUserById(topUp.UserId, false)
@@ -229,14 +230,14 @@ func EpayNotify(c *gin.Context) {
 			quotaToAdd := int(dAmount.Mul(dQuotaPerUnit).IntPart())
 			err = model.IncreaseUserQuota(topUp.UserId, quotaToAdd, true)
 			if err != nil {
-				log.Printf("易支付回调更新用户失败: %v", topUp)
+				log.Printf(lang.T(c, "topup.log.epay_update_user_failed"), topUp)
 				return
 			}
-			log.Printf("易支付回调更新用户成功 %v", topUp)
-			model.RecordLog(topUp.UserId, model.LogTypeTopup, fmt.Sprintf("使用在线充值成功，充值金额: %v，支付金额：%f", common.LogQuota(quotaToAdd), topUp.Money))
+			log.Printf(lang.T(c, "topup.log.epay_update_success"), topUp)
+			model.RecordLog(topUp.UserId, model.LogTypeTopup, fmt.Sprintf(lang.T(c, "topup.record.success"), common.LogQuota(quotaToAdd), topUp.Money))
 		}
 	} else {
-		log.Printf("易支付异常回调: %v", verifyInfo)
+		log.Printf(lang.T(c, "topup.log.epay_callback_exception"), verifyInfo)
 	}
 }
 
@@ -244,23 +245,23 @@ func RequestAmount(c *gin.Context) {
 	var req AmountRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		c.JSON(200, gin.H{"message": "error", "data": "参数错误"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.params")})
 		return
 	}
 
 	if req.Amount < getMinTopup() {
-		c.JSON(200, gin.H{"message": "error", "data": fmt.Sprintf("充值数量不能小于 %d", getMinTopup())})
+		c.JSON(200, gin.H{"message": "error", "data": fmt.Sprintf(lang.T(c, "topup.error.min_amount"), getMinTopup())})
 		return
 	}
 	id := c.GetInt("id")
 	group, err := model.GetUserGroup(id, true)
 	if err != nil {
-		c.JSON(200, gin.H{"message": "error", "data": "获取用户分组失败"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.get_group")})
 		return
 	}
 	payMoney := getPayMoney(req.Amount, group)
 	if payMoney <= 0.01 {
-		c.JSON(200, gin.H{"message": "error", "data": "充值金额过低"})
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.amount_too_low")})
 		return
 	}
 	c.JSON(200, gin.H{"message": "success", "data": strconv.FormatFloat(payMoney, 'f', 2, 64)})

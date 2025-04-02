@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"one-api/common"
+	"one-api/lang"
 	"sort"
 	"strings"
 	"sync"
@@ -61,13 +62,13 @@ func InitChannelCache() {
 	group2model2channels = newGroup2model2channels
 	channelsIDM = newChannelsIDM
 	channelSyncLock.Unlock()
-	common.SysLog("channels synced from database")
+	common.SysLog(lang.T(nil, "cache.log.channels_synced"))
 }
 
 func SyncChannelCache(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Second)
-		common.SysLog("syncing channels from database")
+		common.SysLog(lang.T(nil, "cache.log.syncing_channels"))
 		InitChannelCache()
 	}
 }
@@ -88,7 +89,7 @@ func CacheGetRandomSatisfiedChannel(group string, model string, retry int) (*Cha
 	defer channelSyncLock.RUnlock()
 	channels := group2model2channels[group][model]
 	if len(channels) == 0 {
-		return nil, errors.New("channel not found")
+		return nil, errors.New(lang.T(nil, "cache.error.channel_not_found"))
 	}
 
 	uniquePriorities := make(map[int]bool)
@@ -132,7 +133,7 @@ func CacheGetRandomSatisfiedChannel(group string, model string, retry int) (*Cha
 		}
 	}
 	// return null if no channel is not found
-	return nil, errors.New("channel not found")
+	return nil, errors.New(lang.T(nil, "cache.error.channel_not_found"))
 }
 
 func CacheGetChannel(id int) (*Channel, error) {
@@ -144,7 +145,7 @@ func CacheGetChannel(id int) (*Channel, error) {
 
 	c, ok := channelsIDM[id]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("当前渠道# %d，已不存在", id))
+		return nil, fmt.Errorf(lang.T(nil, "cache.error.channel_not_exists"), id)
 	}
 	return c, nil
 }

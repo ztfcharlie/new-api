@@ -5,18 +5,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/constant"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/model"
 	relaycommon "one-api/relay/common"
 	relayconstant "one-api/relay/constant"
 	"one-api/service"
 	"one-api/setting"
 	"one-api/setting/operation_setting"
+
+	"github.com/gin-gonic/gin"
 )
 
 /*
@@ -28,7 +30,10 @@ func RelayTaskSubmit(c *gin.Context, relayMode int) (taskErr *dto.TaskError) {
 
 	adaptor := GetTaskAdaptor(platform)
 	if adaptor == nil {
-		return service.TaskErrorWrapperLocal(fmt.Errorf("invalid api platform: %s", platform), "invalid_api_platform", http.StatusBadRequest)
+		return service.TaskErrorWrapperLocal(fmt.Errorf(
+			lang.T(c, "task.error.invalid_platform"),
+			platform,
+		), "invalid_api_platform", http.StatusBadRequest)
 	}
 	adaptor.Init(relayInfo)
 	// get & validate taskRequest 获取并验证文本请求
@@ -58,7 +63,11 @@ func RelayTaskSubmit(c *gin.Context, relayMode int) (taskErr *dto.TaskError) {
 	}
 	quota := int(ratio * common.QuotaPerUnit)
 	if userQuota-quota < 0 {
-		taskErr = service.TaskErrorWrapperLocal(errors.New("user quota is not enough"), "quota_not_enough", http.StatusForbidden)
+		taskErr = service.TaskErrorWrapperLocal(
+			errors.New(lang.T(c, "task.error.user_quota_insufficient")),
+			"quota_not_enough",
+			http.StatusForbidden,
+		)
 		return
 	}
 
@@ -79,7 +88,11 @@ func RelayTaskSubmit(c *gin.Context, relayMode int) (taskErr *dto.TaskError) {
 				return
 			}
 			if channel.Status != common.ChannelStatusEnabled {
-				return service.TaskErrorWrapperLocal(errors.New("该任务所属渠道已被禁用"), "task_channel_disable", http.StatusBadRequest)
+				return service.TaskErrorWrapperLocal(
+					errors.New(lang.T(c, "task.error.channel_disabled")),
+					"task_channel_disable",
+					http.StatusBadRequest,
+				)
 			}
 			c.Set("base_url", channel.GetBaseURL())
 			c.Set("channel_id", originTask.ChannelId)
@@ -115,11 +128,15 @@ func RelayTaskSubmit(c *gin.Context, relayMode int) (taskErr *dto.TaskError) {
 
 			err := service.PostConsumeQuota(relayInfo.RelayInfo, quota, 0, true)
 			if err != nil {
-				common.SysError("error consuming token remain quota: " + err.Error())
+				common.SysError(fmt.Sprintf(lang.T(c, "task.error.consume_quota"), err.Error()))
 			}
 			if quota != 0 {
 				tokenName := c.GetString("token_name")
-				logContent := fmt.Sprintf("模型固定价格 %.2f，分组倍率 %.2f，操作 %s", modelPrice, groupRatio, relayInfo.Action)
+				logContent := fmt.Sprintf(lang.T(c, "task.log.operation"),
+					modelPrice,
+					groupRatio,
+					relayInfo.Action,
+				)
 				other := make(map[string]interface{})
 				other["model_price"] = modelPrice
 				other["group_ratio"] = groupRatio
@@ -157,7 +174,11 @@ var fetchRespBuilders = map[int]func(c *gin.Context) (respBody []byte, taskResp 
 func RelayTaskFetch(c *gin.Context, relayMode int) (taskResp *dto.TaskError) {
 	respBuilder, ok := fetchRespBuilders[relayMode]
 	if !ok {
-		taskResp = service.TaskErrorWrapperLocal(errors.New("invalid_relay_mode"), "invalid_relay_mode", http.StatusBadRequest)
+		taskResp = service.TaskErrorWrapperLocal(
+			errors.New("invalid_relay_mode"),
+			"invalid_relay_mode",
+			http.StatusBadRequest,
+		)
 	}
 
 	respBody, taskErr := respBuilder(c)

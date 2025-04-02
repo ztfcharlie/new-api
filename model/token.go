@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"one-api/common"
+	"one-api/lang"
 	"strings"
 
 	"github.com/bytedance/gopkg/util/gopool"
@@ -72,51 +73,50 @@ func SearchUserTokens(userId int, keyword string, token string) (tokens []*Token
 
 func ValidateUserToken(key string) (token *Token, err error) {
 	if key == "" {
-		return nil, errors.New("未提供令牌")
+		return nil, errors.New(lang.T(nil, "token.error.no_token"))
 	}
 	token, err = GetTokenByKey(key, false)
 	if err == nil {
 		if token.Status == common.TokenStatusExhausted {
 			keyPrefix := key[:3]
 			keySuffix := key[len(key)-3:]
-			return token, errors.New("该令牌额度已用尽 TokenStatusExhausted[sk-" + keyPrefix + "***" + keySuffix + "]")
+			return token, errors.New(fmt.Sprintf(lang.T(nil, "token.error.token_exhausted"), keyPrefix, keySuffix))
 		} else if token.Status == common.TokenStatusExpired {
-			return token, errors.New("该令牌已过期")
+			return token, errors.New(lang.T(nil, "token.error.token_expired"))
 		}
 		if token.Status != common.TokenStatusEnabled {
-			return token, errors.New("该令牌状态不可用")
+			return token, errors.New(lang.T(nil, "token.error.token_disabled"))
 		}
 		if token.ExpiredTime != -1 && token.ExpiredTime < common.GetTimestamp() {
 			if !common.RedisEnabled {
 				token.Status = common.TokenStatusExpired
 				err := token.SelectUpdate()
 				if err != nil {
-					common.SysError("failed to update token status" + err.Error())
+					common.SysError(fmt.Sprintf(lang.T(nil, "token.error.cache_token_status"), err.Error()))
 				}
 			}
-			return token, errors.New("该令牌已过期")
+			return token, errors.New(lang.T(nil, "token.error.token_expired"))
 		}
 		if !token.UnlimitedQuota && token.RemainQuota <= 0 {
 			if !common.RedisEnabled {
-				// in this case, we can make sure the token is exhausted
 				token.Status = common.TokenStatusExhausted
 				err := token.SelectUpdate()
 				if err != nil {
-					common.SysError("failed to update token status" + err.Error())
+					common.SysError(fmt.Sprintf(lang.T(nil, "token.error.cache_token_status"), err.Error()))
 				}
 			}
 			keyPrefix := key[:3]
 			keySuffix := key[len(key)-3:]
-			return token, errors.New(fmt.Sprintf("[sk-%s***%s] 该令牌额度已用尽 !token.UnlimitedQuota && token.RemainQuota = %d", keyPrefix, keySuffix, token.RemainQuota))
+			return token, errors.New(fmt.Sprintf(lang.T(nil, "token.error.token_quota_exhausted"), keyPrefix, keySuffix, token.RemainQuota))
 		}
 		return token, nil
 	}
-	return nil, errors.New("无效的令牌")
+	return nil, errors.New(lang.T(nil, "token.error.invalid_token"))
 }
 
 func GetTokenByIds(id int, userId int) (*Token, error) {
 	if id == 0 || userId == 0 {
-		return nil, errors.New("id 或 userId 为空！")
+		return nil, errors.New(lang.T(nil, "token.error.id_or_userid_empty"))
 	}
 	token := Token{Id: id, UserId: userId}
 	var err error = nil
@@ -126,7 +126,7 @@ func GetTokenByIds(id int, userId int) (*Token, error) {
 
 func GetTokenById(id int) (*Token, error) {
 	if id == 0 {
-		return nil, errors.New("id 为空！")
+		return nil, errors.New(lang.T(nil, "token.error.id_empty"))
 	}
 	token := Token{Id: id}
 	var err error = nil
@@ -134,7 +134,7 @@ func GetTokenById(id int) (*Token, error) {
 	if shouldUpdateRedis(true, err) {
 		gopool.Go(func() {
 			if err := cacheSetToken(token); err != nil {
-				common.SysError("failed to update user status cache: " + err.Error())
+				common.SysError(fmt.Sprintf(lang.T(nil, "token.error.cache_update"), err.Error()))
 			}
 		})
 	}
@@ -147,7 +147,7 @@ func GetTokenByKey(key string, fromDB bool) (token *Token, err error) {
 		if shouldUpdateRedis(fromDB, err) && token != nil {
 			gopool.Go(func() {
 				if err := cacheSetToken(*token); err != nil {
-					common.SysError("failed to update user status cache: " + err.Error())
+					common.SysError(fmt.Sprintf(lang.T(nil, "token.error.cache_update"), err.Error()))
 				}
 			})
 		}
@@ -178,7 +178,7 @@ func (token *Token) Update() (err error) {
 			gopool.Go(func() {
 				err := cacheSetToken(*token)
 				if err != nil {
-					common.SysError("failed to update token cache: " + err.Error())
+					common.SysError(fmt.Sprintf(lang.T(nil, "token.error.cache_token_update"), err.Error()))
 				}
 			})
 		}
@@ -194,7 +194,7 @@ func (token *Token) SelectUpdate() (err error) {
 			gopool.Go(func() {
 				err := cacheSetToken(*token)
 				if err != nil {
-					common.SysError("failed to update token cache: " + err.Error())
+					common.SysError(fmt.Sprintf(lang.T(nil, "token.error.cache_token_update"), err.Error()))
 				}
 			})
 		}
@@ -209,7 +209,7 @@ func (token *Token) Delete() (err error) {
 			gopool.Go(func() {
 				err := cacheDeleteToken(token.Key)
 				if err != nil {
-					common.SysError("failed to delete token cache: " + err.Error())
+					common.SysError(fmt.Sprintf(lang.T(nil, "token.error.cache_token_delete"), err.Error()))
 				}
 			})
 		}
@@ -251,7 +251,7 @@ func DisableModelLimits(tokenId int) error {
 func DeleteTokenById(id int, userId int) (err error) {
 	// Why we need userId here? In case user want to delete other's token.
 	if id == 0 || userId == 0 {
-		return errors.New("id 或 userId 为空！")
+		return errors.New(lang.T(nil, "token.error.id_or_userid_empty"))
 	}
 	token := Token{Id: id, UserId: userId}
 	err = DB.Where(token).First(&token).Error
@@ -263,7 +263,7 @@ func DeleteTokenById(id int, userId int) (err error) {
 
 func IncreaseTokenQuota(id int, key string, quota int) (err error) {
 	if quota < 0 {
-		return errors.New("quota 不能为负数！")
+		return errors.New(lang.T(nil, "token.error.negative_quota"))
 	}
 	if common.RedisEnabled {
 		gopool.Go(func() {
@@ -293,7 +293,7 @@ func increaseTokenQuota(id int, quota int) (err error) {
 
 func DecreaseTokenQuota(id int, key string, quota int) (err error) {
 	if quota < 0 {
-		return errors.New("quota 不能为负数！")
+		return errors.New(lang.T(nil, "token.error.negative_quota"))
 	}
 	if common.RedisEnabled {
 		gopool.Go(func() {

@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"strconv"
 	"time"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 type GitHubOAuthResponse struct {
@@ -28,7 +30,7 @@ type GitHubUser struct {
 
 func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 	if code == "" {
-		return nil, errors.New("无效的参数")
+		return nil, errors.New(lang.T(nil, "github.error.invalid_params"))
 	}
 	values := map[string]string{"client_id": common.GitHubClientId, "client_secret": common.GitHubClientSecret, "code": code}
 	jsonData, err := json.Marshal(values)
@@ -47,7 +49,7 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 	res, err := client.Do(req)
 	if err != nil {
 		common.SysLog(err.Error())
-		return nil, errors.New("无法连接至 GitHub 服务器，请稍后重试！")
+		return nil, errors.New(lang.T(nil, "github.error.connect_failed"))
 	}
 	defer res.Body.Close()
 	var oAuthResponse GitHubOAuthResponse
@@ -63,7 +65,7 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 	res2, err := client.Do(req)
 	if err != nil {
 		common.SysLog(err.Error())
-		return nil, errors.New("无法连接至 GitHub 服务器，请稍后重试！")
+		return nil, errors.New(lang.T(nil, "github.error.connect_failed"))
 	}
 	defer res2.Body.Close()
 	var githubUser GitHubUser
@@ -72,7 +74,7 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 		return nil, err
 	}
 	if githubUser.Login == "" {
-		return nil, errors.New("返回值非法，用户字段为空，请稍后重试！")
+		return nil, errors.New(lang.T(nil, "github.error.invalid_response"))
 	}
 	return &githubUser, nil
 }
@@ -83,7 +85,7 @@ func GitHubOAuth(c *gin.Context) {
 	if state == "" || session.Get("oauth_state") == nil || state != session.Get("oauth_state").(string) {
 		c.JSON(http.StatusForbidden, gin.H{
 			"success": false,
-			"message": "state is empty or not same",
+			"message": lang.T(c, "github.error.state_invalid"),
 		})
 		return
 	}
@@ -96,7 +98,7 @@ func GitHubOAuth(c *gin.Context) {
 	if !common.GitHubOAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "管理员未开启通过 GitHub 登录以及注册",
+			"message": lang.T(c, "github.error.oauth_disabled"),
 		})
 		return
 	}
@@ -112,9 +114,7 @@ func GitHubOAuth(c *gin.Context) {
 	user := model.User{
 		GitHubId: githubUser.Login,
 	}
-	// IsGitHubIdAlreadyTaken is unscoped
 	if model.IsGitHubIdAlreadyTaken(user.GitHubId) {
-		// FillUserByGitHubId is scoped
 		err := user.FillUserByGitHubId()
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
@@ -123,11 +123,10 @@ func GitHubOAuth(c *gin.Context) {
 			})
 			return
 		}
-		// if user.Id == 0 , user has been deleted
 		if user.Id == 0 {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "用户已注销",
+				"message": lang.T(c, "github.error.user_deleted"),
 			})
 			return
 		}
@@ -137,7 +136,7 @@ func GitHubOAuth(c *gin.Context) {
 			if githubUser.Name != "" {
 				user.DisplayName = githubUser.Name
 			} else {
-				user.DisplayName = "GitHub User"
+				user.DisplayName = lang.T(c, "github.user.display_name")
 			}
 			user.Email = githubUser.Email
 			user.Role = common.RoleCommonUser
@@ -158,7 +157,7 @@ func GitHubOAuth(c *gin.Context) {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "管理员关闭了新用户注册",
+				"message": lang.T(c, "user.register.disabled"),
 			})
 			return
 		}
@@ -166,7 +165,7 @@ func GitHubOAuth(c *gin.Context) {
 
 	if user.Status != common.UserStatusEnabled {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "用户已被封禁",
+			"message": lang.T(c, "github.error.user_banned"),
 			"success": false,
 		})
 		return
@@ -178,7 +177,7 @@ func GitHubBind(c *gin.Context) {
 	if !common.GitHubOAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "管理员未开启通过 GitHub 登录以及注册",
+			"message": lang.T(c, "github.error.oauth_disabled"),
 		})
 		return
 	}
@@ -197,13 +196,12 @@ func GitHubBind(c *gin.Context) {
 	if model.IsGitHubIdAlreadyTaken(user.GitHubId) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该 GitHub 账户已被绑定",
+			"message": lang.T(c, "github.error.already_bound"),
 		})
 		return
 	}
 	session := sessions.Default(c)
 	id := session.Get("id")
-	// id := c.GetInt("id")  // critical bug!
 	user.Id = id.(int)
 	err = user.FillUserById()
 	if err != nil {

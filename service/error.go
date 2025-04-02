@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/dto"
+	"one-api/lang"
 	"strconv"
 	"strings"
 )
@@ -30,8 +31,8 @@ func OpenAIErrorWrapper(err error, code string, statusCode int) *dto.OpenAIError
 	text := err.Error()
 	lowerText := strings.ToLower(text)
 	if strings.Contains(lowerText, "post") || strings.Contains(lowerText, "dial") || strings.Contains(lowerText, "http") {
-		common.SysLog(fmt.Sprintf("error: %s", text))
-		text = "请求上游地址失败"
+		common.SysLog(fmt.Sprintf(lang.T(nil, "error.log.message"), text))
+		text = lang.T(nil, "error.upstream_request")
 	}
 	openAIError := dto.OpenAIError{
 		Message: text,
@@ -55,7 +56,7 @@ func ClaudeErrorWrapper(err error, code string, statusCode int) *dto.ClaudeError
 	lowerText := strings.ToLower(text)
 	if strings.Contains(lowerText, "post") || strings.Contains(lowerText, "dial") || strings.Contains(lowerText, "http") {
 		common.SysLog(fmt.Sprintf("error: %s", text))
-		text = "请求上游地址失败"
+		text = lang.T(nil, "error.upstream_request")
 	}
 	claudeError := dto.ClaudeError{
 		Message: text,
@@ -96,7 +97,7 @@ func RelayErrorHandler(resp *http.Response, showBodyWhenFail bool) (errWithStatu
 		if showBodyWhenFail {
 			errWithStatusCode.Error.Message = string(responseBody)
 		} else {
-			errWithStatusCode.Error.Message = fmt.Sprintf("bad response status code %d", resp.StatusCode)
+			errWithStatusCode.Error.Message = fmt.Sprintf(lang.T(nil, "error.bad_status_code"), resp.StatusCode)
 		}
 		return
 	}
@@ -107,7 +108,7 @@ func RelayErrorHandler(resp *http.Response, showBodyWhenFail bool) (errWithStatu
 		errWithStatusCode.Error.Message = errResponse.ToMessage()
 	}
 	if errWithStatusCode.Error.Message == "" {
-		errWithStatusCode.Error.Message = fmt.Sprintf("bad response status code %d", resp.StatusCode)
+		errWithStatusCode.Error.Message = fmt.Sprintf(lang.T(nil, "error.bad_status_code"), resp.StatusCode)
 	}
 	return
 }
@@ -141,8 +142,8 @@ func TaskErrorWrapper(err error, code string, statusCode int) *dto.TaskError {
 	text := err.Error()
 	lowerText := strings.ToLower(text)
 	if strings.Contains(lowerText, "post") || strings.Contains(lowerText, "dial") || strings.Contains(lowerText, "http") {
-		common.SysLog(fmt.Sprintf("error: %s", text))
-		text = "请求上游地址失败"
+		common.SysLog(fmt.Sprintf(lang.T(nil, "error.log.message"), text))
+		text = lang.T(nil, "error.upstream_request")
 	}
 	//避免暴露内部错误
 	taskError := &dto.TaskError{

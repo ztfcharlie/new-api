@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"one-api/common"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/middleware"
 	"one-api/model"
 	"one-api/relay"
@@ -32,13 +33,13 @@ import (
 func testChannel(channel *model.Channel, testModel string) (err error, openAIErrorWithStatusCode *dto.OpenAIErrorWithStatusCode) {
 	tik := time.Now()
 	if channel.Type == common.ChannelTypeMidjourney {
-		return errors.New("midjourney channel test is not supported"), nil
+		return errors.New(lang.T(nil, "channel.test.midjourney_not_supported")), nil
 	}
 	if channel.Type == common.ChannelTypeMidjourneyPlus {
-		return errors.New("midjourney plus channel test is not supported!!!"), nil
+		return errors.New(lang.T(nil, "channel.test.midjourney_plus_not_supported")), nil
 	}
 	if channel.Type == common.ChannelTypeSunoAPI {
-		return errors.New("suno channel test is not supported"), nil
+		return errors.New(lang.T(nil, "channel.test.suno_not_supported")), nil
 	}
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
@@ -56,7 +57,7 @@ func testChannel(channel *model.Channel, testModel string) (err error, openAIErr
 
 	c.Request = &http.Request{
 		Method: "POST",
-		URL:    &url.URL{Path: requestPath}, // 使用动态路径
+		URL:    &url.URL{Path: requestPath},
 		Body:   nil,
 		Header: make(http.Header),
 	}
@@ -126,7 +127,7 @@ func testChannel(channel *model.Channel, testModel string) (err error, openAIErr
 		httpResp = resp.(*http.Response)
 		if httpResp.StatusCode != http.StatusOK {
 			err := service.RelayErrorHandler(httpResp, true)
-			return fmt.Errorf("status code %d: %s", httpResp.StatusCode, err.Error.Message), err
+			return fmt.Errorf(lang.T(nil, "channel.error.status_code"), httpResp.StatusCode), err
 		}
 	}
 	usageA, respErr := adaptor.DoResponse(c, httpResp, info)
@@ -134,7 +135,7 @@ func testChannel(channel *model.Channel, testModel string) (err error, openAIErr
 		return fmt.Errorf("%s", respErr.Error.Message), respErr
 	}
 	if usageA == nil {
-		return errors.New("usage is nil"), nil
+		return errors.New(lang.T(nil, "channel.test.usage_nil")), nil
 	}
 	usage := usageA.(*dto.Usage)
 	result := w.Result()
@@ -162,8 +163,8 @@ func testChannel(channel *model.Channel, testModel string) (err error, openAIErr
 	consumedTime := float64(milliseconds) / 1000.0
 	other := service.GenerateTextOtherInfo(c, info, priceData.ModelRatio, priceData.GroupRatio, priceData.CompletionRatio,
 		usage.PromptTokensDetails.CachedTokens, priceData.CacheRatio, priceData.ModelPrice)
-	model.RecordConsumeLog(c, 1, channel.Id, usage.PromptTokens, usage.CompletionTokens, info.OriginModelName, "模型测试",
-		quota, "模型测试", 0, quota, int(consumedTime), false, info.Group, other)
+	model.RecordConsumeLog(c, 1, channel.Id, usage.PromptTokens, usage.CompletionTokens, info.OriginModelName, lang.T(nil, "channel.test.model_test"),
+		quota, lang.T(nil, "channel.test.model_test"), 0, quota, int(consumedTime), false, info.Group, other)
 	common.SysLog(fmt.Sprintf("testing channel #%d, response: \n%s", channel.Id, string(respBody)))
 	return nil, nil
 }
@@ -202,7 +203,6 @@ func buildTestRequest(model string) *dto.GeneralOpenAIRequest {
 	testRequest.Messages = append(testRequest.Messages, testMessage)
 	return testRequest
 }
-
 func TestChannel(c *gin.Context) {
 	channelId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -247,11 +247,10 @@ var testAllChannelsLock sync.Mutex
 var testAllChannelsRunning bool = false
 
 func testAllChannels(notify bool) error {
-
 	testAllChannelsLock.Lock()
 	if testAllChannelsRunning {
 		testAllChannelsLock.Unlock()
-		return errors.New("测试已在运行中")
+		return errors.New(lang.T(nil, "channel.test.already_running"))
 	}
 	testAllChannelsRunning = true
 	testAllChannelsLock.Unlock()
@@ -276,12 +275,14 @@ func testAllChannels(notify bool) error {
 			// request error disables the channel
 			if openaiWithStatusErr != nil {
 				oaiErr := openaiWithStatusErr.Error
-				err = errors.New(fmt.Sprintf("type %s, httpCode %d, code %v, message %s", oaiErr.Type, openaiWithStatusErr.StatusCode, oaiErr.Code, oaiErr.Message))
+				err = errors.New(fmt.Sprintf(lang.T(nil, "channel.test.error_message"),
+					oaiErr.Type, openaiWithStatusErr.StatusCode, oaiErr.Code, oaiErr.Message))
 				shouldBanChannel = service.ShouldDisableChannel(channel.Type, openaiWithStatusErr)
 			}
 
 			if milliseconds > disableThreshold {
-				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
+				err = errors.New(fmt.Sprintf(lang.T(nil, "channel.test.response_timeout"),
+					float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
 				shouldBanChannel = true
 			}
 
@@ -302,7 +303,9 @@ func testAllChannels(notify bool) error {
 		testAllChannelsRunning = false
 		testAllChannelsLock.Unlock()
 		if notify {
-			service.NotifyRootUser(dto.NotifyTypeChannelTest, "通道测试完成", "所有通道测试已完成")
+			service.NotifyRootUser(dto.NotifyTypeChannelTest,
+				lang.T(nil, "channel.test.notify_title"),
+				lang.T(nil, "channel.test.notify_content"))
 		}
 	})
 	return nil
@@ -327,8 +330,8 @@ func TestAllChannels(c *gin.Context) {
 func AutomaticallyTestChannels(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
-		common.SysLog("testing all channels")
+		common.SysLog(lang.T(nil, "channel.test.start"))
 		_ = testAllChannels(false)
-		common.SysLog("channel test finished")
+		common.SysLog(lang.T(nil, "channel.test.complete"))
 	}
 }

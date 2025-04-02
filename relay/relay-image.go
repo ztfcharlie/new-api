@@ -5,17 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/model"
 	relaycommon "one-api/relay/common"
 	"one-api/relay/helper"
 	"one-api/service"
 	"one-api/setting"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func getAndValidImageRequest(c *gin.Context, info *relaycommon.RelayInfo) (*dto.ImageRequest, error) {
@@ -25,10 +27,10 @@ func getAndValidImageRequest(c *gin.Context, info *relaycommon.RelayInfo) (*dto.
 		return nil, err
 	}
 	if imageRequest.Prompt == "" {
-		return nil, errors.New("prompt is required")
+		return nil, errors.New(lang.T(c, "image.error.prompt_required"))
 	}
 	if strings.Contains(imageRequest.Size, "×") {
-		return nil, errors.New("size an unexpected error occurred in the parameter, please use 'x' instead of the multiplication sign '×'")
+		return nil, errors.New(lang.T(c, "image.error.size_format"))
 	}
 	if imageRequest.N == 0 {
 		imageRequest.N = 1
@@ -43,11 +45,11 @@ func getAndValidImageRequest(c *gin.Context, info *relaycommon.RelayInfo) (*dto.
 	// Not "256x256", "512x512", or "1024x1024"
 	if imageRequest.Model == "dall-e-2" || imageRequest.Model == "dall-e" {
 		if imageRequest.Size != "" && imageRequest.Size != "256x256" && imageRequest.Size != "512x512" && imageRequest.Size != "1024x1024" {
-			return nil, errors.New("size must be one of 256x256, 512x512, or 1024x1024, dall-e-3 1024x1792 or 1792x1024")
+			return nil, errors.New(lang.T(c, "image.error.size_dalle2"))
 		}
 	} else if imageRequest.Model == "dall-e-3" {
 		if imageRequest.Size != "" && imageRequest.Size != "1024x1024" && imageRequest.Size != "1024x1792" && imageRequest.Size != "1792x1024" {
-			return nil, errors.New("size must be one of 256x256, 512x512, or 1024x1024, dall-e-3 1024x1792 or 1792x1024")
+			return nil, errors.New(lang.T(c, "image.error.size_dalle2"))
 		}
 		if imageRequest.Quality == "" {
 			imageRequest.Quality = "standard"
@@ -63,7 +65,7 @@ func getAndValidImageRequest(c *gin.Context, info *relaycommon.RelayInfo) (*dto.
 	if setting.ShouldCheckPromptSensitive() {
 		words, err := service.CheckSensitiveInput(imageRequest.Prompt)
 		if err != nil {
-			common.LogWarn(c, fmt.Sprintf("user sensitive words detected: %s", strings.Join(words, ",")))
+			common.LogWarn(c, fmt.Sprintf(lang.T(c, "image.log.sensitive_words"), strings.Join(words, ",")))
 			return nil, err
 		}
 	}
@@ -75,7 +77,7 @@ func ImageHelper(c *gin.Context) *dto.OpenAIErrorWithStatusCode {
 
 	imageRequest, err := getAndValidImageRequest(c, relayInfo)
 	if err != nil {
-		common.LogError(c, fmt.Sprintf("getAndValidImageRequest failed: %s", err.Error()))
+		common.LogError(c, fmt.Sprintf(lang.T(c, "image.error.get_request"), err.Error()))
 		return service.OpenAIErrorWrapper(err, "invalid_image_request", http.StatusBadRequest)
 	}
 
@@ -122,12 +124,19 @@ func ImageHelper(c *gin.Context) *dto.OpenAIErrorWithStatusCode {
 	quota := int(priceData.ModelPrice * priceData.GroupRatio * common.QuotaPerUnit)
 
 	if userQuota-quota < 0 {
-		return service.OpenAIErrorWrapperLocal(fmt.Errorf("image pre-consumed quota failed, user quota: %s, need quota: %s", common.FormatQuota(userQuota), common.FormatQuota(quota)), "insufficient_user_quota", http.StatusForbidden)
+		return service.OpenAIErrorWrapperLocal(fmt.Errorf(
+			lang.T(c, "image.error.insufficient_quota"),
+			common.FormatQuota(userQuota),
+			common.FormatQuota(quota),
+		), "insufficient_user_quota", http.StatusForbidden)
 	}
 
 	adaptor := GetAdaptor(relayInfo.ApiType)
 	if adaptor == nil {
-		return service.OpenAIErrorWrapperLocal(fmt.Errorf("invalid api type: %d", relayInfo.ApiType), "invalid_api_type", http.StatusBadRequest)
+		return service.OpenAIErrorWrapperLocal(fmt.Errorf(
+			lang.T(c, "image.error.invalid_api_type"),
+			relayInfo.ApiType,
+		), "invalid_api_type", http.StatusBadRequest)
 	}
 	adaptor.Init(relayInfo)
 
@@ -179,7 +188,7 @@ func ImageHelper(c *gin.Context) *dto.OpenAIErrorWithStatusCode {
 		quality = "hd"
 	}
 
-	logContent := fmt.Sprintf("大小 %s, 品质 %s", imageRequest.Size, quality)
+	logContent := fmt.Sprintf(lang.T(c, "image.log.size_quality"), imageRequest.Size, quality)
 	postConsumeQuota(c, relayInfo, usage, 0, userQuota, priceData, logContent)
 	return nil
 }

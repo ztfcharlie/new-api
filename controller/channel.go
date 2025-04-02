@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"strconv"
 	"strings"
@@ -88,6 +89,7 @@ func GetAllChannels(c *gin.Context) {
 	return
 }
 
+// FetchUpstreamModels 修改错误消息
 func FetchUpstreamModels(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -107,13 +109,6 @@ func FetchUpstreamModels(c *gin.Context) {
 		return
 	}
 
-	//if channel.Type != common.ChannelTypeOpenAI {
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"success": false,
-	//		"message": "仅支持 OpenAI 类型渠道",
-	//	})
-	//	return
-	//}
 	baseURL := common.ChannelBaseURLs[channel.Type]
 	if channel.GetBaseURL() != "" {
 		baseURL = channel.GetBaseURL()
@@ -132,7 +127,7 @@ func FetchUpstreamModels(c *gin.Context) {
 	if err = json.Unmarshal(body, &result); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": fmt.Sprintf("解析响应失败: %s", err.Error()),
+			"message": fmt.Sprintf(lang.T(c, "channel.manage.parse_response_failed"), err.Error()),
 		})
 		return
 	}
@@ -249,17 +244,16 @@ func AddChannel(c *gin.Context) {
 		if channel.Other == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "部署地区不能为空",
+				"message": lang.T(c, "channel.manage.region_empty"),
 			})
 			return
 		} else {
 			if common.IsJsonStr(channel.Other) {
-				// must have default
 				regionMap := common.StrToMap(channel.Other)
 				if regionMap["default"] == nil {
 					c.JSON(http.StatusOK, gin.H{
 						"success": false,
-						"message": "部署地区必须包含default字段",
+						"message": lang.T(c, "channel.manage.region_no_default"),
 					})
 					return
 				}
@@ -274,13 +268,12 @@ func AddChannel(c *gin.Context) {
 		}
 		localChannel := channel
 		localChannel.Key = key
-		// Validate the length of the model name
 		models := strings.Split(localChannel.Models, ",")
 		for _, model := range models {
 			if len(model) > 255 {
 				c.JSON(http.StatusOK, gin.H{
 					"success": false,
-					"message": fmt.Sprintf("模型名称过长: %s", model),
+					"message": fmt.Sprintf(lang.T(c, "channel.manage.model_name_too_long"), model),
 				})
 				return
 			}
@@ -353,7 +346,7 @@ func DisableTagChannels(c *gin.Context) {
 	if err != nil || channelTag.Tag == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "参数错误",
+			"message": lang.T(c, "error.request.invalid_params"),
 		})
 		return
 	}
@@ -378,7 +371,7 @@ func EnableTagChannels(c *gin.Context) {
 	if err != nil || channelTag.Tag == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "参数错误",
+			"message": lang.T(c, "error.request.invalid_params"),
 		})
 		return
 	}
@@ -403,14 +396,14 @@ func EditTagChannels(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "参数错误",
+			"message": lang.T(c, "error.request.invalid_params"),
 		})
 		return
 	}
 	if channelTag.Tag == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "tag不能为空",
+			"message": lang.T(c, "channel.manage.tag_empty"),
 		})
 		return
 	}
@@ -440,7 +433,7 @@ func DeleteChannelBatch(c *gin.Context) {
 	if err != nil || len(channelBatch.Ids) == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "参数错误",
+			"message": lang.T(c, "error.request.invalid_params"),
 		})
 		return
 	}
@@ -474,17 +467,16 @@ func UpdateChannel(c *gin.Context) {
 		if channel.Other == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "部署地区不能为空",
+				"message": lang.T(c, "channel.manage.region_empty"),
 			})
 			return
 		} else {
 			if common.IsJsonStr(channel.Other) {
-				// must have default
 				regionMap := common.StrToMap(channel.Other)
 				if regionMap["default"] == nil {
 					c.JSON(http.StatusOK, gin.H{
 						"success": false,
-						"message": "部署地区必须包含default字段",
+						"message": lang.T(c, "channel.manage.region_no_default"),
 					})
 					return
 				}
@@ -517,7 +509,7 @@ func FetchModels(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "Invalid request",
+			"message": lang.T(c, "channel.manage.invalid_request"),
 		})
 		return
 	}
@@ -539,9 +531,7 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 
-	// remove line breaks and extra spaces.
 	key := strings.TrimSpace(req.Key)
-	// If the key contains a line break, only take the first part.
 	key = strings.Split(key, "\n")[0]
 	request.Header.Set("Authorization", "Bearer "+key)
 
@@ -553,11 +543,10 @@ func FetchModels(c *gin.Context) {
 		})
 		return
 	}
-	//check status code
 	if response.StatusCode != http.StatusOK {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "Failed to fetch models",
+			"message": lang.T(c, "channel.manage.fetch_models_failed"),
 		})
 		return
 	}
@@ -594,7 +583,7 @@ func BatchSetChannelTag(c *gin.Context) {
 	if err != nil || len(channelBatch.Ids) == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "参数错误",
+			"message": lang.T(c, "error.request.invalid_params"),
 		})
 		return
 	}

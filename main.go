@@ -15,6 +15,8 @@ import (
 	"os"
 	"strconv"
 
+	"one-api/lang" // Import the lang package
+
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -50,6 +52,12 @@ func main() {
 	err = model.InitDB()
 	if err != nil {
 		common.FatalLog("failed to initialize database: " + err.Error())
+	}
+	// 初始化语言包
+	for _, language := range lang.GetSupportedLanguages() {
+		if err := lang.LoadTranslations(language); err != nil {
+			common.SysError(fmt.Sprintf("Failed to load language pack %s: %v", language, err))
+		}
 	}
 	// Initialize SQL Database
 	err = model.InitLogDB()
@@ -139,6 +147,8 @@ func main() {
 			},
 		})
 	}))
+	// 添加语言中间件，放在其他中间件之前
+	server.Use(lang.LanguageMiddleware()) // 添加这一行
 	// This will cause SSE not to work!!!
 	//server.Use(gzip.Gzip(gzip.DefaultCompression))
 	server.Use(middleware.RequestId())

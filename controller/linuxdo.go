@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"strconv"
 	"strings"
@@ -30,7 +31,7 @@ func LinuxDoBind(c *gin.Context) {
 	if !common.LinuxDOOAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "管理员未开启通过 Linux DO 登录以及注册",
+			"message": lang.T(c, "linuxdo.error.oauth_disabled"),
 		})
 		return
 	}
@@ -52,7 +53,7 @@ func LinuxDoBind(c *gin.Context) {
 	if model.IsLinuxDOIdAlreadyTaken(user.LinuxDOId) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该 Linux DO 账户已被绑定",
+			"message": lang.T(c, "linuxdo.error.already_bound"),
 		})
 		return
 	}
@@ -88,7 +89,7 @@ func LinuxDoBind(c *gin.Context) {
 
 func getLinuxdoUserInfoByCode(code string, c *gin.Context) (*LinuxdoUser, error) {
 	if code == "" {
-		return nil, errors.New("invalid code")
+		return nil, errors.New(lang.T(c, "linuxdo.error.invalid_code"))
 	}
 
 	// Get access token using Basic auth
@@ -120,7 +121,7 @@ func getLinuxdoUserInfoByCode(code string, c *gin.Context) (*LinuxdoUser, error)
 	client := http.Client{Timeout: 5 * time.Second}
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, errors.New("failed to connect to Linux DO server")
+		return nil, errors.New(lang.T(c, "linuxdo.error.connect_failed"))
 	}
 	defer res.Body.Close()
 
@@ -133,7 +134,7 @@ func getLinuxdoUserInfoByCode(code string, c *gin.Context) (*LinuxdoUser, error)
 	}
 
 	if tokenRes.AccessToken == "" {
-		return nil, fmt.Errorf("failed to get access token: %s", tokenRes.Message)
+		return nil, fmt.Errorf(lang.T(c, "linuxdo.error.token_failed"), tokenRes.Message)
 	}
 
 	// Get user info
@@ -147,7 +148,7 @@ func getLinuxdoUserInfoByCode(code string, c *gin.Context) (*LinuxdoUser, error)
 
 	res2, err := client.Do(req)
 	if err != nil {
-		return nil, errors.New("failed to get user info from Linux DO")
+		return nil, errors.New(lang.T(c, "linuxdo.error.get_user_failed"))
 	}
 	defer res2.Body.Close()
 
@@ -157,7 +158,7 @@ func getLinuxdoUserInfoByCode(code string, c *gin.Context) (*LinuxdoUser, error)
 	}
 
 	if linuxdoUser.Id == 0 {
-		return nil, errors.New("invalid user info returned")
+		return nil, errors.New(lang.T(c, "linuxdo.error.invalid_user"))
 	}
 
 	return &linuxdoUser, nil
@@ -180,7 +181,7 @@ func LinuxdoOAuth(c *gin.Context) {
 	if state == "" || session.Get("oauth_state") == nil || state != session.Get("oauth_state").(string) {
 		c.JSON(http.StatusForbidden, gin.H{
 			"success": false,
-			"message": "state is empty or not same",
+			"message": lang.T(c, "linuxdo.error.state_invalid"),
 		})
 		return
 	}
@@ -194,7 +195,7 @@ func LinuxdoOAuth(c *gin.Context) {
 	if !common.LinuxDOOAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "管理员未开启通过 Linux DO 登录以及注册",
+			"message": lang.T(c, "linuxdo.error.oauth_disabled"),
 		})
 		return
 	}
@@ -226,7 +227,7 @@ func LinuxdoOAuth(c *gin.Context) {
 		if user.Id == 0 {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "用户已注销",
+				"message": lang.T(c, "linuxdo.error.user_deleted"),
 			})
 			return
 		}
@@ -253,7 +254,7 @@ func LinuxdoOAuth(c *gin.Context) {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "管理员关闭了新用户注册",
+				"message": lang.T(c, "user.register.disabled"),
 			})
 			return
 		}
@@ -261,7 +262,7 @@ func LinuxdoOAuth(c *gin.Context) {
 
 	if user.Status != common.UserStatusEnabled {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "用户已被封禁",
+			"message": lang.T(c, "linuxdo.error.user_banned"),
 			"success": false,
 		})
 		return

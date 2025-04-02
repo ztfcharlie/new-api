@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"one-api/service"
 	"strconv"
@@ -128,7 +129,7 @@ func GetResponseBody(method, url string, channel *model.Channel, headers http.He
 		return nil, err
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("status code: %d", res.StatusCode)
+		return nil, fmt.Errorf(lang.T(nil, "channel.error.status_code"), res.StatusCode)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -256,7 +257,7 @@ func updateChannelDeepSeekBalance(channel *model.Channel) (float64, error) {
 		}
 	}
 	if index == -1 {
-		return 0, errors.New("currency CNY not found")
+		return 0, errors.New(fmt.Sprintf(lang.T(nil, "channel.billing.currency_not_found"), "CNY"))
 	}
 	balance, err := strconv.ParseFloat(response.BalanceInfos[index].TotalBalance, 64)
 	if err != nil {
@@ -292,7 +293,7 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 			baseURL = channel.GetBaseURL()
 		}
 	case common.ChannelTypeAzure:
-		return 0, errors.New("尚未实现")
+		return 0, errors.New(lang.T(nil, "channel.billing.not_implemented"))
 	case common.ChannelTypeCustom:
 		baseURL = channel.GetBaseURL()
 	//case common.ChannelTypeOpenAISB:
@@ -308,7 +309,7 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 	case common.ChannelTypeDeepSeek:
 		return updateChannelDeepSeekBalance(channel)
 	default:
-		return 0, errors.New("尚未实现")
+		return 0, errors.New(lang.T(nil, "channel.billing.not_implemented"))
 	}
 	url := fmt.Sprintf("%s/v1/dashboard/billing/subscription", baseURL)
 
@@ -394,7 +395,7 @@ func updateAllChannelsBalance() error {
 		} else {
 			// err is nil & balance <= 0 means quota is used up
 			if balance <= 0 {
-				service.DisableChannel(channel.Id, channel.Name, "余额不足")
+				service.DisableChannel(channel.Id, channel.Name, lang.T(nil, "channel.billing.quota_insufficient"))
 			}
 		}
 		time.Sleep(common.RequestInterval)
@@ -422,8 +423,8 @@ func UpdateAllChannelsBalance(c *gin.Context) {
 func AutomaticallyUpdateChannels(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
-		common.SysLog("updating all channels")
+		common.SysLog(lang.T(nil, "channel.billing.update_start"))
 		_ = updateAllChannelsBalance()
-		common.SysLog("channels update done")
+		common.SysLog(lang.T(nil, "channel.billing.update_done"))
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"sort"
 
@@ -17,7 +18,7 @@ import (
 func TelegramBind(c *gin.Context) {
 	if !common.TelegramOAuthEnabled {
 		c.JSON(200, gin.H{
-			"message": "管理员未开启通过 Telegram 登录以及注册",
+			"message": lang.T(c, "telegram.error.oauth_disabled"),
 			"success": false,
 		})
 		return
@@ -25,7 +26,7 @@ func TelegramBind(c *gin.Context) {
 	params := c.Request.URL.Query()
 	if !checkTelegramAuthorization(params, common.TelegramBotToken) {
 		c.JSON(200, gin.H{
-			"message": "无效的请求",
+			"message": lang.T(c, "telegram.error.invalid_request"),
 			"success": false,
 		})
 		return
@@ -33,7 +34,7 @@ func TelegramBind(c *gin.Context) {
 	telegramId := params["id"][0]
 	if model.IsTelegramIdAlreadyTaken(telegramId) {
 		c.JSON(200, gin.H{
-			"message": "该 Telegram 账户已被绑定",
+			"message": lang.T(c, "telegram.error.already_bound"),
 			"success": false,
 		})
 		return
@@ -52,7 +53,7 @@ func TelegramBind(c *gin.Context) {
 	if user.Id == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "用户已注销",
+			"message": lang.T(c, "telegram.error.user_logged_out"),
 		})
 		return
 	}
@@ -71,7 +72,7 @@ func TelegramBind(c *gin.Context) {
 func TelegramLogin(c *gin.Context) {
 	if !common.TelegramOAuthEnabled {
 		c.JSON(200, gin.H{
-			"message": "管理员未开启通过 Telegram 登录以及注册",
+			"message": lang.T(c, "telegram.error.oauth_disabled"),
 			"success": false,
 		})
 		return
@@ -79,7 +80,7 @@ func TelegramLogin(c *gin.Context) {
 	params := c.Request.URL.Query()
 	if !checkTelegramAuthorization(params, common.TelegramBotToken) {
 		c.JSON(200, gin.H{
-			"message": "无效的请求",
+			"message": lang.T(c, "telegram.error.invalid_request"),
 			"success": false,
 		})
 		return

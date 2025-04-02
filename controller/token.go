@@ -1,11 +1,14 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAllTokens(c *gin.Context) {
@@ -119,7 +122,7 @@ func AddToken(c *gin.Context) {
 	if len(token.Name) > 30 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "令牌名称过长",
+			"message": lang.T(c, "token.error.name_too_long"),
 		})
 		return
 	}
@@ -127,9 +130,9 @@ func AddToken(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "生成令牌失败",
+			"message": lang.T(c, "token.error.generate_failed"),
 		})
-		common.SysError("failed to generate token key: " + err.Error())
+		common.SysError(fmt.Sprintf(lang.T(c, "token.log.generate_failed"), err.Error()))
 		return
 	}
 	cleanToken := model.Token{
@@ -194,7 +197,7 @@ func UpdateToken(c *gin.Context) {
 	if len(token.Name) > 30 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "令牌名称过长",
+			"message": lang.T(c, "token.error.name_too_long"),
 		})
 		return
 	}
@@ -210,14 +213,14 @@ func UpdateToken(c *gin.Context) {
 		if cleanToken.Status == common.TokenStatusExpired && cleanToken.ExpiredTime <= common.GetTimestamp() && cleanToken.ExpiredTime != -1 {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "令牌已过期，无法启用，请先修改令牌过期时间，或者设置为永不过期",
+				"message": lang.T(c, "token.error.expired"),
 			})
 			return
 		}
 		if cleanToken.Status == common.TokenStatusExhausted && cleanToken.RemainQuota <= 0 && !cleanToken.UnlimitedQuota {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "令牌可用额度已用尽，无法启用，请先修改令牌剩余额度，或者设置为无限额度",
+				"message": lang.T(c, "token.error.quota_exhausted"),
 			})
 			return
 		}

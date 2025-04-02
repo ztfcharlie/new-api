@@ -7,19 +7,21 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"html/template"
 	"io"
 	"log"
 	"math/big"
 	"math/rand"
 	"net"
+	"one-api/lang"
 	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/google/uuid"
 )
@@ -91,26 +93,26 @@ func Bytes2Size(num int64) string {
 
 func Seconds2Time(num int) (time string) {
 	if num/31104000 > 0 {
-		time += strconv.Itoa(num/31104000) + " 年 "
+		time += strconv.Itoa(num/31104000) + lang.T(nil, "utils.time.year")
 		num %= 31104000
 	}
 	if num/2592000 > 0 {
-		time += strconv.Itoa(num/2592000) + " 个月 "
+		time += strconv.Itoa(num/2592000) + lang.T(nil, "utils.time.month")
 		num %= 2592000
 	}
 	if num/86400 > 0 {
-		time += strconv.Itoa(num/86400) + " 天 "
+		time += strconv.Itoa(num/86400) + lang.T(nil, "utils.time.day")
 		num %= 86400
 	}
 	if num/3600 > 0 {
-		time += strconv.Itoa(num/3600) + " 小时 "
+		time += strconv.Itoa(num/3600) + lang.T(nil, "utils.time.hour")
 		num %= 3600
 	}
 	if num/60 > 0 {
-		time += strconv.Itoa(num/60) + " 分钟 "
+		time += strconv.Itoa(num/60) + lang.T(nil, "utils.time.minute")
 		num %= 60
 	}
-	time += strconv.Itoa(num) + " 秒"
+	time += strconv.Itoa(num) + lang.T(nil, "utils.time.second")
 	return
 }
 
@@ -123,7 +125,7 @@ func Interface2String(inter interface{}) string {
 	case float64:
 		return fmt.Sprintf("%f", inter.(float64))
 	}
-	return "Not Implemented"
+	return lang.T(nil, "utils.interface.not_implemented")
 }
 
 func UnescapeHTML(x string) interface{} {
@@ -206,7 +208,7 @@ func Max(a int, b int) int {
 }
 
 func MessageWithRequestId(message string, id string) string {
-	return fmt.Sprintf("%s (request id: %s)", message, id)
+	return fmt.Sprintf(lang.T(nil, "utils.error.request_id"), message, id)
 }
 
 func RandomSleep() {
@@ -236,13 +238,13 @@ func Any2Type[T any](data any) (T, error) {
 func SaveTmpFile(filename string, data io.Reader) (string, error) {
 	f, err := os.CreateTemp(os.TempDir(), filename)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to create temporary file %s", filename)
+		return "", errors.Wrapf(err, lang.T(nil, "utils.error.create_temp_file"), filename)
 	}
 	defer f.Close()
 
 	_, err = io.Copy(f, data)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to copy data to temporary file %s", filename)
+		return "", errors.Wrapf(err, lang.T(nil, "utils.error.copy_temp_file"), filename)
 	}
 
 	return f.Name(), nil
@@ -251,10 +253,10 @@ func SaveTmpFile(filename string, data io.Reader) (string, error) {
 // GetAudioDuration returns the duration of an audio file in seconds.
 func GetAudioDuration(ctx context.Context, filename string) (float64, error) {
 	// ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {{input}}
-	c := exec.CommandContext(ctx, "ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", filename)
-	output, err := c.Output()
+	cmd := exec.CommandContext(ctx, "ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", filename)
+	output, err := cmd.Output()
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to get audio duration")
+		return 0, errors.Wrap(err, lang.T(nil, "utils.error.get_audio_duration"))
 	}
 
 	return strconv.ParseFloat(string(bytes.TrimSpace(output)), 64)

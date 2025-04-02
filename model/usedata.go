@@ -2,10 +2,12 @@ package model
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
+	"one-api/lang"
 	"sync"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // QuotaData 柱状图数据
@@ -24,12 +26,12 @@ func UpdateQuotaData() {
 	// recover
 	defer func() {
 		if r := recover(); r != nil {
-			common.SysLog(fmt.Sprintf("UpdateQuotaData panic: %s", r))
+			common.SysLog(fmt.Sprintf(lang.T(nil, "usedata.log.update_panic"), r))
 		}
 	}()
 	for {
 		if common.DataExportEnabled {
-			common.SysLog("正在更新数据看板数据...")
+			common.SysLog(lang.T(nil, "usedata.log.updating"))
 			SaveQuotaDataCache()
 		}
 		time.Sleep(time.Duration(common.DataExportInterval) * time.Minute)
@@ -91,7 +93,7 @@ func SaveQuotaDataCache() {
 		}
 	}
 	CacheQuotaData = make(map[string]*QuotaData)
-	common.SysLog(fmt.Sprintf("保存数据看板数据成功，共保存%d条数据", size))
+	common.SysLog(fmt.Sprintf(lang.T(nil, "usedata.log.save_success"), size))
 }
 
 func increaseQuotaData(userId int, username string, modelName string, count int, quota int, createdAt int64, tokenUsed int) {
@@ -102,7 +104,7 @@ func increaseQuotaData(userId int, username string, modelName string, count int,
 		"token_used": gorm.Expr("token_used + ?", tokenUsed),
 	}).Error
 	if err != nil {
-		common.SysLog(fmt.Sprintf("increaseQuotaData error: %s", err))
+		common.SysLog(fmt.Sprintf(lang.T(nil, "usedata.error.increase_data"), err))
 	}
 }
 

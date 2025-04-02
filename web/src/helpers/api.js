@@ -23,6 +23,17 @@ export function updateAPI() {
   });
 }
 
+// 添加请求拦截器
+API.interceptors.request.use(
+  function (config) {
+    config.headers["I18n-Next-lng"] = localStorage.getItem('i18nextLng')
+    return config;
+  },
+  function (error) {
+    return Promise.reject(error);
+  }
+);
+
 API.interceptors.response.use(
   (response) => response,
   (error) => {

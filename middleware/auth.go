@@ -1,13 +1,15 @@
 package middleware
 
 import (
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"strconv"
 	"strings"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 func validUserInfo(username string, role int) bool {
@@ -34,7 +36,7 @@ func authHelper(c *gin.Context, minRole int) {
 		if accessToken == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"success": false,
-				"message": "无权进行此操作，未登录且未提供 access token",
+				"message": lang.T(c, "middleware.auth.error.not_logged_in"),
 			})
 			c.Abort()
 			return
@@ -44,7 +46,7 @@ func authHelper(c *gin.Context, minRole int) {
 			if !validUserInfo(user.Username, user.Role) {
 				c.JSON(http.StatusOK, gin.H{
 					"success": false,
-					"message": "无权进行此操作，用户信息无效",
+					"message": lang.T(c, "middleware.auth.error.invalid_user"),
 				})
 				c.Abort()
 				return
@@ -58,7 +60,7 @@ func authHelper(c *gin.Context, minRole int) {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无权进行此操作，access token 无效",
+				"message": lang.T(c, "middleware.auth.error.invalid_token"),
 			})
 			c.Abort()
 			return
@@ -69,7 +71,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if apiUserIdStr == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
-			"message": "无权进行此操作，未提供 New-Api-User",
+			"message": lang.T(c, "middleware.auth.error.no_api_user"),
 		})
 		c.Abort()
 		return
@@ -78,7 +80,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
-			"message": "无权进行此操作，New-Api-User 格式错误",
+			"message": lang.T(c, "middleware.auth.error.invalid_api_user"),
 		})
 		c.Abort()
 		return
@@ -87,7 +89,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if id != apiUserId {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
-			"message": "无权进行此操作，New-Api-User 与登录用户不匹配",
+			"message": lang.T(c, "middleware.auth.error.api_user_mismatch"),
 		})
 		c.Abort()
 		return
@@ -95,7 +97,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if status.(int) == common.UserStatusDisabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "用户已被封禁",
+			"message": lang.T(c, "middleware.auth.error.user_banned"),
 		})
 		c.Abort()
 		return
@@ -103,7 +105,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if role.(int) < minRole {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "无权进行此操作，权限不足",
+			"message": lang.T(c, "middleware.auth.error.permission_denied"),
 		})
 		c.Abort()
 		return
@@ -111,7 +113,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if !validUserInfo(username.(string), role.(int)) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "无权进行此操作，用户信息无效",
+			"message": lang.T(c, "middleware.auth.error.invalid_user"),
 		})
 		c.Abort()
 		return
@@ -214,7 +216,7 @@ func TokenAuth() func(c *gin.Context) {
 		}
 		userEnabled := userCache.Status == common.UserStatusEnabled
 		if !userEnabled {
-			abortWithOpenAiMessage(c, http.StatusForbidden, "用户已被封禁")
+			abortWithOpenAiMessage(c, http.StatusForbidden, lang.T(c, "middleware.auth.error.common_user_channel"))
 			return
 		}
 
@@ -240,7 +242,7 @@ func TokenAuth() func(c *gin.Context) {
 			if model.IsAdmin(token.UserId) {
 				c.Set("specific_channel_id", parts[1])
 			} else {
-				abortWithOpenAiMessage(c, http.StatusForbidden, "普通用户不支持指定渠道")
+				abortWithOpenAiMessage(c, http.StatusForbidden, lang.T(c, "middleware.auth.error.common_user_channel"))
 				return
 			}
 		}

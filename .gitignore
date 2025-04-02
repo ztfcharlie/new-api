@@ -10,3 +10,7 @@ web/dist
 .env
 one-api
 .DS_Store
+tmp
+mysql_data
+data
+logs

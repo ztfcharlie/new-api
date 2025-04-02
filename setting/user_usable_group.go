@@ -2,12 +2,14 @@ package setting
 
 import (
 	"encoding/json"
+	"fmt"
 	"one-api/common"
+	"one-api/lang"
 )
 
 var userUsableGroups = map[string]string{
-	"default": "默认分组",
-	"vip":     "vip分组",
+	"default": lang.T(nil, "group.default"),
+	"vip":     lang.T(nil, "group.vip"),
 }
 
 func GetUserUsableGroupsCopy() map[string]string {
@@ -21,7 +23,7 @@ func GetUserUsableGroupsCopy() map[string]string {
 func UserUsableGroups2JSONString() string {
 	jsonBytes, err := json.Marshal(userUsableGroups)
 	if err != nil {
-		common.SysError("error marshalling user groups: " + err.Error())
+		common.SysError(fmt.Sprintf(lang.T(nil, "group.error.marshal"), err.Error()))
 	}
 	return string(jsonBytes)
 }
@@ -40,7 +42,7 @@ func GetUserUsableGroups(userGroup string) map[string]string {
 	}
 	// 如果userGroup不在UserUsableGroups中，返回UserUsableGroups + userGroup
 	if _, ok := groupsCopy[userGroup]; !ok {
-		groupsCopy[userGroup] = "用户分组"
+		groupsCopy[userGroup] = lang.T(nil, "group.user")
 	}
 	// 如果userGroup在UserUsableGroups中，返回UserUsableGroups
 	return groupsCopy

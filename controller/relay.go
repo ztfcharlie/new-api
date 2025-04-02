@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"io"
 	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/middleware"
 	"one-api/model"
 	"one-api/relay"
@@ -19,6 +18,9 @@ import (
 	"one-api/relay/helper"
 	"one-api/service"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 func relayHandler(c *gin.Context, relayMode int) *dto.OpenAIErrorWithStatusCode {
@@ -71,14 +73,14 @@ func Relay(c *gin.Context) {
 	}
 	useChannel := c.GetStringSlice("use_channel")
 	if len(useChannel) > 1 {
-		retryLogStr := fmt.Sprintf("重试：%s", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(useChannel)), "->"), "[]"))
+		retryLogStr := fmt.Sprintf(lang.T(c, "relay.error.try_again"), strings.Trim(strings.Join(strings.Fields(fmt.Sprint(useChannel)), "->"), "[]"))
 		common.LogInfo(c, retryLogStr)
 	}
 
 	if openaiErr != nil {
 		if openaiErr.StatusCode == http.StatusTooManyRequests {
 			common.LogError(c, fmt.Sprintf("origin 429 error: %s", openaiErr.Error.Message))
-			openaiErr.Error.Message = "当前分组上游负载已饱和，请稍后再试"
+			openaiErr.Error.Message = lang.T(c, "relay.error.load_saturated")
 		}
 		openaiErr.Error.Message = common.MessageWithRequestId(openaiErr.Error.Message, requestId)
 		c.JSON(openaiErr.StatusCode, gin.H{
@@ -135,13 +137,13 @@ func WssRelay(c *gin.Context) {
 	}
 	useChannel := c.GetStringSlice("use_channel")
 	if len(useChannel) > 1 {
-		retryLogStr := fmt.Sprintf("重试：%s", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(useChannel)), "->"), "[]"))
+		retryLogStr := fmt.Sprintf(lang.T(c, "relay.error.try_again"), strings.Trim(strings.Join(strings.Fields(fmt.Sprint(useChannel)), "->"), "[]"))
 		common.LogInfo(c, retryLogStr)
 	}
 
 	if openaiErr != nil {
 		if openaiErr.StatusCode == http.StatusTooManyRequests {
-			openaiErr.Error.Message = "当前分组上游负载已饱和，请稍后再试"
+			openaiErr.Error.Message = lang.T(c, "relay.error.load_saturated")
 		}
 		openaiErr.Error.Message = common.MessageWithRequestId(openaiErr.Error.Message, requestId)
 		helper.WssError(c, ws, openaiErr.Error)
@@ -179,7 +181,7 @@ func RelayClaude(c *gin.Context) {
 	}
 	useChannel := c.GetStringSlice("use_channel")
 	if len(useChannel) > 1 {
-		retryLogStr := fmt.Sprintf("重试：%s", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(useChannel)), "->"), "[]"))
+		retryLogStr := fmt.Sprintf(lang.T(c, "relay.error.try_again"), strings.Trim(strings.Join(strings.Fields(fmt.Sprint(useChannel)), "->"), "[]"))
 		common.LogInfo(c, retryLogStr)
 	}
 
@@ -235,7 +237,7 @@ func getChannel(c *gin.Context, group, originalModel string, retryCount int) (*m
 	}
 	channel, err := model.CacheGetRandomSatisfiedChannel(group, originalModel, retryCount)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("获取重试渠道失败: %s", err.Error()))
+		return nil, errors.New(fmt.Sprintf(lang.T(c, "relay.error.get_retry_channel"), err.Error()))
 	}
 	middleware.SetupContextForSelectedChannel(c, channel, originalModel)
 	return channel, nil
@@ -313,12 +315,12 @@ func RelayMidjourney(c *gin.Context) {
 	if err != nil {
 		statusCode := http.StatusBadRequest
 		if err.Code == 30 {
-			err.Result = "当前分组负载已饱和，请稍后再试，或升级账户以提升服务质量。"
+			err.Result = lang.T(c, "relay.error.load_saturated_upgrade")
 			statusCode = http.StatusTooManyRequests
 		}
 		c.JSON(statusCode, gin.H{
 			"description": fmt.Sprintf("%s %s", err.Description, err.Result),
-			"type":        "upstream_error",
+			"type":        lang.T(c, "relay.error.type.upstream"),
 			"code":        err.Code,
 		})
 		channelId := c.GetInt("channel_id")
@@ -328,7 +330,7 @@ func RelayMidjourney(c *gin.Context) {
 
 func RelayNotImplemented(c *gin.Context) {
 	err := dto.OpenAIError{
-		Message: "API not implemented",
+		Message: lang.T(c, "relay.error.api_not_implemented"),
 		Type:    "new_api_error",
 		Param:   "",
 		Code:    "api_not_implemented",
@@ -340,7 +342,7 @@ func RelayNotImplemented(c *gin.Context) {
 
 func RelayNotFound(c *gin.Context) {
 	err := dto.OpenAIError{
-		Message: fmt.Sprintf("Invalid URL (%s %s)", c.Request.Method, c.Request.URL.Path),
+		Message: fmt.Sprintf(lang.T(c, "relay.error.invalid_url"), c.Request.Method, c.Request.URL.Path),
 		Type:    "invalid_request_error",
 		Param:   "",
 		Code:    "",
@@ -380,12 +382,12 @@ func RelayTask(c *gin.Context) {
 	}
 	useChannel := c.GetStringSlice("use_channel")
 	if len(useChannel) > 1 {
-		retryLogStr := fmt.Sprintf("重试：%s", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(useChannel)), "->"), "[]"))
+		retryLogStr := fmt.Sprintf(lang.T(c, "relay.log.try_again"), strings.Trim(strings.Join(strings.Fields(fmt.Sprint(useChannel)), "->"), "[]"))
 		common.LogInfo(c, retryLogStr)
 	}
 	if taskErr != nil {
 		if taskErr.StatusCode == http.StatusTooManyRequests {
-			taskErr.Message = "当前分组上游负载已饱和，请稍后再试"
+			taskErr.Message = lang.T(c, "relay.error.load_saturated")
 		}
 		c.JSON(taskErr.StatusCode, taskErr)
 	}

@@ -11,6 +11,7 @@ import (
 	"one-api/common"
 	"one-api/constant"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/model"
 	relaycommon "one-api/relay/common"
 	relayconstant "one-api/relay/constant"
@@ -41,28 +42,28 @@ func getAndValidateTextRequest(c *gin.Context, relayInfo *relaycommon.RelayInfo)
 	}
 
 	if textRequest.MaxTokens > math.MaxInt32/2 {
-		return nil, errors.New("max_tokens is invalid")
+		return nil, errors.New(lang.T(c, "text.error.max_tokens_invalid"))
 	}
 	if textRequest.Model == "" {
-		return nil, errors.New("model is required")
+		return nil, errors.New(lang.T(c, "text.error.model_required"))
 	}
 	switch relayInfo.RelayMode {
 	case relayconstant.RelayModeCompletions:
 		if textRequest.Prompt == "" {
-			return nil, errors.New("field prompt is required")
+			return nil, errors.New(lang.T(c, "text.error.prompt_required"))
 		}
 	case relayconstant.RelayModeChatCompletions:
 		if len(textRequest.Messages) == 0 {
-			return nil, errors.New("field messages is required")
+			return nil, errors.New(lang.T(c, "text.error.messages_required"))
 		}
 	case relayconstant.RelayModeEmbeddings:
 	case relayconstant.RelayModeModerations:
 		if textRequest.Input == nil || textRequest.Input == "" {
-			return nil, errors.New("field input is required")
+			return nil, errors.New(lang.T(c, "text.error.input_required"))
 		}
 	case relayconstant.RelayModeEdits:
 		if textRequest.Instruction == "" {
-			return nil, errors.New("field instruction is required")
+			return nil, errors.New(lang.T(c, "text.error.instruction_required"))
 		}
 	}
 	relayInfo.IsStream = textRequest.Stream
@@ -238,7 +239,7 @@ func getPromptTokens(textRequest *dto.GeneralOpenAIRequest, info *relaycommon.Re
 	case relayconstant.RelayModeEmbeddings:
 		promptTokens, err = service.CountTokenInput(textRequest.Input, textRequest.Model)
 	default:
-		err = errors.New("unknown relay mode")
+		err = errors.New(lang.T(nil, "text.error.unknown_relay_mode"))
 		promptTokens = 0
 	}
 	info.PromptTokens = promptTokens
@@ -268,10 +269,14 @@ func preConsumeQuota(c *gin.Context, preConsumedQuota int, relayInfo *relaycommo
 		return 0, 0, service.OpenAIErrorWrapperLocal(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
 	if userQuota <= 0 {
-		return 0, 0, service.OpenAIErrorWrapperLocal(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+		return 0, 0, service.OpenAIErrorWrapperLocal(errors.New(lang.T(c, "text.error.user_quota_insufficient")), "insufficient_user_quota", http.StatusForbidden)
 	}
 	if userQuota-preConsumedQuota < 0 {
-		return 0, 0, service.OpenAIErrorWrapperLocal(fmt.Errorf("chat pre-consumed quota failed, user quota: %s, need quota: %s", common.FormatQuota(userQuota), common.FormatQuota(preConsumedQuota)), "insufficient_user_quota", http.StatusForbidden)
+		return 0, 0, service.OpenAIErrorWrapperLocal(fmt.Errorf(
+			lang.T(c, "text.error.pre_consume_quota"),
+			common.FormatQuota(userQuota),
+			common.FormatQuota(preConsumedQuota),
+		), "insufficient_user_quota", http.StatusForbidden)
 	}
 	relayInfo.UserQuota = userQuota
 	if userQuota > 100*preConsumedQuota {
@@ -282,13 +287,15 @@ func preConsumeQuota(c *gin.Context, preConsumedQuota int, relayInfo *relaycommo
 			if tokenQuota > 100*preConsumedQuota {
 				// 令牌额度充足，信任令牌
 				preConsumedQuota = 0
-				common.LogInfo(c, fmt.Sprintf("user %d quota %s and token %d quota %d are enough, trusted and no need to pre-consume", relayInfo.UserId, common.FormatQuota(userQuota), relayInfo.TokenId, tokenQuota))
+				common.LogInfo(c, fmt.Sprintf(lang.T(c, "text.log.user_quota_enough"),
+					relayInfo.UserId, common.FormatQuota(userQuota), relayInfo.TokenId, tokenQuota))
 			}
 		} else {
 			// in this case, we do not pre-consume quota
 			// because the user has enough quota
 			preConsumedQuota = 0
-			common.LogInfo(c, fmt.Sprintf("user %d with unlimited token has enough quota %s, trusted and no need to pre-consume", relayInfo.UserId, common.FormatQuota(userQuota)))
+			common.LogInfo(c, fmt.Sprintf(lang.T(c, "text.log.unlimited_quota_enough"),
+				relayInfo.UserId, common.FormatQuota(userQuota)))
 		}
 	}
 
@@ -312,7 +319,7 @@ func returnPreConsumedQuota(c *gin.Context, relayInfo *relaycommon.RelayInfo, us
 
 			err := service.PostConsumeQuota(&relayInfoCopy, -preConsumedQuota, 0, false)
 			if err != nil {
-				common.SysError("error return pre-consumed quota: " + err.Error())
+				common.SysError(fmt.Sprintf(lang.T(c, "text.log.return_quota_error"), err.Error()))
 			}
 		})
 	}
@@ -326,7 +333,7 @@ func postConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo,
 			CompletionTokens: 0,
 			TotalTokens:      relayInfo.PromptTokens,
 		}
-		extraContent += "（可能是请求出错）"
+		extraContent += lang.T(ctx, "text.log.possible_error")
 	}
 	useTimeSeconds := time.Now().Unix() - relayInfo.StartTime.Unix()
 	promptTokens := usage.PromptTokens
@@ -375,9 +382,11 @@ func postConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo,
 
 	var logContent string
 	if !priceData.UsePrice {
-		logContent = fmt.Sprintf("模型倍率 %.2f，补全倍率 %.2f，分组倍率 %.2f", modelRatio, completionRatio, groupRatio)
+		logContent = fmt.Sprintf(lang.T(ctx, "text.log.model_ratio"),
+			modelRatio, completionRatio, groupRatio)
 	} else {
-		logContent = fmt.Sprintf("模型价格 %.2f，分组倍率 %.2f", modelPrice, groupRatio)
+		logContent = fmt.Sprintf(lang.T(ctx, "text.log.model_price"),
+			modelPrice, groupRatio)
 	}
 
 	// record all the consume log even if quota is 0
@@ -385,9 +394,9 @@ func postConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo,
 		// in this case, must be some error happened
 		// we cannot just return, because we may have to return the pre-consumed quota
 		quota = 0
-		logContent += fmt.Sprintf("（可能是上游超时）")
-		common.LogError(ctx, fmt.Sprintf("total tokens is 0, cannot consume quota, userId %d, channelId %d, "+
-			"tokenId %d, model %s， pre-consumed quota %d", relayInfo.UserId, relayInfo.ChannelId, relayInfo.TokenId, modelName, preConsumedQuota))
+		logContent += lang.T(ctx, "text.log.possible_timeout")
+		common.LogError(ctx, fmt.Sprintf(lang.T(ctx, "text.log.total_tokens_zero"),
+			relayInfo.UserId, relayInfo.ChannelId, relayInfo.TokenId, modelName, preConsumedQuota))
 	} else {
 		model.UpdateUserUsedQuotaAndRequestCount(relayInfo.UserId, quota)
 		model.UpdateChannelUsedQuota(relayInfo.ChannelId, quota)
@@ -397,18 +406,18 @@ func postConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo,
 	if quotaDelta != 0 {
 		err := service.PostConsumeQuota(relayInfo, quotaDelta, preConsumedQuota, true)
 		if err != nil {
-			common.LogError(ctx, "error consuming token remain quota: "+err.Error())
+			common.LogError(ctx, fmt.Sprintf(lang.T(ctx, "text.log.consume_quota_error"), err.Error()))
 		}
 	}
 
 	logModel := modelName
 	if strings.HasPrefix(logModel, "gpt-4-gizmo") {
 		logModel = "gpt-4-gizmo-*"
-		logContent += fmt.Sprintf("，模型 %s", modelName)
+		logContent += fmt.Sprintf(lang.T(ctx, "text.log.model_name"), modelName)
 	}
 	if strings.HasPrefix(logModel, "gpt-4o-gizmo") {
 		logModel = "gpt-4o-gizmo-*"
-		logContent += fmt.Sprintf("，模型 %s", modelName)
+		logContent += fmt.Sprintf(lang.T(ctx, "text.log.model_name"), modelName)
 	}
 	if extraContent != "" {
 		logContent += ", " + extraContent

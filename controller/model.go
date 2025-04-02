@@ -2,11 +2,11 @@ package controller
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/constant"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/model"
 	"one-api/relay"
 	"one-api/relay/channel/ai360"
@@ -15,6 +15,8 @@ import (
 	"one-api/relay/channel/moonshot"
 	relaycommon "one-api/relay/common"
 	relayconstant "one-api/relay/constant"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://platform.openai.com/docs/api-reference/models/list
@@ -170,7 +172,7 @@ func ListModels(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "get user group failed",
+				"message": lang.T(c, "model.error.get_user_group"),
 			})
 			return
 		}
@@ -229,7 +231,7 @@ func RetrieveModel(c *gin.Context) {
 		c.JSON(200, aiModel)
 	} else {
 		openAIError := dto.OpenAIError{
-			Message: fmt.Sprintf("The model '%s' does not exist", modelId),
+			Message: fmt.Sprintf(lang.T(c, "model.error.not_exist"), modelId),
 			Type:    "invalid_request_error",
 			Param:   "model",
 			Code:    "model_not_found",

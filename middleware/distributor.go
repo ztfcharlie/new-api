@@ -7,6 +7,7 @@ import (
 	"one-api/common"
 	"one-api/constant"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/model"
 	relayconstant "one-api/relay/constant"
 	"one-api/service"
@@ -28,7 +29,7 @@ func Distribute() func(c *gin.Context) {
 		if len(allowIpsMap) != 0 {
 			clientIp := c.ClientIP()
 			if _, ok := allowIpsMap[clientIp]; !ok {
-				abortWithOpenAiMessage(c, http.StatusForbidden, "您的 IP 不在令牌允许访问的列表中")
+				abortWithOpenAiMessage(c, http.StatusForbidden, lang.T(c, "distributor.error.ip_not_allowed"))
 				return
 			}
 		}
@@ -36,7 +37,7 @@ func Distribute() func(c *gin.Context) {
 		channelId, ok := c.Get("specific_channel_id")
 		modelRequest, shouldSelectChannel, err := getModelRequest(c)
 		if err != nil {
-			abortWithOpenAiMessage(c, http.StatusBadRequest, "Invalid request, "+err.Error())
+			abortWithOpenAiMessage(c, http.StatusBadRequest, fmt.Sprintf(lang.T(c, "distributor.error.invalid_request"), err.Error()))
 			return
 		}
 		userGroup := c.GetString(constant.ContextKeyUserGroup)
@@ -44,12 +45,12 @@ func Distribute() func(c *gin.Context) {
 		if tokenGroup != "" {
 			// check common.UserUsableGroups[userGroup]
 			if _, ok := setting.GetUserUsableGroups(userGroup)[tokenGroup]; !ok {
-				abortWithOpenAiMessage(c, http.StatusForbidden, fmt.Sprintf("令牌分组 %s 已被禁用", tokenGroup))
+				abortWithOpenAiMessage(c, http.StatusForbidden, fmt.Sprintf(lang.T(c, "distributor.error.token_group_disabled"), tokenGroup))
 				return
 			}
 			// check group in common.GroupRatio
 			if !setting.ContainsGroupRatio(tokenGroup) {
-				abortWithOpenAiMessage(c, http.StatusForbidden, fmt.Sprintf("分组 %s 已被弃用", tokenGroup))
+				abortWithOpenAiMessage(c, http.StatusForbidden, fmt.Sprintf(lang.T(c, "distributor.error.group_deprecated"), tokenGroup))
 				return
 			}
 			userGroup = tokenGroup
@@ -58,16 +59,16 @@ func Distribute() func(c *gin.Context) {
 		if ok {
 			id, err := strconv.Atoi(channelId.(string))
 			if err != nil {
-				abortWithOpenAiMessage(c, http.StatusBadRequest, "无效的渠道 Id")
+				abortWithOpenAiMessage(c, http.StatusBadRequest, lang.T(c, "distributor.error.invalid_channel_id"))
 				return
 			}
 			channel, err = model.GetChannelById(id, true)
 			if err != nil {
-				abortWithOpenAiMessage(c, http.StatusBadRequest, "无效的渠道 Id")
+				abortWithOpenAiMessage(c, http.StatusBadRequest, lang.T(c, "distributor.error.invalid_channel_id"))
 				return
 			}
 			if channel.Status != common.ChannelStatusEnabled {
-				abortWithOpenAiMessage(c, http.StatusForbidden, "该渠道已被禁用")
+				abortWithOpenAiMessage(c, http.StatusForbidden, lang.T(c, "distributor.error.channel_disabled"))
 				return
 			}
 		} else {
@@ -84,12 +85,11 @@ func Distribute() func(c *gin.Context) {
 				}
 				if tokenModelLimit != nil {
 					if _, ok := tokenModelLimit[modelRequest.Model]; !ok {
-						abortWithOpenAiMessage(c, http.StatusForbidden, "该令牌无权访问模型 "+modelRequest.Model)
+						abortWithOpenAiMessage(c, http.StatusForbidden, fmt.Sprintf(lang.T(c, "distributor.error.model_not_allowed"), modelRequest.Model))
 						return
 					}
 				} else {
-					// token model limit is empty, all models are not allowed
-					abortWithOpenAiMessage(c, http.StatusForbidden, "该令牌无权访问任何模型")
+					abortWithOpenAiMessage(c, http.StatusForbidden, lang.T(c, "distributor.error.no_model_allowed"))
 					return
 				}
 			}
@@ -97,18 +97,16 @@ func Distribute() func(c *gin.Context) {
 			if shouldSelectChannel {
 				channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model, 0)
 				if err != nil {
-					message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
-					// 如果错误，但是渠道不为空，说明是数据库一致性问题
+					message := fmt.Sprintf(lang.T(c, "distributor.error.no_channel"), userGroup, modelRequest.Model)
 					if channel != nil {
-						common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
-						message = "数据库一致性已被破坏，请联系管理员"
+						common.SysError(fmt.Sprintf(lang.T(c, "not_exist_channel_id"), channel.Id))
+						message = lang.T(c, "distributor.error.db_consistency")
 					}
-					// 如果错误，而且渠道为空，说明是没有可用渠道
 					abortWithOpenAiMessage(c, http.StatusServiceUnavailable, message)
 					return
 				}
 				if channel == nil {
-					abortWithOpenAiMessage(c, http.StatusServiceUnavailable, fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道（数据库一致性已被破坏）", userGroup, modelRequest.Model))
+					abortWithOpenAiMessage(c, http.StatusServiceUnavailable, fmt.Sprintf(lang.T(c, "distributor.error.no_channel_db"), userGroup, modelRequest.Model))
 					return
 				}
 			}
@@ -142,7 +140,7 @@ func getModelRequest(c *gin.Context) (*ModelRequest, bool, error) {
 			}
 			if midjourneyModel == "" {
 				if !success {
-					return nil, false, fmt.Errorf("无效的请求, 无法解析模型")
+					return nil, false, fmt.Errorf(lang.T(c, "distributor.error.invalid_request_model"))
 				} else {
 					// task fetch, task fetch by condition, notify
 					shouldSelectChannel = false
@@ -166,7 +164,7 @@ func getModelRequest(c *gin.Context) (*ModelRequest, bool, error) {
 		err = common.UnmarshalBodyReusable(c, &modelRequest)
 	}
 	if err != nil {
-		return nil, false, errors.New("无效的请求, " + err.Error())
+		return nil, false, errors.New(fmt.Sprintf(lang.T(c, "distributor.error.invalid_request_with"), err.Error()))
 	}
 	if strings.HasPrefix(c.Request.URL.Path, "/v1/realtime") {
 		//wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01

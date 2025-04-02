@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"one-api/common"
+	"one-api/lang"
 	"strings"
 
 	"github.com/samber/lo"
@@ -60,7 +61,7 @@ func getPriority(group string, model string, retry int) (int, error) {
 
 	if len(priorities) == 0 {
 		// 如果没有查询到优先级，则返回错误
-		return 0, errors.New("数据库一致性被破坏")
+		return 0, errors.New(lang.T(nil, "ability.error.db_consistency"))
 	}
 
 	// 确定要使用的优先级
@@ -124,7 +125,7 @@ func GetRandomSatisfiedChannel(group string, model string, retry int) (*Channel,
 			}
 		}
 	} else {
-		return nil, errors.New("channel not found")
+		return nil, errors.New(lang.T(nil, "ability.error.channel_not_found"))
 	}
 	err = DB.First(&channel, "id = ?", channel.Id).Error
 	return &channel, err
@@ -258,23 +259,23 @@ func FixAbility() (int, error) {
 	// Find all channel ids from channel table
 	err := DB.Model(&Channel{}).Pluck("id", &channelIds).Error
 	if err != nil {
-		common.SysError(fmt.Sprintf("Get channel ids from channel table failed: %s", err.Error()))
+		common.SysError(fmt.Sprintf(lang.T(nil, "ability.error.get_channel_ids"), err.Error()))
 		return 0, err
 	}
 	// Delete abilities of channels that are not in channel table
 	err = DB.Where("channel_id NOT IN (?)", channelIds).Delete(&Ability{}).Error
 	if err != nil {
-		common.SysError(fmt.Sprintf("Delete abilities of channels that are not in channel table failed: %s", err.Error()))
+		common.SysError(fmt.Sprintf(lang.T(nil, "ability.error.delete_abilities"), err.Error()))
 		return 0, err
 	}
-	common.SysLog(fmt.Sprintf("Delete abilities of channels that are not in channel table successfully, ids: %v", channelIds))
+	common.SysLog(fmt.Sprintf(lang.T(nil, "ability.log.delete_abilities"), channelIds))
 	count += len(channelIds)
 
 	// Use channelIds to find channel not in abilities table
 	var abilityChannelIds []int
 	err = DB.Table("abilities").Distinct("channel_id").Pluck("channel_id", &abilityChannelIds).Error
 	if err != nil {
-		common.SysError(fmt.Sprintf("Get channel ids from abilities table failed: %s", err.Error()))
+		common.SysError(fmt.Sprintf(lang.T(nil, "ability.error.get_ability_channel_ids"), err.Error()))
 		return 0, err
 	}
 	var channels []Channel
@@ -289,9 +290,9 @@ func FixAbility() (int, error) {
 	for _, channel := range channels {
 		err := channel.UpdateAbilities(nil)
 		if err != nil {
-			common.SysError(fmt.Sprintf("Update abilities of channel %d failed: %s", channel.Id, err.Error()))
+			common.SysError(fmt.Sprintf(lang.T(nil, "ability.error.update_channel_abilities"), channel.Id, err.Error()))
 		} else {
-			common.SysLog(fmt.Sprintf("Update abilities of channel %d successfully", channel.Id))
+			common.SysLog(fmt.Sprintf(lang.T(nil, "ability.log.update_channel"), channel.Id))
 			count++
 		}
 	}

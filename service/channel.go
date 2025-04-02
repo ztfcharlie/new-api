@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/dto"
+	"one-api/lang"
 	"one-api/model"
 	"one-api/setting/operation_setting"
 	"strings"
@@ -18,8 +19,15 @@ func formatNotifyType(channelId int, status int) string {
 func DisableChannel(channelId int, channelName string, reason string) {
 	success := model.UpdateChannelStatusById(channelId, common.ChannelStatusAutoDisabled, reason)
 	if success {
-		subject := fmt.Sprintf("通道「%s」（#%d）已被禁用", channelName, channelId)
-		content := fmt.Sprintf("通道「%s」（#%d）已被禁用，原因：%s", channelName, channelId, reason)
+		subject := fmt.Sprintf(lang.T(nil, "channel.notify.disabled.subject"),
+			channelName,
+			channelId,
+		)
+		content := fmt.Sprintf(lang.T(nil, "channel.notify.disabled.content"),
+			channelName,
+			channelId,
+			reason,
+		)
 		NotifyRootUser(formatNotifyType(channelId, common.ChannelStatusAutoDisabled), subject, content)
 	}
 }
@@ -27,8 +35,14 @@ func DisableChannel(channelId int, channelName string, reason string) {
 func EnableChannel(channelId int, channelName string) {
 	success := model.UpdateChannelStatusById(channelId, common.ChannelStatusEnabled, "")
 	if success {
-		subject := fmt.Sprintf("通道「%s」（#%d）已被启用", channelName, channelId)
-		content := fmt.Sprintf("通道「%s」（#%d）已被启用", channelName, channelId)
+		subject := fmt.Sprintf(lang.T(nil, "channel.notify.enabled.subject"),
+			channelName,
+			channelId,
+		)
+		content := fmt.Sprintf(lang.T(nil, "channel.notify.enabled.content"),
+			channelName,
+			channelId,
+		)
 		NotifyRootUser(formatNotifyType(channelId, common.ChannelStatusEnabled), subject, content)
 	}
 }

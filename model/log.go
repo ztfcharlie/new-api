@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"one-api/common"
+	"one-api/lang"
 	"os"
 	"strings"
 	"time"
@@ -84,14 +85,15 @@ func RecordLog(userId int, logType int, content string) {
 	}
 	err := LOG_DB.Create(log).Error
 	if err != nil {
-		common.SysError("failed to record log: " + err.Error())
+		common.SysError(fmt.Sprintf(lang.T(nil, "log.error.record_failed"), err.Error()))
 	}
 }
 
 func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens int, completionTokens int,
 	modelName string, tokenName string, quota int, content string, tokenId int, userQuota int, useTimeSeconds int,
 	isStream bool, group string, other map[string]interface{}) {
-	common.LogInfo(c, fmt.Sprintf("record consume log: userId=%d, 用户调用前余额=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, userQuota, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
+	common.LogInfo(c, fmt.Sprintf(lang.T(c, "log.error.record_consume"),
+		userId, userQuota, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
 	if !common.LogConsumeEnabled {
 		return
 	}
@@ -117,7 +119,7 @@ func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens in
 	}
 	err := LOG_DB.Create(log).Error
 	if err != nil {
-		common.LogError(c, "failed to record log: "+err.Error())
+		common.LogError(c, fmt.Sprintf(lang.T(c, "log.error.record_consume_failed"), err.Error()))
 	}
 	if common.DataExportEnabled {
 		gopool.Go(func() {

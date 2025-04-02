@@ -2,10 +2,12 @@ package common
 
 import (
 	"fmt"
-	"github.com/shirou/gopsutil/cpu"
+	"one-api/lang"
 	"os"
 	"runtime/pprof"
 	"time"
+
+	"github.com/shirou/gopsutil/cpu"
 )
 
 // Monitor 定时监控cpu使用率，超过阈值输出pprof文件
@@ -21,18 +23,18 @@ func Monitor() {
 			if _, err := os.Stat("./pprof"); os.IsNotExist(err) {
 				err := os.Mkdir("./pprof", os.ModePerm)
 				if err != nil {
-					SysLog("创建pprof文件夹失败 " + err.Error())
+					SysLog(fmt.Sprintf(lang.T(nil, "pprof.error.create_folder"), err.Error()))
 					continue
 				}
 			}
 			f, err := os.Create("./pprof/" + fmt.Sprintf("cpu-%s.pprof", time.Now().Format("20060102150405")))
 			if err != nil {
-				SysLog("创建pprof文件失败 " + err.Error())
+				SysLog(fmt.Sprintf(lang.T(nil, "pprof.error.create_file"), err.Error()))
 				continue
 			}
 			err = pprof.StartCPUProfile(f)
 			if err != nil {
-				SysLog("启动pprof失败 " + err.Error())
+				SysLog(fmt.Sprintf(lang.T(nil, "pprof.error.start"), err.Error()))
 				continue
 			}
 			time.Sleep(10 * time.Second) // profile for 30 seconds

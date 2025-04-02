@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/lang"
 	"one-api/model"
 	"strconv"
 
@@ -192,7 +193,7 @@ func DeleteHistoryLogs(c *gin.Context) {
 	if targetTimestamp == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "target timestamp is required",
+			"message": lang.T(c, "log.history.timestamp_is_required"),
 		})
 		return
 	}
