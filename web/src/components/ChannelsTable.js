@@ -719,7 +719,7 @@ const ChannelsTable = () => {
             key: tag,
             id: tag,
             tag: tag,
-            name: '标签：' + tag,
+            name: t('标签：') + tag,
             group: '',
             used_quota: 0,
             response_time: 0,
@@ -910,7 +910,7 @@ const ChannelsTable = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess(t('操作成功完成！'));
       let newChannels = [...channels];
       for (let i = 0; i < newChannels.length; i++) {
         if (newChannels[i].tag === tag) {
@@ -1118,14 +1118,14 @@ const ChannelsTable = () => {
     switch (type) {
       case 'priority':
         if (data.priority === undefined || data.priority === '') {
-          showInfo('优先级必须是整数！');
+          showInfo(t('优先级必须是整数！'));
           return;
         }
         data.priority = parseInt(data.priority);
         break;
       case 'weight':
         if (data.weight === undefined || data.weight < 0 || data.weight === '') {
-          showInfo('权重必须是非负整数！');
+          showInfo(t('权重必须是非负整数！'));
           return;
         }
         data.weight = parseInt(data.weight);
@@ -1135,7 +1135,7 @@ const ChannelsTable = () => {
     try {
       const res = await API.put('/api/channel/tag', data);
       if (res?.data?.success) {
-        showSuccess('更新成功！');
+        showSuccess(t('更新成功！'));
         await refresh();
       }
     } catch (error) {

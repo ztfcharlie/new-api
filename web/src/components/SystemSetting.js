@@ -362,10 +362,10 @@ const SystemSetting = () => {
         inputs['oidc.authorization_endpoint'] = res.data['authorization_endpoint'];
         inputs['oidc.token_endpoint'] = res.data['token_endpoint'];
         inputs['oidc.user_info_endpoint'] = res.data['userinfo_endpoint'];
-        showSuccess('获取 OIDC 配置成功！');
+        showSuccess(t('获取 OIDC 配置成功'));
       } catch (err) {
         console.error(err);
-        showError("获取 OIDC 配置失败，请检查网络状况和 Well-Known URL 是否正确");
+        showError(t("获取 OIDC 配置失败，请检查网络状况和 Well-Known URL 是否正确"));
         return;
       }
     }
@@ -462,14 +462,14 @@ const SystemSetting = () => {
         >
           {({ formState, values, formApi }) => (
             <>
-              <Form.Section text='通用设置'>
+              <Form.Section text={t('通用设置')}>
                 <Form.Input
                   field='ServerAddress'
-                  label='服务器地址'
+                  label={t('服务器地址')}
                   placeholder='例如：https://yourdomain.com'
                   style={{ width: '100%' }}
                 />
-                <Button onClick={submitServerAddress}>更新服务器地址</Button>
+                <Button onClick={submitServerAddress}>{t('更新服务器地址')}</Button>
               </Form.Section>
 
               <Form.Section text='代理设置'>

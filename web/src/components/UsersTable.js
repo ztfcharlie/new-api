@@ -294,7 +294,7 @@ const UsersTable = () => {
     });
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess(t('操作成功完成！'));
       let user = res.data.data;
       let newUsers = [...users];
       if (action === 'delete') {

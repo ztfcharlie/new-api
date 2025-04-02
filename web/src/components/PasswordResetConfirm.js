@@ -53,7 +53,7 @@ const PasswordResetConfirm = () => {
       let password = res.data.data;
       setNewPassword(password);
       await copy(password);
-      showNotice(`新密码已复制到剪贴板：${password}`);
+      showNotice(t('新密码已复制到剪贴板：${password}'));
     } else {
       showError(message);
     }
@@ -64,7 +64,7 @@ const PasswordResetConfirm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src='/logo.png' /> 密码重置确认
+          <Image src='/logo.png' /> {t('密码重置确认')}
         </Header>
         <Form size='large'>
           <Segment>
@@ -72,7 +72,7 @@ const PasswordResetConfirm = () => {
               fluid
               icon='mail'
               iconPosition='left'
-              placeholder='邮箱地址'
+              placeholder={t('邮箱地址')}
               name='email'
               value={email}
               readOnly
@@ -82,14 +82,14 @@ const PasswordResetConfirm = () => {
                 fluid
                 icon='lock'
                 iconPosition='left'
-                placeholder='新密码'
+                placeholder= {t('新密码')}
                 name='newPassword'
                 value={newPassword}
                 readOnly
                 onClick={(e) => {
                   e.target.select();
                   navigator.clipboard.writeText(newPassword);
-                  showNotice(`密码已复制到剪贴板：${newPassword}`);
+                  showNotice(t('新密码已复制到剪贴板：${newPassword}'));
                 }}
               />
             )}
@@ -101,7 +101,7 @@ const PasswordResetConfirm = () => {
               loading={loading}
               disabled={disableButton}
             >
-              {disableButton ? `密码重置完成` : '提交'}
+              {disableButton ? t('密码重置完成') : t('提交')}
             </Button>
           </Segment>
         </Form>

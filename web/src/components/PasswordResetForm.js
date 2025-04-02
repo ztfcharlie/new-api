@@ -38,7 +38,7 @@ const PasswordResetForm = () => {
     setDisableButton(true);
     if (!email) return;
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo(t('请稍后几秒重试，Turnstile 正在检查用户环境！'));
       return;
     }
     setLoading(true);
@@ -47,7 +47,7 @@ const PasswordResetForm = () => {
     );
     const { success, message } = res.data;
     if (success) {
-      showSuccess('重置邮件发送成功，请检查邮箱！');
+      showSuccess(t('重置邮件发送成功，请检查邮箱！'));
       setInputs({ ...inputs, email: '' });
     } else {
       showError(message);
@@ -59,7 +59,7 @@ const PasswordResetForm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src='/logo.png' /> 密码重置
+          <Image src='/logo.png' /> {t('重置密码')}
         </Header>
         <Form size='large'>
           <Segment>
@@ -67,7 +67,7 @@ const PasswordResetForm = () => {
               fluid
               icon='mail'
               iconPosition='left'
-              placeholder='邮箱地址'
+              placeholder={t('邮箱')}
               name='email'
               value={email}
               onChange={handleChange}
@@ -90,7 +90,7 @@ const PasswordResetForm = () => {
               loading={loading}
               disabled={disableButton}
             >
-              {disableButton ? `重试 (${countdown})` : '提交'}
+              {disableButton ? t('密码重置完成') : t('提交')}
             </Button>
           </Segment>
         </Form>

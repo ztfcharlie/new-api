@@ -38,24 +38,24 @@ const REGION_EXAMPLE = {
   'default': 'us-central1',
   'claude-3-5-sonnet-20240620': 'europe-west1'
 };
-
 function type2secretPrompt(type) {
-  // inputs.type === 15 ? '按照如下格式输入：APIKey|SecretKey' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey' : '请输入渠道对应的鉴权密钥')
+  // inputs.type === 15 ? t('按照如下格式输入：APIKey|SecretKey') : (inputs.type === 18 ? t('按照如下格式输入：APPID|APISecret|APIKey') : t('请输入渠道对应的鉴权密钥'))
   switch (type) {
     case 15:
-      return '按照如下格式输入：APIKey|SecretKey';
+      return t('按照如下格式输入：')+'APIKey|SecretKey';
     case 18:
-      return '按照如下格式输入：APPID|APISecret|APIKey';
+      return t('按照如下格式输入：')+'APPID|APISecret|APIKey';
     case 22:
-      return '按照如下格式输入：APIKey-AppId，例如：fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041';
+      return t('按照如下格式输入：')+'APIKey-AppId，例如：fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041';
     case 23:
-      return '按照如下格式输入：AppId|SecretId|SecretKey';
+      return t('按照如下格式输入：')+'AppId|SecretId|SecretKey';
     case 33:
-      return '按照如下格式输入：Ak|Sk|Region';
+      return t('按照如下格式输入：')+'Ak|Sk|Region;
     default:
-      return '请输入渠道对应的鉴权密钥';
+      return t('请输入渠道对应的鉴权密钥');
   }
 }
+
 
 const EditChannel = (props) => {
   const { t } = useTranslation();
@@ -97,8 +97,8 @@ const EditChannel = (props) => {
   const handleInputChange = (name, value) => {
     if (name === 'base_url' && value.endsWith('/v1')) {
       Modal.confirm({
-        title: '警告',
-        content: '不需要在末尾加/v1，New API会自动处理，添加后可能导致请求失败，是否继续？',
+        title: t('警告'),
+        content: t('不需要在末尾加/v1，New API会自动处理，添加后可能导致请求失败，是否继续？'),
         onOk: () => {
           setInputs((inputs) => ({ ...inputs, [name]: value }));
         }
@@ -698,12 +698,12 @@ const EditChannel = (props) => {
           {inputs.type === 18 && (
             <>
               <div style={{ marginTop: 10 }}>
-                <Typography.Text strong>模型版本：</Typography.Text>
+                <Typography.Text strong>{t("模型版本")}：</Typography.Text>
               </div>
               <Input
                 name="other"
                 placeholder={
-                  '请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1'
+                  t('请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1')
                 }
                 onChange={(value) => {
                   handleInputChange('other', value);
@@ -752,10 +752,10 @@ const EditChannel = (props) => {
           {inputs.type === 21 && (
             <>
               <div style={{ marginTop: 10 }}>
-                <Typography.Text strong>知识库 ID：</Typography.Text>
+                <Typography.Text strong>{t('知识库 ID')}：</Typography.Text>
               </div>
               <Input
-                label="知识库 ID"
+                label={t("知识库 ID")}
                 name="other"
                 placeholder={'请输入知识库 ID，例如：123456'}
                 onChange={(value) => {
@@ -774,7 +774,7 @@ const EditChannel = (props) => {
               <Input
                 name="other"
                 placeholder={
-                  '请输入Account ID，例如：d6b5da8hk1awo8nap34ube6gh'
+                  t('请输入Account ID，例如：d6b5da8hk1awo8nap34ube6gh')
                 }
                 onChange={(value) => {
                   handleInputChange('other', value);
@@ -788,7 +788,7 @@ const EditChannel = (props) => {
             <Typography.Text strong>{t('模型')}：</Typography.Text>
           </div>
           <Select
-            placeholder={'请选择该渠道所支持的模型'}
+            placeholder={t('请选择该渠道所支持的模型')}
             name="models"
             required
             multiple

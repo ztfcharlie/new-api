@@ -365,16 +365,16 @@ const HeaderBar = () => {
                   render={
                     <Dropdown.Menu style={dropdownStyle}>
                       <Dropdown.Item
-                        onClick={() => handleLanguageChange('zh')}
-                        type={currentLang === 'zh' ? 'primary' : 'tertiary'}
-                      >
-                        中文
-                      </Dropdown.Item>
-                      <Dropdown.Item
                         onClick={() => handleLanguageChange('en')}
                         type={currentLang === 'en' ? 'primary' : 'tertiary'}
                       >
                         English
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        onClick={() => handleLanguageChange('zh')}
+                        type={currentLang === 'zh' ? 'primary' : 'tertiary'}
+                      >
+                        中文
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   }

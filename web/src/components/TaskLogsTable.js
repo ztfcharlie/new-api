@@ -12,6 +12,8 @@ import {
     Typography, Progress, Card
 } from '@douyinfe/semi-ui';
 import { ITEMS_PER_PAGE } from '../constants';
+import { T } from '../../dist/assets/semi-ui-1lXye6SS';
+import { t } from 'i18next';
 
 const colors = ['amber', 'blue', 'cyan', 'green', 'grey', 'indigo',
     'light-blue', 'lime', 'orange', 'pink',
@@ -52,7 +54,7 @@ function renderDuration(submit_time, finishTime) {
     // 返回带有样式的颜色标签
     return (
         <Tag color={color} size="large">
-            {durationSec} 秒
+            {durationSec} Seconds
         </Tag>
     );
 }
@@ -63,7 +65,7 @@ const LogsTable = () => {
     const isAdminUser = isAdmin();
     const columns = [
         {
-            title: "提交时间",
+            title: t("提交时间"),
             dataIndex: 'submit_time',
             render: (text, record, index) => {
                 return (
@@ -74,7 +76,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: "结束时间",
+            title: t("结束时间"),
             dataIndex: 'finish_time',
             render: (text, record, index) => {
                 return (
@@ -85,7 +87,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: '进度',
+            title: t('进度'),
             dataIndex: 'progress',
             width: 50,
             render: (text, record, index) => {
@@ -100,7 +102,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: '花费时间',
+            title: t('花费时间'),
             dataIndex: 'finish_time', // 以finish_time作为dataIndex
             key: 'finish_time',
             render: (finish, record) => {
@@ -113,7 +115,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: "渠道",
+            title: t('渠道'),
             dataIndex: 'channel_id',
             className: isAdminUser ? 'tableShow' : 'tableHiddle',
             render: (text, record, index) => {
@@ -134,7 +136,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: "平台",
+            title: t('平台'),
             dataIndex: 'platform',
             render: (text, record, index) => {
                 return (
@@ -145,7 +147,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: '类型',
+            title: t('类型'),
             dataIndex: 'action',
             render: (text, record, index) => {
                 return (
@@ -156,7 +158,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: '任务ID（点击查看详情）',
+            title: t('任务 ID'),
             dataIndex: 'task_id',
             render: (text, record, index) => {
                 return (<Typography.Text
@@ -174,7 +176,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: '任务状态',
+            title: t('任务状态'),
             dataIndex: 'status',
             render: (text, record, index) => {
                 return (
@@ -186,7 +188,7 @@ const LogsTable = () => {
         },
 
         {
-            title: '失败原因',
+            title: t('失败原因'),
             dataIndex: 'fail_reason',
             render: (text, record, index) => {
                 // 如果text未定义，返回替代文本，例如空字符串''或其他
@@ -289,10 +291,10 @@ const LogsTable = () => {
 
     const copyText = async (text) => {
         if (await copy(text)) {
-            showSuccess('已复制：' + text);
+            showSuccess(t('已复制：') + text);
         } else {
             // setSearchKeyword(text);
-            Modal.error({ title: "无法复制到剪贴板，请手动复制", content: text });
+            Modal.error({ title: t("无法复制到剪贴板，请手动复制"), content: text });
         }
     }
 
@@ -303,12 +305,12 @@ const LogsTable = () => {
     const renderType = (type) => {
         switch (type) {
             case 'MUSIC':
-                return <Label basic color='grey'> 生成音乐 </Label>;
+                return <Label basic color='grey'> {t('生成音乐')} </Label>;
             case 'LYRICS':
-                return <Label basic color='pink'> 生成歌词 </Label>;
+                return <Label basic color='pink'> {t('生成歌词')} </Label>;
 
             default:
-                return <Label basic color='black'> 未知 </Label>;
+                return <Label basic color='black'> {t('未知')} </Label>;
         }
     }
 
@@ -317,82 +319,84 @@ const LogsTable = () => {
             case "suno":
                 return <Label basic color='green'> Suno </Label>;
             default:
-                return <Label basic color='black'> 未知 </Label>;
+                return <Label basic color='black'> {t('未知')} </Label>;
         }
     }
-
+    
     const renderStatus = (type) => {
         switch (type) {
             case 'SUCCESS':
-                return <Label basic color='green'> 成功 </Label>;
+                return <Label basic color='green'> {t('成功')} </Label>;
             case 'NOT_START':
-                return <Label basic color='black'> 未启动 </Label>;
+                return <Label basic color='black'> {t('未启动')} </Label>;
             case 'SUBMITTED':
-                return <Label basic color='yellow'> 队列中 </Label>;
+                return <Label basic color='yellow'> {t('队列中')} </Label>;
             case 'IN_PROGRESS':
-                return <Label basic color='blue'> 执行中 </Label>;
+                return <Label basic color='blue'> {t('执行中')} </Label>;
             case 'FAILURE':
-                return <Label basic color='red'> 失败 </Label>;
+                return <Label basic color='red'> {t('失败')} </Label>;
             case 'QUEUED':
-                return <Label basic color='red'> 排队中 </Label>;
+                return <Label basic color='red'> {t('排队中')} </Label>;
             case 'UNKNOWN':
-                return <Label basic color='red'> 未知 </Label>;
+                return <Label basic color='red'> {t('未知')} </Label>;
             case '':
-                return <Label basic color='black'> 正在提交 </Label>;
+                return <Label basic color='black'> {t('正在提交')} </Label>;
             default:
-                return <Label basic color='black'> 未知 </Label>;
+                return <Label basic color='black'> {t('未知')} </Label>;
         }
     }
+    
 
     return (
         <>
 
-            <Layout>
-                <Form layout='horizontal' labelPosition='inset'>
-                    <>
-                        {isAdminUser && <Form.Input field="channel_id" label='渠道 ID' style={{ width: '236px', marginBottom: '10px' }} value={channel_id}
-                                                    placeholder={'可选值'} name='channel_id'
-                                                    onChange={value => handleInputChange(value, 'channel_id')} />
-                        }
-                        <Form.Input field="task_id" label={"任务 ID"} style={{ width: '236px', marginBottom: '10px' }} value={task_id}
-                            placeholder={"可选值"}
-                            name='task_id'
-                            onChange={value => handleInputChange(value, 'task_id')} />
+        <Layout>
+            <Form layout='horizontal' labelPosition='inset'>
+                <>
+                    {isAdminUser && <Form.Input field="channel_id" label={t('渠道 ID')} style={{ width: '236px', marginBottom: '10px' }} value={channel_id}
+                                                placeholder={t('可选值')} name='channel_id'
+                                                onChange={value => handleInputChange(value, 'channel_id')} />
+                    }
+                    <Form.Input field="task_id" label={t('任务 ID')} style={{ width: '236px', marginBottom: '10px' }} value={task_id}
+                        placeholder={t('可选值')}
+                        name='task_id'
+                        onChange={value => handleInputChange(value, 'task_id')} />
 
-                        <Form.DatePicker field="start_timestamp" label={"起始时间"} style={{ width: '236px', marginBottom: '10px' }}
-                            initValue={start_timestamp}
-                            value={start_timestamp} type='dateTime'
-                            name='start_timestamp'
-                            onChange={value => handleInputChange(value, 'start_timestamp')} />
-                        <Form.DatePicker field="end_timestamp" fluid label={"结束时间"} style={{ width: '236px', marginBottom: '10px' }}
-                            initValue={end_timestamp}
-                            value={end_timestamp} type='dateTime'
-                            name='end_timestamp'
-                            onChange={value => handleInputChange(value, 'end_timestamp')} />
-                        <Button label={"查询"} type="primary" htmlType="submit" className="btn-margin-right"
-                            onClick={refresh}>查询</Button>
-                    </>
-                </Form>
-                <Card>
-                    <Table columns={columns} dataSource={pageData} pagination={{
-                        currentPage: activePage,
-                        pageSize: ITEMS_PER_PAGE,
-                        total: logCount,
-                        pageSizeOpts: [10, 20, 50, 100],
-                        onPageChange: handlePageChange,
-                    }} loading={loading} />
-                </Card>
-                <Modal
-                    visible={isModalOpen}
-                    onOk={() => setIsModalOpen(false)}
-                    onCancel={() => setIsModalOpen(false)}
-                    closable={null}
-                    bodyStyle={{ height: '400px', overflow: 'auto' }} // 设置模态框内容区域样式
-                    width={800} // 设置模态框宽度
-                >
-                    <p style={{ whiteSpace: 'pre-line' }}>{modalContent}</p>
-                </Modal>
-            </Layout>
+                    <Form.DatePicker field="start_timestamp" label={t('起始时间')} style={{ width: '236px', marginBottom: '10px' }}
+                        initValue={start_timestamp}
+                        value={start_timestamp} type='dateTime'
+                        name='start_timestamp'
+                        onChange={value => handleInputChange(value, 'start_timestamp')} />
+                    <Form.DatePicker field="end_timestamp" fluid label={t('结束时间')} style={{ width: '236px', marginBottom: '10px' }}
+                        initValue={end_timestamp}
+                        value={end_timestamp} type='dateTime'
+                        name='end_timestamp'
+                        onChange={value => handleInputChange(value, 'end_timestamp')} />
+                    <Button label={t('查询')} type="primary" htmlType="submit" className="btn-margin-right"
+                        onClick={refresh}>{t('查询')}</Button>
+                </>
+            </Form>
+            <Card>
+                <Table columns={columns} dataSource={pageData} pagination={{
+                    currentPage: activePage,
+                    pageSize: ITEMS_PER_PAGE,
+                    total: logCount,
+                    pageSizeOpts: [10, 20, 50, 100],
+                    onPageChange: handlePageChange,
+                }} loading={loading} />
+            </Card>
+            <Modal
+                visible={isModalOpen}
+                onOk={() => setIsModalOpen(false)}
+                onCancel={() => setIsModalOpen(false)}
+                closable={null}
+                bodyStyle={{ height: '400px', overflow: 'auto' }} // 设置模态框内容区域样式
+                width={800} // 设置模态框宽度
+            >
+                <p style={{ whiteSpace: 'pre-line' }}>{modalContent}</p>
+            </Modal>
+        </Layout>
+
         </>
     );
 };

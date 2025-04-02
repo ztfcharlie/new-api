@@ -125,7 +125,7 @@ const EditTagModal = (props) => {
     }
     if (inputs.model_mapping !== null && inputs.model_mapping !== '') {
       if (inputs.model_mapping !== '' && !verifyJSON(inputs.model_mapping)) {
-        showInfo('模型映射必须是合法的 JSON 格式！');
+        showInfo(t('模型映射必须是合法的 JSON 格式！'));
         setLoading(false);
         return;
       }
@@ -140,7 +140,7 @@ const EditTagModal = (props) => {
     data.new_tag = inputs.new_tag;
     // check have any change
     if (data.model_mapping === undefined && data.groups === undefined && data.models === undefined && data.new_tag === undefined) {
-      showWarning('没有任何修改！');
+      showWarning(t('没有任何修改！'));
       setLoading(false);
       return;
     }
@@ -152,7 +152,7 @@ const EditTagModal = (props) => {
     try {
       const res = await API.put('/api/channel/tag', data);
       if (res?.data?.success) {
-        showSuccess('标签更新成功！');
+        showSuccess(t('标签更新成功！'));
         refresh();
         handleClose();
       }
@@ -204,7 +204,7 @@ const EditTagModal = (props) => {
           value: model
         });
       } else if (model) {
-        showError('某些模型已存在！');
+        showError(t('某些模型已存在！'));
         hasError = true;
       }
     });
@@ -220,146 +220,147 @@ const EditTagModal = (props) => {
 
   return (
     <SideSheet
-      title="编辑标签"
-      visible={visible}
-      onCancel={handleClose}
-      footer={
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Space>
-            <Button onClick={handleClose}>取消</Button>
-            <Button type="primary" onClick={handleSave} loading={loading}>保存</Button>
-          </Space>
-        </div>
+  title={t("编辑标签")}
+  visible={visible}
+  onCancel={handleClose}
+  footer={
+    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Space>
+        <Button onClick={handleClose}>{t("取消")}</Button>
+        <Button type="primary" onClick={handleSave} loading={loading}>{t("保存")}</Button>
+      </Space>
+    </div>
+  }
+>
+  <div style={{ marginTop: 10 }}>
+    <Banner
+      type={'warning'}
+      description={
+        <>
+          {t("所有编辑均为覆盖操作，留空则不更改")}
+        </>
       }
-    >
-      <div style={{ marginTop: 10 }}>
-        <Banner
-          type={'warning'}
-          description={
-            <>
-              所有编辑均为覆盖操作，留空则不更改
-            </>
-          }
-        ></Banner>
-      </div>
-      <Spin spinning={loading}>
-        <TextInput
-          label="标签名，留空则解散标签"
-          name="newTag"
-          value={inputs.new_tag}
-          onChange={(value) => setInputs({ ...inputs, new_tag: value })}
-          placeholder="请输入新标签"
-        />
-        <div style={{ marginTop: 10 }}>
-          <Typography.Text strong>模型，留空则不更改：</Typography.Text>
-        </div>
-        <Select
-          placeholder={'请选择该渠道所支持的模型，留空则不更改'}
-          name="models"
-          required
-          multiple
-          selection
-          filter
-          searchPosition='dropdown'
-          onChange={(value) => {
-            handleInputChange('models', value);
-          }}
-          value={inputs.models}
-          autoComplete="new-password"
-          optionList={modelOptions}
-        />
-        <Input
-          addonAfter={
-            <Button type="primary" onClick={addCustomModels}>
-              填入
-            </Button>
-          }
-          placeholder="输入自定义模型名称"
-          value={customModel}
-          onChange={(value) => {
-            setCustomModel(value.trim());
-          }}
-        />
-        <div style={{ marginTop: 10 }}>
-          <Typography.Text strong>分组，留空则不更改：</Typography.Text>
-        </div>
-        <Select
-          placeholder={'请选择可以使用该渠道的分组，留空则不更改'}
-          name="groups"
-          required
-          multiple
-          selection
-          allowAdditions
-          additionLabel={'请在系统设置页面编辑分组倍率以添加新的分组：'}
-          onChange={(value) => {
-            handleInputChange('groups', value);
-          }}
-          value={inputs.groups}
-          autoComplete="new-password"
-          optionList={groupOptions}
-        />
-        <div style={{ marginTop: 10 }}>
-          <Typography.Text strong>模型重定向：</Typography.Text>
-        </div>
-        <TextArea
-          placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，留空则不更改`}
-          name="model_mapping"
-          onChange={(value) => {
-            handleInputChange('model_mapping', value);
-          }}
-          autosize
-          value={inputs.model_mapping}
-          autoComplete="new-password"
-        />
-        <Space>
-          <Typography.Text
-            style={{
-              color: 'rgba(var(--semi-blue-5), 1)',
-              userSelect: 'none',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              handleInputChange(
-                'model_mapping',
-                JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)
-              );
-            }}
-          >
-            填入模板
-          </Typography.Text>
-          <Typography.Text
-            style={{
-              color: 'rgba(var(--semi-blue-5), 1)',
-              userSelect: 'none',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              handleInputChange(
-                'model_mapping',
-                JSON.stringify({}, null, 2)
-              );
-            }}
-          >
-            清空重定向
-          </Typography.Text>
-          <Typography.Text
-            style={{
-              color: 'rgba(var(--semi-blue-5), 1)',
-              userSelect: 'none',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              handleInputChange(
-                'model_mapping',
-                ""
-              );
-            }}
-          >
-            不更改
-          </Typography.Text>
-        </Space>
-      </Spin>
-    </SideSheet>
+    ></Banner>
+  </div>
+  <Spin spinning={loading}>
+    <TextInput
+      label={t("标签名，留空则解散标签")}
+      name="newTag"
+      value={inputs.new_tag}
+      onChange={(value) => setInputs({ ...inputs, new_tag: value })}
+      placeholder={t("请输入新标签")}
+    />
+    <div style={{ marginTop: 10 }}>
+      <Typography.Text strong>{t("模型，留空则不更改：")}</Typography.Text>
+    </div>
+    <Select
+      placeholder={t('请选择该渠道所支持的模型，留空则不更改')}
+      name="models"
+      required
+      multiple
+      selection
+      filter
+      searchPosition='dropdown'
+      onChange={(value) => {
+        handleInputChange('models', value);
+      }}
+      value={inputs.models}
+      autoComplete="new-password"
+      optionList={modelOptions}
+    />
+    <Input
+      addonAfter={
+        <Button type="primary" onClick={addCustomModels}>
+          {t("填入")}
+        </Button>
+      }
+      placeholder={t("输入自定义模型名称")}
+      value={customModel}
+      onChange={(value) => {
+        setCustomModel(value.trim());
+      }}
+    />
+    <div style={{ marginTop: 10 }}>
+      <Typography.Text strong>{t("分组，留空则不更改：")}</Typography.Text>
+    </div>
+    <Select
+      placeholder={t('请选择可以使用该渠道的分组，留空则不更改')}
+      name="groups"
+      required
+      multiple
+      selection
+      allowAdditions
+      additionLabel={t('请在系统设置页面编辑分组倍率以添加新的分组：')}
+      onChange={(value) => {
+        handleInputChange('groups', value);
+      }}
+      value={inputs.groups}
+      autoComplete="new-password"
+      optionList={groupOptions}
+    />
+    <div style={{ marginTop: 10 }}>
+      <Typography.Text strong>{t("模型重定向：")}</Typography.Text>
+    </div>
+    <TextArea
+      placeholder={t(`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，留空则不更改`)}
+      name="model_mapping"
+      onChange={(value) => {
+        handleInputChange('model_mapping', value);
+      }}
+      autosize
+      value={inputs.model_mapping}
+      autoComplete="new-password"
+    />
+    <Space>
+      <Typography.Text
+        style={{
+          color: 'rgba(var(--semi-blue-5), 1)',
+          userSelect: 'none',
+          cursor: 'pointer'
+        }}
+        onClick={() => {
+          handleInputChange(
+            'model_mapping',
+            JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)
+          );
+        }}
+      >
+        {t("填入模板")}
+      </Typography.Text>
+      <Typography.Text
+        style={{
+          color: 'rgba(var(--semi-blue-5), 1)',
+          userSelect: 'none',
+          cursor: 'pointer'
+        }}
+        onClick={() => {
+          handleInputChange(
+            'model_mapping',
+            JSON.stringify({}, null, 2)
+          );
+        }}
+      >
+        {t("清空重定向")}
+      </Typography.Text>
+      <Typography.Text
+        style={{
+          color: 'rgba(var(--semi-blue-5), 1)',
+          userSelect: 'none',
+          cursor: 'pointer'
+        }}
+        onClick={() => {
+          handleInputChange(
+            'model_mapping',
+            ""
+          );
+        }}
+      >
+        {t("不更改")}
+      </Typography.Text>
+    </Space>
+  </Spin>
+</SideSheet>
+
   );
 };
 

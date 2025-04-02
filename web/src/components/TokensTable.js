@@ -412,7 +412,7 @@ const TokensTable = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess(t('操作成功完成！'));
       let token = res.data.data;
       let newTokens = [...tokens];
       // let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;

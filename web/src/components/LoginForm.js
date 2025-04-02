@@ -78,7 +78,7 @@ const LoginForm = () => {
 
   const onSubmitWeChatVerificationCode = async () => {
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo(t('请稍后几秒重试，Turnstile 正在检查用户环境！'));
       return;
     }
     const res = await API.get(
@@ -91,7 +91,7 @@ const LoginForm = () => {
       setUserData(data);
       updateAPI();
       navigate('/');
-      showSuccess('登录成功！');
+      showSuccess(t('登录成功！'));
       setShowWeChatLoginModal(false);
     } else {
       showError(message);
@@ -104,7 +104,7 @@ const LoginForm = () => {
 
   async function handleSubmit(e) {
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo(t('请稍后几秒重试，Turnstile 正在检查用户环境！'));
       return;
     }
     setSubmitted(true);
@@ -121,11 +121,11 @@ const LoginForm = () => {
         userDispatch({ type: 'login', payload: data });
         setUserData(data);
         updateAPI();
-        showSuccess('登录成功！');
+        showSuccess(t('登录成功！'));
         if (username === 'root' && password === '123456') {
           Modal.error({
-            title: '您正在使用默认密码！',
-            content: '请立刻修改默认密码！',
+            title: t('您正在使用默认密码！'),
+            content: t('请立刻修改默认密码！'),
             centered: true,
           });
         }
@@ -134,7 +134,7 @@ const LoginForm = () => {
         showError(message);
       }
     } else {
-      showError('请输入用户名和密码！');
+      showError(t('请输入用户名和密码！'));
     }
   }
 
@@ -161,7 +161,7 @@ const LoginForm = () => {
     if (success) {
       userDispatch({ type: 'login', payload: data });
       localStorage.setItem('user', JSON.stringify(data));
-      showSuccess('登录成功！');
+      showSuccess(t('登录成功！'));
       setUserData(data);
       updateAPI();
       navigate('/');

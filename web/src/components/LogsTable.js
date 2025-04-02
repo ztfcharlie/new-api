@@ -328,7 +328,7 @@ const LogsTable = () => {
           record.type === 0 || record.type === 2 ? (
             <div>
               {
-                <Tooltip content={record.channel_name || '[未知]'}>
+                <Tooltip content={record.channel_name || t('[未知]')}>
                   <Tag
                     color={colors[parseInt(text) % colors.length]}
                     size='large'
@@ -985,7 +985,7 @@ const LogsTable = () => {
   const copyText = async (e, text) => {
     e.stopPropagation();
     if (await copy(text)) {
-      showSuccess('已复制：' + text);
+      showSuccess(t('已复制：') + text);
     } else {
       Modal.error({ title: t('无法复制到剪贴板，请手动复制'), content: text });
     }

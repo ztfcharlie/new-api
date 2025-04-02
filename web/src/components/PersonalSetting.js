@@ -820,18 +820,9 @@ const PersonalSetting = () => {
                                                 <Collapsible isOpen={showWebhookDocs}>
                                                     <pre style={{marginTop: 4, background: 'var(--semi-color-fill-0)', padding: 8, borderRadius: 4}}>
 {`{
-    "type": "quota_exceed",      // 通知类型
-    "title": "标题",             // 通知标题
-    "content": "通知内容",       // 通知内容，支持 {{value}} 变量占位符
-    "values": ["值1", "值2"],    // 按顺序替换content中的 {{value}} 占位符
-    "timestamp": 1739950503      // 时间戳
-}
-
-示例：
-{
     "type": "quota_exceed",
-    "title": "额度预警通知",
-    "content": "您的额度即将用尽，当前剩余额度为 {{value}}",
+    "title": "Quota warning notification",
+    "content": "Your quota is about to run out, the current remaining quota is {{value}}",
     "values": ["$0.99"],
     "timestamp": 1739950503
 }`}
@@ -917,7 +908,7 @@ const PersonalSetting = () => {
                             >
                                 <Input
                                     fluid
-                                    placeholder='输入邮箱地址'
+                                    placeholder={t('输入邮箱地址')}
                                     onChange={(value) => handleInputChange('email', value)}
                                     name='email'
                                     type='email'
@@ -926,13 +917,13 @@ const PersonalSetting = () => {
                                     onClick={sendVerificationCode}
                                     disabled={disableButton || loading}
                                 >
-                                    {disableButton ? `重新发送 (${countdown})` : '获取验证码'}
+                                    {disableButton ? t('重新发送 (${countdown})') : t('获取验证码')}
                                 </Button>
                             </div>
                             <div style={{marginTop: 10}}>
                                 <Input
                                     fluid
-                                    placeholder='验证码'
+                                    placeholder={t('验证码')}
                                     name='email_verification_code'
                                     value={inputs.email_verification_code}
                                     onChange={(value) =>
@@ -961,13 +952,13 @@ const PersonalSetting = () => {
                             <div style={{marginTop: 20}}>
                                 <Banner
                                     type='danger'
-                                    description='您正在删除自己的帐户，将清空所有数据且不可恢复'
+                                    description={t('删除账户后，所有数据将被永久删除，无法恢复！')}
                                     closeIcon={null}
                                 />
                             </div>
                             <div style={{marginTop: 20}}>
                                 <Input
-                                    placeholder={`输入你的账户名 ${userState?.user?.username} 以确认删除`}
+                                    placeholder={`${t('输入你的账户名')} ${userState?.user?.username} ${t('以确认删除')}`}
                                     name='self_account_deletion_confirmation'
                                     value={inputs.self_account_deletion_confirmation}
                                     onChange={(value) =>
