@@ -12,9 +12,7 @@ import {
     Typography, Progress, Card
 } from '@douyinfe/semi-ui';
 import { ITEMS_PER_PAGE } from '../constants';
-import { T } from '../../dist/assets/semi-ui-1lXye6SS';
-import { t } from 'i18next';
-
+import { useTranslation } from 'react-i18next';
 const colors = ['amber', 'blue', 'cyan', 'green', 'grey', 'indigo',
     'light-blue', 'lime', 'orange', 'pink',
     'purple', 'red', 'teal', 'violet', 'yellow'
@@ -60,6 +58,7 @@ function renderDuration(submit_time, finishTime) {
 }
 
 const LogsTable = () => {
+    const { t } = useTranslation();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState('');
     const isAdminUser = isAdmin();
@@ -115,7 +114,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: t('渠道'),
+            title: t("渠道"),
             dataIndex: 'channel_id',
             className: isAdminUser ? 'tableShow' : 'tableHiddle',
             render: (text, record, index) => {
@@ -136,7 +135,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: t('平台'),
+            title: t("平台"),
             dataIndex: 'platform',
             render: (text, record, index) => {
                 return (
@@ -158,7 +157,7 @@ const LogsTable = () => {
             },
         },
         {
-            title: t('任务 ID'),
+            title: t('任务ID（点击查看详情）'),
             dataIndex: 'task_id',
             render: (text, record, index) => {
                 return (<Typography.Text
@@ -193,7 +192,7 @@ const LogsTable = () => {
             render: (text, record, index) => {
                 // 如果text未定义，返回替代文本，例如空字符串''或其他
                 if (!text) {
-                    return '无';
+                    return t('无');
                 }
 
                 return (
@@ -224,7 +223,7 @@ const LogsTable = () => {
     const [inputs, setInputs] = useState({
         channel_id: '',
         task_id: '',
-        start_timestamp: timestamp2string(zeroNow.getTime() /1000),
+        start_timestamp: timestamp2string(zeroNow.getTime() / 1000),
         end_timestamp: '',
     });
     const { channel_id, task_id, start_timestamp, end_timestamp } = inputs;
@@ -250,7 +249,7 @@ const LogsTable = () => {
 
         let url = '';
         let localStartTimestamp = parseInt(Date.parse(start_timestamp) / 1000);
-        let localEndTimestamp = parseInt(Date.parse(end_timestamp) / 1000 );
+        let localEndTimestamp = parseInt(Date.parse(end_timestamp) / 1000);
         if (isAdminUser) {
             url = `/api/task/?p=${startIdx}&channel_id=${channel_id}&task_id=${task_id}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
         } else {
@@ -294,7 +293,12 @@ const LogsTable = () => {
             showSuccess(t('已复制：') + text);
         } else {
             // setSearchKeyword(text);
-            Modal.error({ title: t("无法复制到剪贴板，请手动复制"), content: text });
+            Modal.error({
+                title: t("无法复制到剪贴板，请手动复制"),
+                content: text,
+                okText: t('确定'),
+                cancelText: t('取消'),
+            });
         }
     }
 
@@ -350,53 +354,54 @@ const LogsTable = () => {
     return (
         <>
 
-        <Layout>
-            <Form layout='horizontal' labelPosition='inset'>
-                <>
-                    {isAdminUser && <Form.Input field="channel_id" label={t('渠道 ID')} style={{ width: '236px', marginBottom: '10px' }} value={channel_id}
-                                                placeholder={t('可选值')} name='channel_id'
-                                                onChange={value => handleInputChange(value, 'channel_id')} />
-                    }
-                    <Form.Input field="task_id" label={t('任务 ID')} style={{ width: '236px', marginBottom: '10px' }} value={task_id}
-                        placeholder={t('可选值')}
-                        name='task_id'
-                        onChange={value => handleInputChange(value, 'task_id')} />
+            <Layout>
+                <Form layout='horizontal' labelPosition='inset'>
+                    <>
+                        {isAdminUser && <Form.Input field="channel_id" label={t('渠道 ID')} style={{ width: '236px', marginBottom: '10px' }} value={channel_id}
+                            placeholder={t('可选值')} name='channel_id'
+                            onChange={value => handleInputChange(value, 'channel_id')} />
+                        }
+                        <Form.Input field="task_id" label={t("任务 ID")} style={{ width: '236px', marginBottom: '10px' }} value={task_id}
+                            placeholder={t("可选值")}
+                            name='task_id'
+                            onChange={value => handleInputChange(value, 'task_id')} />
 
-                    <Form.DatePicker field="start_timestamp" label={t('起始时间')} style={{ width: '236px', marginBottom: '10px' }}
-                        initValue={start_timestamp}
-                        value={start_timestamp} type='dateTime'
-                        name='start_timestamp'
-                        onChange={value => handleInputChange(value, 'start_timestamp')} />
-                    <Form.DatePicker field="end_timestamp" fluid label={t('结束时间')} style={{ width: '236px', marginBottom: '10px' }}
-                        initValue={end_timestamp}
-                        value={end_timestamp} type='dateTime'
-                        name='end_timestamp'
-                        onChange={value => handleInputChange(value, 'end_timestamp')} />
-                    <Button label={t('查询')} type="primary" htmlType="submit" className="btn-margin-right"
-                        onClick={refresh}>{t('查询')}</Button>
-                </>
-            </Form>
-            <Card>
-                <Table columns={columns} dataSource={pageData} pagination={{
-                    currentPage: activePage,
-                    pageSize: ITEMS_PER_PAGE,
-                    total: logCount,
-                    pageSizeOpts: [10, 20, 50, 100],
-                    onPageChange: handlePageChange,
-                }} loading={loading} />
-            </Card>
-            <Modal
-                visible={isModalOpen}
-                onOk={() => setIsModalOpen(false)}
-                onCancel={() => setIsModalOpen(false)}
-                closable={null}
-                bodyStyle={{ height: '400px', overflow: 'auto' }} // 设置模态框内容区域样式
-                width={800} // 设置模态框宽度
-            >
-                <p style={{ whiteSpace: 'pre-line' }}>{modalContent}</p>
-            </Modal>
-        </Layout>
-
+                        <Form.DatePicker field="start_timestamp" label={t("起始时间")} style={{ width: '236px', marginBottom: '10px' }}
+                            placeholder={t('请选择日期及时间')}
+                            initValue={start_timestamp}
+                            value={start_timestamp} type='dateTime'
+                            name='start_timestamp'
+                            onChange={value => handleInputChange(value, 'start_timestamp')} />
+                        <Form.DatePicker field="end_timestamp" fluid label={t("结束时间")} style={{ width: '236px', marginBottom: '10px' }}
+                            placeholder={t('请选择日期及时间')}
+                            initValue={end_timestamp}
+                            value={end_timestamp} type='dateTime'
+                            name='end_timestamp'
+                            onChange={value => handleInputChange(value, 'end_timestamp')} />
+                        <Button label={t("查询")} type="primary" htmlType="submit" className="btn-margin-right"
+                            onClick={refresh}>{t('查询')}</Button>
+                    </>
+                </Form>
+                <Card>
+                    <Table columns={columns} dataSource={pageData} pagination={{
+                        currentPage: activePage,
+                        pageSize: ITEMS_PER_PAGE,
+                        total: logCount,
+                        pageSizeOpts: [10, 20, 50, 100],
+                        onPageChange: handlePageChange,
+                    }} loading={loading} />
+                </Card>
+                <Modal
+                    visible={isModalOpen}
+                    onOk={() => setIsModalOpen(false)}
+                    onCancel={() => setIsModalOpen(false)}
+                    closable={null}
+                    bodyStyle={{ height: '400px', overflow: 'auto' }} // 设置模态框内容区域样式
+                    width={800} // 设置模态框宽度
+                >
+                    <p style={{ whiteSpace: 'pre-line' }}>{modalContent}</p>
+                </Modal>
+            </Layout>
         </>
     );
 };

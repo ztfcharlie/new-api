@@ -6,7 +6,7 @@ import { Button, Card, Divider, Form, Icon, Layout, Modal } from '@douyinfe/semi
 import Title from '@douyinfe/semi-ui/lib/es/typography/title';
 import Text from '@douyinfe/semi-ui/lib/es/typography/text';
 import { IconGithubLogo } from '@douyinfe/semi-icons';
-import {onGitHubOAuthClicked, onLinuxDOOAuthClicked, onOIDCClicked} from './utils.js';
+import { onBurnCloudOAuthClicked, onGitHubOAuthClicked, onOIDCClicked, onLinuxDOOAuthClicked } from './utils.js';
 import OIDCIcon from "./OIDCIcon.js";
 import LinuxDoIcon from './LinuxDoIcon.js';
 import WeChatIcon from './WeChatIcon.js';
@@ -14,7 +14,7 @@ import TelegramLoginButton from 'react-telegram-login/src';
 import { setUserData } from '../helpers/data.js';
 import { UserContext } from '../context/User/index.js';
 import { useTranslation } from 'react-i18next';
-
+import {  Image } from 'semantic-ui-react';
 const RegisterForm = () => {
   const { t } = useTranslation();
   const [inputs, setInputs] = useState({
@@ -262,7 +262,9 @@ const RegisterForm = () => {
                     </Link>
                   </Text>
                 </div>
-                {status.github_oauth ||
+                {
+                status.burncloud_oauth ||
+                status.github_oauth ||
                 status.oidc_enabled ||
                 status.wechat_login ||
                 status.telegram_oauth ||
@@ -278,7 +280,18 @@ const RegisterForm = () => {
                         marginTop: 20,
                       }}
                     >
-                      {status.github_oauth ? (
+                      {status.burncloud_oauth ? (
+                        <Button
+                          type='primary'
+                          icon={<Image src='/burncloud_logo.png' />}
+                          onClick={() =>
+                            onBurnCloudOAuthClicked(status.burncloud_client_id)
+                          }
+                        />
+                      ) : (
+                        <></>
+                      )}
+                       {status.github_oauth ? (
                         <Button
                           type='primary'
                           icon={<IconGithubLogo />}

@@ -9,7 +9,7 @@ import {
   showSuccess,
   updateAPI,
 } from '../helpers';
-import {onGitHubOAuthClicked, onOIDCClicked, onLinuxDOOAuthClicked} from './utils';
+import { onBurnCloudOAuthClicked,onOIDCClicked,onGitHubOAuthClicked, onLinuxDOOAuthClicked } from './utils';
 import Turnstile from 'react-turnstile';
 import {
   Button,
@@ -30,6 +30,10 @@ import WeChatIcon from './WeChatIcon';
 import { setUserData } from '../helpers/data.js';
 import LinuxDoIcon from './LinuxDoIcon.js';
 import { useTranslation } from 'react-i18next';
+import {  Image } from 'semantic-ui-react';
+
+
+
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
@@ -126,6 +130,8 @@ const LoginForm = () => {
           Modal.error({
             title: t('您正在使用默认密码！'),
             content: t('请立刻修改默认密码！'),
+            okText: t('确定'),
+            cancelText: t('取消'),
             centered: true,
           });
         }
@@ -229,7 +235,9 @@ const LoginForm = () => {
                     {t('忘记密码？')} <Link to='/reset'>{t('点击重置')}</Link>
                   </Text>
                 </div>
-                {status.github_oauth ||
+                {
+                status.burncloud_oauth ||
+                status.github_oauth ||
                 status.oidc_enabled ||
                 status.wechat_login ||
                 status.telegram_oauth ||
@@ -245,6 +253,17 @@ const LoginForm = () => {
                         marginTop: 20,
                       }}
                     >
+                      {status.burncloud_oauth ? (
+                        <Button
+                          type='primary'
+                          icon={<Image src='/burncloud_logo.png' />}
+                          onClick={() =>
+                            onBurnCloudOAuthClicked(status.burncloud_client_id)
+                          }
+                        />
+                      ) : (
+                        <></>
+                      )}
                       {status.github_oauth ? (
                         <Button
                           type='primary'

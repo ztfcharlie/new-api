@@ -32,11 +32,11 @@ const About = lazy(() => import('./pages/About'));
 
 function App() {
   const location = useLocation();
-  
+
   return (
     <>
       <Routes>
-        <Route
+      <Route
           path='/'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>

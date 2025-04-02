@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Grid, Header, Image, Segment } from 'semantic-ui-react';
 import { API, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
-
+import { useTranslation } from 'react-i18next';
 const PasswordResetForm = () => {
+  const { t } = useTranslation();
   const [inputs, setInputs] = useState({
     email: '',
   });
@@ -59,7 +60,7 @@ const PasswordResetForm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src='/logo.png' /> {t('重置密码')}
+          <Image src='/logo.png' /> {t('密码重置')}
         </Header>
         <Form size='large'>
           <Segment>
@@ -67,7 +68,7 @@ const PasswordResetForm = () => {
               fluid
               icon='mail'
               iconPosition='left'
-              placeholder={t('邮箱')}
+              placeholder={t('邮箱地址')}
               name='email'
               value={email}
               onChange={handleChange}
@@ -90,7 +91,7 @@ const PasswordResetForm = () => {
               loading={loading}
               disabled={disableButton}
             >
-              {disableButton ? t('密码重置完成') : t('提交')}
+              {disableButton ? `${t('重试')} (${countdown})` : t('提交')}
             </Button>
           </Segment>
         </Form>

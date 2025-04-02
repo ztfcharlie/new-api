@@ -17,6 +17,8 @@ import {
 import { useTranslation } from 'react-i18next';
 
 const EditUser = (props) => {
+  const { t } = useTranslation();
+
   const userId = props.editingUser.id;
   const [loading, setLoading] = useState(true);
   const [addQuotaModalOpen, setIsModalOpen] = useState(false);
@@ -104,7 +106,7 @@ const EditUser = (props) => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('用户信息更新成功！');
+      showSuccess(t('用户信息更新成功！'));
       props.refresh();
       props.handleClose();
     } else {
@@ -123,7 +125,6 @@ const EditUser = (props) => {
     setIsModalOpen(true);
   };
 
-  const { t } = useTranslation();
 
   return (
     <>

@@ -4,14 +4,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { API, showError, showSuccess, updateAPI } from '../helpers';
 import { UserContext } from '../context/User';
 import { setUserData } from '../helpers/data.js';
+import { useTranslation } from 'react-i18next';
 
 const OAuth2Callback = (props) => {
+    
     const [searchParams, setSearchParams] = useSearchParams();
-
+    const { t } = useTranslation();
     const [userState, userDispatch] = useContext(UserContext);
-    const [prompt, setPrompt] = useState('处理中...');
+    const [prompt, setPrompt] = useState(t('处理中...'));
     const [processing, setProcessing] = useState(true);
-
     let navigate = useNavigate();
 
     const sendCode = async (code, state, count) => {
@@ -37,7 +38,7 @@ const OAuth2Callback = (props) => {
                 return;
             }
             count++;
-            setPrompt(t('出现错误，第 ${count} 次重试中...'));
+            setPrompt(t('出现错误，第 {count} 次重试中...',{count}));
             await new Promise((resolve) => setTimeout(resolve, count * 2000));
             await sendCode(code, state, count);
         }

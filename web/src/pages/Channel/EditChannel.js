@@ -24,8 +24,10 @@ import {
   Checkbox,
   Banner, Modal
 } from '@douyinfe/semi-ui';
-import { getChannelModels, loadChannelModels } from '../../components/utils.js';
 
+import { getChannelModels, loadChannelModels } from '../../components/utils.js';
+import axios from 'axios';
+import { t } from 'i18next';
 const MODEL_MAPPING_EXAMPLE = {
   'gpt-3.5-turbo': 'gpt-3.5-turbo-0125'
 };
@@ -38,6 +40,8 @@ const REGION_EXAMPLE = {
   'default': 'us-central1',
   'claude-3-5-sonnet-20240620': 'europe-west1'
 };
+
+
 function type2secretPrompt(type) {
   // inputs.type === 15 ? t('按照如下格式输入：APIKey|SecretKey') : (inputs.type === 18 ? t('按照如下格式输入：APPID|APISecret|APIKey') : t('请输入渠道对应的鉴权密钥'))
   switch (type) {
@@ -50,7 +54,7 @@ function type2secretPrompt(type) {
     case 23:
       return t('按照如下格式输入：')+'AppId|SecretId|SecretKey';
     case 33:
-      return t('按照如下格式输入：')+'Ak|Sk|Region;
+      return t('按照如下格式输入：')+'Ak|Sk|Region';
     default:
       return t('请输入渠道对应的鉴权密钥');
   }
@@ -698,7 +702,7 @@ const EditChannel = (props) => {
           {inputs.type === 18 && (
             <>
               <div style={{ marginTop: 10 }}>
-                <Typography.Text strong>{t("模型版本")}：</Typography.Text>
+                <Typography.Text strong>{t('模型版本：')}</Typography.Text>
               </div>
               <Input
                 name="other"
@@ -752,12 +756,12 @@ const EditChannel = (props) => {
           {inputs.type === 21 && (
             <>
               <div style={{ marginTop: 10 }}>
-                <Typography.Text strong>{t('知识库 ID')}：</Typography.Text>
+                <Typography.Text strong>{t('知识库 ID：')}</Typography.Text>
               </div>
               <Input
-                label={t("知识库 ID")}
+                label={t('知识库 ID：')}
                 name="other"
-                placeholder={'请输入知识库 ID，例如：123456'}
+                placeholder={t('请输入知识库 ID，例如：123456')}
                 onChange={(value) => {
                   handleInputChange('other', value);
                 }}

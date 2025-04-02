@@ -7,7 +7,7 @@ import { getChannelModels } from '../../components/utils.js';
 const MODEL_MAPPING_EXAMPLE = {
   'gpt-3.5-turbo': 'gpt-3.5-turbo-0125'
 };
-
+import { t } from 'i18next';
 const EditTagModal = (props) => {
   const { visible, tag, handleClose, refresh } = props;
   const [loading, setLoading] = useState(false);
@@ -220,147 +220,146 @@ const EditTagModal = (props) => {
 
   return (
     <SideSheet
-  title={t("编辑标签")}
-  visible={visible}
-  onCancel={handleClose}
-  footer={
-    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <Space>
-        <Button onClick={handleClose}>{t("取消")}</Button>
-        <Button type="primary" onClick={handleSave} loading={loading}>{t("保存")}</Button>
-      </Space>
-    </div>
-  }
->
-  <div style={{ marginTop: 10 }}>
-    <Banner
-      type={'warning'}
-      description={
-        <>
-          {t("所有编辑均为覆盖操作，留空则不更改")}
-        </>
+      title={t('编辑标签')}
+      visible={visible}
+      onCancel={handleClose}
+      footer={
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Space>
+            <Button onClick={handleClose}>{t('取消')}</Button>
+            <Button type="primary" onClick={handleSave} loading={loading}>{t('保存')}</Button>
+          </Space>
+        </div>
       }
-    ></Banner>
-  </div>
-  <Spin spinning={loading}>
-    <TextInput
-      label={t("标签名，留空则解散标签")}
-      name="newTag"
-      value={inputs.new_tag}
-      onChange={(value) => setInputs({ ...inputs, new_tag: value })}
-      placeholder={t("请输入新标签")}
-    />
-    <div style={{ marginTop: 10 }}>
-      <Typography.Text strong>{t("模型，留空则不更改：")}</Typography.Text>
-    </div>
-    <Select
-      placeholder={t('请选择该渠道所支持的模型，留空则不更改')}
-      name="models"
-      required
-      multiple
-      selection
-      filter
-      searchPosition='dropdown'
-      onChange={(value) => {
-        handleInputChange('models', value);
-      }}
-      value={inputs.models}
-      autoComplete="new-password"
-      optionList={modelOptions}
-    />
-    <Input
-      addonAfter={
-        <Button type="primary" onClick={addCustomModels}>
-          {t("填入")}
-        </Button>
-      }
-      placeholder={t("输入自定义模型名称")}
-      value={customModel}
-      onChange={(value) => {
-        setCustomModel(value.trim());
-      }}
-    />
-    <div style={{ marginTop: 10 }}>
-      <Typography.Text strong>{t("分组，留空则不更改：")}</Typography.Text>
-    </div>
-    <Select
-      placeholder={t('请选择可以使用该渠道的分组，留空则不更改')}
-      name="groups"
-      required
-      multiple
-      selection
-      allowAdditions
-      additionLabel={t('请在系统设置页面编辑分组倍率以添加新的分组：')}
-      onChange={(value) => {
-        handleInputChange('groups', value);
-      }}
-      value={inputs.groups}
-      autoComplete="new-password"
-      optionList={groupOptions}
-    />
-    <div style={{ marginTop: 10 }}>
-      <Typography.Text strong>{t("模型重定向：")}</Typography.Text>
-    </div>
-    <TextArea
-      placeholder={t(`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，留空则不更改`)}
-      name="model_mapping"
-      onChange={(value) => {
-        handleInputChange('model_mapping', value);
-      }}
-      autosize
-      value={inputs.model_mapping}
-      autoComplete="new-password"
-    />
-    <Space>
-      <Typography.Text
-        style={{
-          color: 'rgba(var(--semi-blue-5), 1)',
-          userSelect: 'none',
-          cursor: 'pointer'
-        }}
-        onClick={() => {
-          handleInputChange(
-            'model_mapping',
-            JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)
-          );
-        }}
-      >
-        {t("填入模板")}
-      </Typography.Text>
-      <Typography.Text
-        style={{
-          color: 'rgba(var(--semi-blue-5), 1)',
-          userSelect: 'none',
-          cursor: 'pointer'
-        }}
-        onClick={() => {
-          handleInputChange(
-            'model_mapping',
-            JSON.stringify({}, null, 2)
-          );
-        }}
-      >
-        {t("清空重定向")}
-      </Typography.Text>
-      <Typography.Text
-        style={{
-          color: 'rgba(var(--semi-blue-5), 1)',
-          userSelect: 'none',
-          cursor: 'pointer'
-        }}
-        onClick={() => {
-          handleInputChange(
-            'model_mapping',
-            ""
-          );
-        }}
-      >
-        {t("不更改")}
-      </Typography.Text>
-    </Space>
-  </Spin>
-</SideSheet>
-
+    >
+      <div style={{ marginTop: 10 }}>
+        <Banner
+          type={'warning'}
+          description={
+            <>
+              {t('所有编辑均为覆盖操作，留空则不更改')}
+            </>
+          }
+        ></Banner>
+      </div>
+      <Spin spinning={loading}>
+        <TextInput
+          label={t('标签名，留空则解散标签')}
+          name="newTag"
+          value={inputs.new_tag}
+          onChange={(value) => setInputs({ ...inputs, new_tag: value })}
+          placeholder={t('请输入新标签')}
+        />
+        <div style={{ marginTop: 10 }}>
+          <Typography.Text strong>{t('模型，留空则不更改：')}</Typography.Text>
+        </div>
+        <Select
+          placeholder={t('请选择该渠道所支持的模型，留空则不更改')}
+          name="models"
+          required
+          multiple
+          selection
+          filter
+          searchPosition='dropdown'
+          onChange={(value) => {
+            handleInputChange('models', value);
+          }}
+          value={inputs.models}
+          autoComplete="new-password"
+          optionList={modelOptions}
+        />
+        <Input
+          addonAfter={
+            <Button type="primary" onClick={addCustomModels}>
+              {t('填入')}
+            </Button>
+          }
+          placeholder={t('输入自定义模型名称')}
+          value={customModel}
+          onChange={(value) => {
+            setCustomModel(value.trim());
+          }}
+        />
+        <div style={{ marginTop: 10 }}>
+          <Typography.Text strong>{t('分组，留空则不更改：')}</Typography.Text>
+        </div>
+        <Select
+          placeholder={t('请选择可以使用该渠道的分组，留空则不更改')}
+          name="groups"
+          required
+          multiple
+          selection
+          allowAdditions
+          additionLabel={t('请在系统设置页面编辑分组倍率以添加新的分组：')}
+          onChange={(value) => {
+            handleInputChange('groups', value);
+          }}
+          value={inputs.groups}
+          autoComplete="new-password"
+          optionList={groupOptions}
+        />
+        <div style={{ marginTop: 10 }}>
+          <Typography.Text strong>{t('模型重定向：')}</Typography.Text>
+        </div>
+        <TextArea
+          placeholder={t(`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，留空则不更改`)}
+          name="model_mapping"
+          onChange={(value) => {
+            handleInputChange('model_mapping', value);
+          }}
+          autosize
+          value={inputs.model_mapping}
+          autoComplete="new-password"
+        />
+        <Space>
+          <Typography.Text
+            style={{
+              color: 'rgba(var(--semi-blue-5), 1)',
+              userSelect: 'none',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              handleInputChange(
+                'model_mapping',
+                JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)
+              );
+            }}
+          >
+            {t('填入模板')}
+          </Typography.Text>
+          <Typography.Text
+            style={{
+              color: 'rgba(var(--semi-blue-5), 1)',
+              userSelect: 'none',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              handleInputChange(
+                'model_mapping',
+                JSON.stringify({}, null, 2)
+              );
+            }}
+          >
+            {t('清空重定向')}
+          </Typography.Text>
+          <Typography.Text
+            style={{
+              color: 'rgba(var(--semi-blue-5), 1)',
+              userSelect: 'none',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              handleInputChange(
+                'model_mapping',
+                ""
+              );
+            }}
+          >
+            {t('不更改')}
+          </Typography.Text>
+        </Space>
+      </Spin>
+    </SideSheet>
   );
 };
 

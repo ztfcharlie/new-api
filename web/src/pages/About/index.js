@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { API, showError } from '../../helpers';
 import { marked } from 'marked';
 import { Layout } from '@douyinfe/semi-ui';
+import { useTranslation } from 'react-i18next';
 
 const About = () => {
+  const { t } = useTranslation();
   const [about, setAbout] = useState('');
   const [aboutLoaded, setAboutLoaded] = useState(false);
 
@@ -33,6 +35,18 @@ const About = () => {
     <>
       {aboutLoaded && about === '' ? (
         <>
+          <Layout>
+            <Layout.Header>
+              <h3>{t('关于')}</h3>
+            </Layout.Header>
+            <Layout.Content>
+              <p>{t('可在设置页面设置关于内容，支持 HTML & Markdown')}</p>
+              <p> Burncloud Inc. </p>
+              <p>
+                {t('本项目根据MIT许可证授权，需在遵守Apache-2.0协议的前提下使用。')}
+              </p>
+            </Layout.Content>
+          </Layout>
         </>
       ) : (
         <>

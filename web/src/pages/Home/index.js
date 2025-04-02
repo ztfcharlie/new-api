@@ -5,7 +5,7 @@ import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
 import { StyleContext } from '../../context/Style/index.js';
 import { useTranslation } from 'react-i18next';
-
+import "./index.css";
 const Home = () => {
   const { t, i18n } = useTranslation();
   const [statusState] = useContext(StatusContext);
@@ -74,117 +74,7 @@ const Home = () => {
     <>
       {homePageContentLoaded && homePageContent === '' ? (
         <>
-          <Card
-            bordered={false}
-            headerLine={false}
-            title={t('系统状况')}
-            bodyStyle={{ padding: '10px 20px' }}
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Card
-                  title={t('系统信息')}
-                  headerExtraContent={
-                    <span
-                      style={{
-                        fontSize: '12px',
-                        color: 'var(--semi-color-text-1)',
-                      }}
-                    >
-                      {t('系统信息总览')}
-                    </span>
-                  }
-                >
-                  <p>{t('名称')}：{statusState?.status?.system_name}</p>
-                  <p>
-                    {t('版本')}：
-                    {statusState?.status?.version
-                      ? statusState?.status?.version
-                      : 'unknown'}
-                  </p>
-                  <p>
-                    {t('源码')}：
-                    <a
-                      href='https://github.com/Calcium-Ion/new-api'
-                      target='_blank'
-                      rel='noreferrer'
-                    >
-                      https://github.com/Calcium-Ion/new-api
-                    </a>
-                  </p>
-                  <p>
-                    {t('协议')}：
-                    <a
-                      href='https://www.apache.org/licenses/LICENSE-2.0'
-                      target='_blank'
-                      rel='noreferrer'
-                    >
-                      Apache-2.0 License
-                    </a>
-                  </p>
-                  <p>{t('启动时间')}：{getStartTimeString()}</p>
-                </Card>
-              </Col>
-              <Col span={12}>
-                <Card
-                  title={t('系统配置')}
-                  headerExtraContent={
-                    <span
-                      style={{
-                        fontSize: '12px',
-                        color: 'var(--semi-color-text-1)',
-                      }}
-                    >
-                      {t('系统配置总览')}
-                    </span>
-                  }
-                >
-                  <p>
-                    {t('邮箱验证')}：
-                    {statusState?.status?.email_verification === true
-                      ? t('已启用')
-                      : t('未启用')}
-                  </p>
-                  <p>
-                    {t('GitHub 身份验证')}：
-                    {statusState?.status?.github_oauth === true
-                      ? t('已启用')
-                      : t('未启用')}
-                  </p>
-                  <p>
-                    {t('OIDC 身份验证')}：
-                    {statusState?.status?.oidc === true
-                        ? t('已启用')
-                        : t('未启用')}
-                  </p>
-                  <p>
-                    {t('微信身份验证')}：
-                    {statusState?.status?.wechat_login === true
-                      ? t('已启用')
-                      : t('未启用')}
-                  </p>
-                  <p>
-                    {t('Turnstile 用户校验')}：
-                    {statusState?.status?.turnstile_check === true
-                      ? t('已启用')
-                      : t('未启用')}
-                  </p>
-                  <p>
-                    {t('Telegram 身份验证')}：
-                    {statusState?.status?.telegram_oauth === true
-                      ? t('已启用')
-                      : t('未启用')}
-                  </p>
-                  <p>
-                    {t('Linux DO 身份验证')}：
-                    {statusState?.status?.linuxdo_oauth === true
-                      ? t('已启用')
-                      : t('未启用')}
-                  </p>
-                </Card>
-              </Col>
-            </Row>
-          </Card>
+
         </>
       ) : (
         <>

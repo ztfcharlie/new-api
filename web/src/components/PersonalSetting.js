@@ -159,7 +159,6 @@ const PersonalSetting = () => {
             showError(message);
         }
     };
-
     const getUserData = async () => {
         let res = await API.get(`/api/user/self`);
         const {success, message, data} = res.data;
@@ -271,7 +270,7 @@ const PersonalSetting = () => {
         }
         setDisableButton(true);
         if (turnstileEnabled && turnstileToken === '') {
-            showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+            showInfo(t('请稍后几秒重试，Turnstile 正在检查用户环境！'));
             return;
         }
         setLoading(true);
@@ -357,7 +356,6 @@ const PersonalSetting = () => {
     };
 
     return (
-
         <div>
             <Layout>
                 <Layout.Content>
@@ -758,22 +756,32 @@ const PersonalSetting = () => {
                                         readOnly
                                         value={systemToken}
                                         onClick={handleSystemTokenClick}
-                                        style={{marginTop: '10px'}}
+                                        style={{ marginTop: '10px' }}
                                     />
+                                )}
+                                {status.wechat_login && (
+                                    <Button
+                                        onClick={() => {
+                                            setShowWeChatBindModal(true);
+                                        }}
+                                    >
+                                        {t('绑定微信账号')}
+                                    </Button>
                                 )}
                                 <Modal
                                     onCancel={() => setShowWeChatBindModal(false)}
+                                    // onOpen={() => setShowWeChatBindModal(true)}
                                     visible={showWeChatBindModal}
                                     size={'small'}
                                 >
                                     <Image src={status.wechat_qrcode}/>
                                     <div style={{textAlign: 'center'}}>
                                         <p>
-                                            微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）
+                                            {t('微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）')}
                                         </p>
                                     </div>
                                     <Input
-                                        placeholder='验证码'
+                                        placeholder={t('验证码')}
                                         name='wechat_verification_code'
                                         value={inputs.wechat_verification_code}
                                         onChange={(v) =>
@@ -892,6 +900,7 @@ const PersonalSetting = () => {
                         </Card>
                         <Modal
                             onCancel={() => setShowEmailBindModal(false)}
+                            // onOpen={() => setShowEmailBindModal(true)}
                             onOk={bindEmail}
                             visible={showEmailBindModal}
                             size={'small'}
@@ -917,10 +926,10 @@ const PersonalSetting = () => {
                                     onClick={sendVerificationCode}
                                     disabled={disableButton || loading}
                                 >
-                                    {disableButton ? t('重新发送 (${countdown})') : t('获取验证码')}
+                                    {disableButton ? `${t('重新发送')} (${countdown})` : t('获取验证码')}
                                 </Button>
                             </div>
-                            <div style={{marginTop: 10}}>
+                            <div style={{ marginTop: 10 }}>
                                 <Input
                                     fluid
                                     placeholder={t('验证码')}
@@ -952,13 +961,13 @@ const PersonalSetting = () => {
                             <div style={{marginTop: 20}}>
                                 <Banner
                                     type='danger'
-                                    description={t('删除账户后，所有数据将被永久删除，无法恢复！')}
+                                    description={t('您正在删除自己的帐户，将清空所有数据且不可恢复')}
                                     closeIcon={null}
                                 />
                             </div>
                             <div style={{marginTop: 20}}>
                                 <Input
-                                    placeholder={`${t('输入你的账户名')} ${userState?.user?.username} ${t('以确认删除')}`}
+                                    placeholder={`${t('请输入你的账户名以确认删除！')}`}
                                     name='self_account_deletion_confirmation'
                                     value={inputs.self_account_deletion_confirmation}
                                     onChange={(value) =>

@@ -1,6 +1,7 @@
 // src/hooks/useTokenKeys.js
 import { useEffect, useState } from 'react';
 import { API, showError } from '../helpers';
+import { useTranslation } from 'react-i18next';
 
 async function fetchTokenKeys() {
   try {
@@ -39,6 +40,7 @@ function getServerAddress() {
 }
 
 export function useTokenKeys(id) {
+  const { t } = useTranslation();
   const [keys, setKeys] = useState([]);
   // const [chatLink, setChatLink] = useState('');
   const [serverAddress, setServerAddress] = useState('');

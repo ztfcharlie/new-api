@@ -120,6 +120,8 @@ const EditRedemption = (props) => {
         onOk: () => {
           downloadTextAsFile(text, `${inputs.name}.txt`);
         },
+        okText: t('确定'),
+        cancelText: t('取消'),
       });
     }
     setLoading(false);

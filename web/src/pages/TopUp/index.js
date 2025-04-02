@@ -37,6 +37,9 @@ const TopUp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [payWay, setPayWay] = useState('');
+  const [enableStripe, setEnableStripe] = useState(false);
+  const [enableCoinbase, setEnableCoinbase] = useState(false);
+  const [enablePaypal, setEnablePaypal] = useState(false);
 
   const topUp = async () => {
     if (redemptionCode === '') {
@@ -55,6 +58,8 @@ const TopUp = () => {
           title: t('兑换成功！'),
           content: t('成功兑换额度：') + renderQuota(data),
           centered: true,
+          okText: t('确定'),
+          cancelText: t('取消'),
         });
         setUserQuota((quota) => {
           return quota + data;
@@ -97,7 +102,7 @@ const TopUp = () => {
       await getAmount();
     }
     if (topUpCount < minTopUp) {
-      showError('充值数量不能小于' + minTopUp);
+      showError(t('充值数量不能小于') + minTopUp);
       return;
     }
     setOpen(false);
@@ -115,7 +120,7 @@ const TopUp = () => {
           let url = res.data.url;
           let form = document.createElement('form');
           form.action = url;
-          form.method = 'POST';
+          form.method = data.method ?? 'POST';
           // 判断是否为safari浏览器
           let isSafari =
             navigator.userAgent.indexOf('Safari') > -1 &&
@@ -170,6 +175,10 @@ const TopUp = () => {
       if (status.enable_online_topup) {
         setEnableOnlineTopUp(status.enable_online_topup);
       }
+      // 添加对支付方式配置的检查
+      setEnableStripe(!!status.stripe_key);
+      setEnableCoinbase(!!status.coinbase_key);
+      setEnablePaypal(!!status.paypal_key);
     }
     getUserQuota().then();
   }, []);
@@ -195,7 +204,7 @@ const TopUp = () => {
           setAmount(parseFloat(data));
         } else {
           setAmount(0);
-          Toast.error({ content: '错误：' + data, id: 'getAmount' });
+          // Toast.error({ content: t('错误：') + data, id: 'getAmount' });
           // setTopUpCount(parseInt(res.data.count));
           // setAmount(parseInt(data));
         }
@@ -293,7 +302,7 @@ const TopUp = () => {
                     }}
                   />
                   <Space>
-                    <Button
+                    {/* <Button
                       type={'primary'}
                       theme={'solid'}
                       onClick={async () => {
@@ -313,7 +322,51 @@ const TopUp = () => {
                       }}
                     >
                       {t('微信')}
-                    </Button>
+                    </Button> */}
+                    {enableStripe && (
+                      <Button
+                        style={{
+                          backgroundColor: 'rgba(var(--semi-cyan-5), 1)',
+                        }}
+                        type={'primary'}
+                        theme={'solid'}
+                        onClick={async () => {
+                          preTopUp('stripe');
+                        }}
+                      >
+                        {t('Stripe')}
+                      </Button>
+                    )}
+                     {/* 添加 Coinbase 按钮 */}
+                     {enableCoinbase && (
+                        <Button
+                          style={{
+                            backgroundColor: '#0052FF',
+                          }}
+                          type={'primary'}
+                          theme={'solid'}
+                          onClick={async () => {
+                            preTopUp('coinbase');
+                          }}
+                        >
+                          {t('Coinbase')}
+                        </Button>
+                      )}
+                    {/* 添加 PayPal 按钮 */}
+                    {enablePaypal && (
+                      <Button
+                        style={{
+                          backgroundColor: '#003087',
+                        }}
+                        type={'primary'}
+                        theme={'solid'}
+                        onClick={async () => {
+                          preTopUp('paypal');
+                        }}
+                      >
+                        {t('PayPal')}
+                      </Button>
+                    )}
                   </Space>
                 </Form>
               </div>
