@@ -71,6 +71,12 @@ func InitOptionMap() {
 	common.OptionMap["CustomCallbackAddress"] = ""
 	common.OptionMap["EpayId"] = ""
 	common.OptionMap["EpayKey"] = ""
+	common.OptionMap["StripeKey"] = ""
+	common.OptionMap["StripeWebHookKey"] = ""
+	common.OptionMap["CoinbaseKey"] = ""
+	common.OptionMap["CoinbaseWebHookKey"] = ""
+	common.OptionMap["PaypalKey"] = ""
+	common.OptionMap["PaypalWebHookKey"] = ""
 	common.OptionMap["Price"] = strconv.FormatFloat(setting.Price, 'f', -1, 64)
 	common.OptionMap["MinTopUp"] = strconv.Itoa(setting.MinTopUp)
 	common.OptionMap["TopupGroupRatio"] = common.TopupGroupRatio2JSONString()
@@ -288,6 +294,18 @@ func updateOptionMap(key string, value string) (err error) {
 		setting.EpayId = value
 	case "EpayKey":
 		setting.EpayKey = value
+	case "StripeKey":
+		setting.StripeKey = value
+	case "StripeWebHookKey":
+		setting.StripeWebHookKey = value
+	case "CoinbaseKey":
+		setting.CoinbaseKey = value
+	case "CoinbaseWebHookKey":
+		setting.CoinbaseWebHookKey = value
+	case "PaypalKey":
+		setting.PaypalKey = value
+	case "PaypalWebHookKey":
+		setting.PaypalWebHookKey = value
 	case "Price":
 		setting.Price, _ = strconv.ParseFloat(value, 64)
 	case "MinTopUp":

@@ -16,8 +16,14 @@ import (
 func GetOptions(c *gin.Context) {
 	var options []*model.Option
 	common.OptionMapRWMutex.Lock()
+	// 添加 Coinbase 和 Paypal 的 key 到白名单
+	whiteListKey := []string{
+		"StripeKey", "StripeWebHookKey",
+		"CoinbaseKey", "CoinbaseWebHookKey",
+		"PaypalKey", "PaypalWebHookKey",
+	}
 	for k, v := range common.OptionMap {
-		if strings.HasSuffix(k, "Token") || strings.HasSuffix(k, "Secret") || strings.HasSuffix(k, "Key") {
+		if !common.StringsContains(whiteListKey, k) && (strings.HasSuffix(k, "Token") || strings.HasSuffix(k, "Secret") || strings.HasSuffix(k, "Key")) {
 			continue
 		}
 		options = append(options, &model.Option{

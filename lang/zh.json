@@ -223,7 +223,10 @@
     "topup.error.no_payment_config": "当前管理员未配置支付信息",
     "topup.error.payment_failed": "拉起支付失败",
     "topup.error.create_order": "创建订单失败",
-    
+    "topup.error.stripe_not_found": "当前管理员未配置 Stripe 支付信息",
+    "topup.error.coinbase_not_found": "当前管理员未配置 Coinbase 支付信息",
+    "topup.error.paypal_not_found": "当前管理员未配置 PayPal 支付信息",
+    "topup.error.paypal_create_failed": "创建 PayPal 订单失败",
     "topup.log.epay_notify_failed": "易支付回调失败 未找到配置信息",
     "topup.log.epay_write_failed": "易支付回调写入失败",
     "topup.log.epay_verify_failed": "易支付回调签名验证失败",
@@ -232,8 +235,14 @@
     "topup.log.epay_update_user_failed": "易支付回调更新用户失败: %v",
     "topup.log.epay_update_success": "易支付回调更新用户成功 %v",
     "topup.log.epay_callback_exception": "易支付异常回调: %v",
-    
+    "topup.error.failed":"支付失败: %v",
     "topup.record.success": "使用在线充值成功，充值金额: %v，支付金额：%f",
+    "topup.log.paypal_read_body_failed": "PayPal IPN: 读取请求体失败: %v",
+    "topup.log.paypal_received_notification": "收到 PayPal IPN 通知: %s",
+    "topup.log.paypal_parse_form_failed": "PayPal IPN: 解析表单数据失败: %v",
+    "topup.error.read_body_failed": "读取请求体失败",
+    "topup.error.invalid_signature": "无效的签名",
+    "topup.error.invalid_json": "无效的 JSON 格式",
 
      "userdata.error.time_span": "时间跨度不能超过 1 个月",
 

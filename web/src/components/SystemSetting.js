@@ -70,6 +70,14 @@ const SystemSetting = () => {
     LinuxDOOAuthEnabled: '',
     LinuxDOClientId: '',
     LinuxDOClientSecret: '',
+    // ... 现有的字段 ...
+    StripeKey: '',
+    StripeWebHookKey: '',
+    // 添加 Coinbase 和 PayPal 的配置项
+    CoinbaseKey: '',
+    CoinbaseWebHookKey: '',
+    PaypalKey: '',
+    PaypalWebHookKey: '',
   });
 
   const [originInputs, setOriginInputs] = useState({});
@@ -137,16 +145,17 @@ const SystemSetting = () => {
   const updateOptions = async (options) => {
     setLoading(true);
     try {
-      // 分离 checkbox 类型的选项和其他选项
+      // 添加空值检查
       const checkboxOptions = options.filter(opt => 
-        opt.key.toLowerCase().endsWith('enabled')
+        opt.key && typeof opt.key === 'string' && opt.key.toLowerCase().endsWith('enabled')
       );
       const otherOptions = options.filter(opt => 
-        !opt.key.toLowerCase().endsWith('enabled')
+        !opt.key || typeof opt.key !== 'string' || !opt.key.toLowerCase().endsWith('enabled')
       );
-
+  
       // 处理 checkbox 类型的选项
       for (const opt of checkboxOptions) {
+        if (!opt || !opt.key) continue; // 添加额外的安全检查
         const res = await API.put('/api/option/', {
           key: opt.key,
           value: opt.value.toString()
@@ -156,33 +165,40 @@ const SystemSetting = () => {
           return;
         }
       }
-
+  
       // 处理其他选项
       if (otherOptions.length > 0) {
-        const requestQueue = otherOptions.map(opt => 
-          API.put('/api/option/', {
-            key: opt.key,
-            value: typeof opt.value === 'boolean' ? opt.value.toString() : opt.value
-          })
-        );
-
-        const results = await Promise.all(requestQueue);
-        
-        // 检查所有请求是否成功
-        const errorResults = results.filter(res => !res.data.success);
-        errorResults.forEach(res => {
-          showError(res.data.message);
-        });
+        const requestQueue = otherOptions
+          .filter(opt => opt && opt.key) // 过滤掉无效的选项
+          .map(opt => 
+            API.put('/api/option/', {
+              key: opt.key,
+              value: typeof opt.value === 'boolean' ? opt.value.toString() : opt.value
+            })
+          );
+  
+        if (requestQueue.length > 0) {
+          const results = await Promise.all(requestQueue);
+          
+          // 检查所有请求是否成功
+          const errorResults = results.filter(res => !res.data.success);
+          errorResults.forEach(res => {
+            showError(res.data.message);
+          });
+        }
       }
-
+  
       showSuccess('更新成功');
       // 更新本地状态
       const newInputs = { ...inputs };
       options.forEach(opt => {
-        newInputs[opt.key] = opt.value;
+        if (opt && opt.key) { // 添加安全检查
+          newInputs[opt.key] = opt.value;
+        }
       });
       setInputs(newInputs);
     } catch (error) {
+      console.error('Update options error:', error);
       showError('更新失败');
     }
     setLoading(false);
@@ -226,6 +242,24 @@ const SystemSetting = () => {
     }
     if (inputs.EpayKey !== undefined && inputs.EpayKey !== '') {
       options.push({ key: 'EpayKey', value: inputs.EpayKey });
+    }
+    if (inputs.StripeKey !== '') {
+      options.push({ key: 'StripeKey', value: inputs.StripeKey });
+    }
+    if (inputs.StripeWebHookKey !== undefined && inputs.StripeWebHookKey !== '') {
+      options.push({ key: 'StripeWebHookKey', value: inputs.StripeWebHookKey });
+    }
+    if (inputs.CoinbaseKey !== '') {
+      options.push({ key: 'CoinbaseKey', value: inputs.CoinbaseKey });
+    }
+    if (inputs.CoinbaseWebHookKey !== undefined && inputs.CoinbaseWebHookKey !== '') {
+      options.push({ key: 'CoinbaseWebHookKey', value: inputs.CoinbaseWebHookKey });
+    }
+    if (inputs.PaypalKey !== '') {
+      options.push({ key: 'PaypalKey', value: inputs.PaypalKey });
+    }
+    if (inputs.PaypalWebHookKey !== undefined && inputs.PaypalWebHookKey !== '') {
+      options.push({ key: 'PaypalWebHookKey', value: inputs.PaypalWebHookKey });
     }
     if (inputs.Price !== '') {
       options.push({ key: 'Price', value: inputs.Price.toString() });
@@ -484,31 +518,87 @@ const SystemSetting = () => {
                   </Col>
                   <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                     <Form.Input
-                      field='EpayId'
-                      label='易支付商户ID'
-                      placeholder='例如：0001'
-                    />
-                  </Col>
-                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-                    <Form.Input
-                      field='EpayKey'
-                      label='易支付商户密钥'
-                      placeholder='敏感信息不会发送到前端显示'
-                      type='password'
-                    />
-                  </Col>
-                </Row>
-                <Row
-                  gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
-                  style={{ marginTop: 16 }}
-                >
-                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-                    <Form.Input
                       field='CustomCallbackAddress'
                       label='回调地址'
                       placeholder='例如：https://yourdomain.com'
                     />
                   </Col>
+                </Row>
+
+                <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}>
+                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                      <Form.Input
+                        field='EpayId'
+                        label='易支付商户ID'
+                        placeholder='例如：0001'
+                      />
+                    </Col>
+                    <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                      <Form.Input
+                        field='EpayKey'
+                        label='易支付商户密钥'
+                        placeholder='敏感信息不会发送到前端显示'
+                        type='password'
+                      />
+                    </Col>
+                </Row>
+
+                <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}>
+                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                    <Form.Input
+                      field='StripeKey'
+                      label='Stripe Key'
+                      placeholder=''
+                    />
+                  </Col>
+                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                    <Form.Input
+                      field='StripeWebHookKey'
+                      label='StripeWebHookKey'
+                      placeholder=''
+                      type='password'
+                    />
+                  </Col>
+                </Row>
+                <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}>
+                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                    <Form.Input
+                      field='CoinbaseKey'
+                      label='CoinbaseKey'
+                      placeholder=''
+                    />
+                  </Col>
+                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                    <Form.Input
+                      field='CoinbaseWebHookKey'
+                      label='CoinbaseWebHookKey'
+                      placeholder=''
+                      type='password'
+                    />
+                  </Col>
+                </Row>
+                <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}>
+                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                    <Form.Input
+                      field='PaypalKey'
+                      label='PaypalKey'
+                      placeholder=''
+                    />
+                  </Col>
+                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                    <Form.Input
+                      field='PaypalWebHookKey'
+                      label='PaypalWebScriptKey'
+                      placeholder=''
+                      type='password'
+                    />
+                  </Col>
+                </Row>
+                
+                <Row
+                  gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+                  style={{ marginTop: 16 }}
+                >
                   <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                     <Form.InputNumber
                       field='Price'
