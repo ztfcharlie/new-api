@@ -29,6 +29,7 @@ import PersonalSetting from './components/PersonalSetting.js';
 const Home = lazy(() => import('./pages/Home'));
 const Detail = lazy(() => import('./pages/Detail'));
 const About = lazy(() => import('./pages/About'));
+const Faq = lazy(() => import('./pages/Faq'));
 
 function App() {
   const location = useLocation();
@@ -253,6 +254,14 @@ function App() {
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
               <About />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/faq'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <Faq />
             </Suspense>
           }
         />

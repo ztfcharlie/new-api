@@ -14,6 +14,7 @@ const OtherSetting = () => {
     Logo: '',
     Footer: '',
     About: '',
+    Faq: '',
     HomePageContent: '',
   });
   let [loading, setLoading] = useState(false);
@@ -45,6 +46,7 @@ const OtherSetting = () => {
     Logo: false,
     HomePageContent: false,
     About: false,
+    Faq: false,
     Footer: false,
     CheckUpdate: false
   });
@@ -133,6 +135,19 @@ const OtherSetting = () => {
       showError(t('关于内容更新失败'));
     } finally {
       setLoadingInput((loadingInput) => ({ ...loadingInput, About: false }));
+    }
+  };
+ // 个性化设置 - FAQ
+  const submitFaq = async () => {
+    try {
+      setLoadingInput((loadingInput) => ({ ...loadingInput, Faq: true }));
+      await updateOption('Faq', inputs.Faq);
+      showSuccess(t('FAQ内容已更新'));
+    } catch (error) {
+      console.error(t('FAQ内容更新失败'), error);
+      showError(t('FAQ内容更新失败'));
+    } finally {
+      setLoadingInput((loadingInput) => ({ ...loadingInput, Faq: false }));
     }
   };
   // 个性化设置 - 页脚
@@ -310,6 +325,17 @@ const OtherSetting = () => {
             />
             <Button onClick={submitAbout} loading={loadingInput['About']}>
               {t('设置关于')}
+            </Button>
+            <Form.TextArea
+              label={t('FAQ')}
+              placeholder={t('在此输入新的 FAQ 内容，支持 Markdown & HTML 代码')}
+              field={'Faq'}
+              onChange={handleInputChange}
+              style={{ fontFamily: 'JetBrains Mono, Consolas' }}
+              autosize={{ minRows: 6, maxRows: 12 }}
+            />
+            <Button onClick={submitFaq} loading={loadingInput['Faq']}>
+              {t('设置FAQ')}
             </Button>
             {/*  */}
             <Banner

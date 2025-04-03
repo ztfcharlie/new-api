@@ -117,33 +117,62 @@ const HeaderBar = () => {
   const isSelfUseMode = statusState?.status?.self_use_mode_enabled || false;
   const docsLink = statusState?.status?.docs_link || '';
   const isDemoSiteMode = statusState?.status?.demo_site_enabled || false;
-
-  let buttons = [/*
+  const mobileButtons = [
+    {
+      text: null,
+      itemKey: 'home',
+      to: '/',
+      icon: <IconHome style={headerIconStyle} />,
+    },
+    {
+      text: null,
+      itemKey: 'detail',
+      to: '/',
+      icon: <IconTerminal style={headerIconStyle} />,
+    },
+    {
+      text: null,
+      itemKey: 'more',
+      icon: <IconMenu style={headerIconStyle} />,
+      items: [
+        {
+          text: t('定价'),
+          itemKey: 'pricing',
+          to: '/pricing',
+          icon: <IconPriceTag style={headerIconStyle} />,
+        },
+        // Only include the docs button if docsLink exists
+    /*
+    ...(docsLink ? [{
+      text: t('文档'),
+      itemKey: 'docs',
+      isExternal: true,
+      externalLink: docsLink,
+      icon: <IconHelpCircle style={headerIconStyle} />,
+    }] : []),
+      */
+        {
+          text: t('FAQ'),
+          itemKey: 'faq',
+          to: '/faq',
+          icon: <IconHelpCircle style={headerIconStyle} />,
+        },
+        {
+          text: t('关于'),
+          itemKey: 'about',
+          to: '/about',
+          icon: <IconInfoCircle style={headerIconStyle} />,
+        },
+      ]
+    }
+  ];
+  
+  let buttons = styleState.isMobile ? mobileButtons : [
     {
       text: t('首页'),
       itemKey: 'home',
       to: '/',
       icon: <IconHome style={headerIconStyle} />,
-    },*/
-    {
-      text: t('首页'),
-      itemKey: 'home',
-      to: '/',
-      icon: <IconHome style={headerIconStyle} />,
-      onClick: () => {
-        // 先确保在首页
-        navigate('/');
-        // 关闭左侧菜单栏
-        styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
-        styleDispatch({ type: 'SET_SIDER', payload: false });
-        // 使用 setTimeout 确保页面加载完成后再滚动
-        setTimeout(() => {
-          const element = document.getElementById('homeTop');
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
-      }
     },
     {
       text: t('控制台'),
@@ -170,33 +199,8 @@ const HeaderBar = () => {
     {
       text: t('FAQ'),
       itemKey: 'faq',
-      to: '/',
+      to: '/faq',
       icon: <IconHelpCircle style={headerIconStyle} />,
-      onClick: () => {
-        // 先导航到首页
-        navigate('/');
-        // 关闭左侧菜单栏
-        styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
-        styleDispatch({ type: 'SET_SIDER', payload: false });
-        // 使用 setTimeout 并增加延时，确保页面完全加载
-        setTimeout(() => {
-          const element = document.getElementById('faqAncher');
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          } else {
-            // 如果还没找到元素，继续尝试
-            const retryInterval = setInterval(() => {
-              const retryElement = document.getElementById('faqAncher');
-              if (retryElement) {
-                retryElement.scrollIntoView({ behavior: 'smooth' });
-                clearInterval(retryInterval);
-              }
-            }, 100);
-            // 设置最大重试时间为 3 秒
-            setTimeout(() => clearInterval(retryInterval), 3000);
-          }
-        }, 300); // 增加延时，给页面更多时间加载
-      }
     },
     {
       text: t('关于'),
@@ -205,6 +209,7 @@ const HeaderBar = () => {
       icon: <IconInfoCircle style={headerIconStyle} />,
     },
   ];
+  
 
   async function logout() {
     await API.get('/api/user/logout');
@@ -286,10 +291,12 @@ const HeaderBar = () => {
                 detail: '/detail',
                 home: '/',
                 chat: '/chat',
+                faq: '/faq',  // 添加这一行
               };
               return (
                 <div onClick={(e) => {
-                  if (props.itemKey === 'home') {
+                  // 添加 FAQ 到不需要设置内边距的页面列表中
+                  if (props.itemKey === 'home' || props.itemKey === 'about' || props.itemKey === 'faq') {
                     styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
                     styleDispatch({ type: 'SET_SIDER', payload: false });
                   } else {

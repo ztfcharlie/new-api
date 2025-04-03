@@ -23,6 +23,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 	"github.com/shopspring/decimal"
+	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/webhook"
 )
 
 const (
@@ -387,6 +389,54 @@ func handleOrderSuccess(verifyInfo VerifyInfo) error {
 		return nil
 	}
 	return fmt.Errorf(lang.T(nil, "topup.error.failed"), topUp)
+}
+
+func StripeNotify(c *gin.Context) {
+	// Webhook 密钥
+	stripeWebhookSecret := setting.StripeWebHookKey
+
+	// 读取请求体
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
+
+	// 验证签名
+	stripeSignature := c.GetHeader("Stripe-Signature")
+	event, err := webhook.ConstructEvent(body, stripeSignature, stripeWebhookSecret)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid signature"})
+		return
+	}
+
+	// 处理事件
+	switch event.Type {
+	case "checkout.session.completed":
+		var paymentIntent stripe.PaymentIntent
+		err := json.Unmarshal(event.Data.Raw, &paymentIntent)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse payment intent"})
+			return
+		}
+		// 处理支付成功的逻辑
+		log.Printf("PaymentIntent failed: %s", paymentIntent.ID)
+		trade_no := paymentIntent.Metadata["trade_no"]
+		info := VerifyInfo{
+			ServiceTradeNo: trade_no,
+		}
+		// 处理成功的订单
+		err = handleOrderSuccess(info)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	default:
+		log.Printf("Unhandled event type: %s", event.Type)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "success"})
+
 }
 
 // 添加 Coinbase 回调处理函数
