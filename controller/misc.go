@@ -65,7 +65,7 @@ func GetStatus(c *gin.Context) {
 			"enable_data_export":          common.DataExportEnabled,
 			"data_export_default_time":    common.DataExportDefaultTime,
 			"default_collapse_sidebar":    common.DefaultCollapseSidebar,
-			"enable_online_topup":         setting.PayAddress != "" && setting.EpayId != "" && setting.EpayKey != "",
+			"enable_online_topup":         setting.PayAddress != "" || setting.StripeKey != "" || setting.CoinbaseKey != "" || setting.PaypalKey != "",
 			"mj_notify_enabled":           setting.MjNotifyEnabled,
 			"chats":                       setting.Chats,
 			"demo_site_enabled":           operation_setting.DemoSiteEnabled,
@@ -73,6 +73,10 @@ func GetStatus(c *gin.Context) {
 			"oidc_enabled":                system_setting.GetOIDCSettings().Enabled,
 			"oidc_client_id":              system_setting.GetOIDCSettings().ClientId,
 			"oidc_authorization_endpoint": system_setting.GetOIDCSettings().AuthorizationEndpoint,
+			// 添加各支付方式的状态
+			"stripe_key":   setting.StripeKey != "",
+			"coinbase_key": setting.CoinbaseKey != "",
+			"paypal_key":   setting.PaypalKey != "",
 		},
 	})
 	return

@@ -233,18 +233,6 @@ const OtherSetting = () => {
           <Form.Section text={t('系统信息')}>
             <Row>
               <Col span={16}>
-                <Space>
-                  <Text>
-                    {t('当前版本')}：{statusState?.status?.version || t('未知')}
-                  </Text>
-                  <Button type="primary" onClick={checkUpdate} loading={loadingInput['CheckUpdate']}>
-                    {t('检查更新')}
-                  </Button>
-                </Space>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={16}>
                 <Text>{t('启动时间')}：{getStartTimeString()}</Text>
               </Col>
             </Row>

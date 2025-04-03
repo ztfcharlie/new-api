@@ -14,7 +14,7 @@ const (
 	// ContextKeyLang 在gin上下文中存储语言设置的键
 	ContextKeyLang = "current_language"
 	// DefaultLang 默认语言
-	DefaultLang = "zh"
+	DefaultLang = "en"
 )
 
 var (

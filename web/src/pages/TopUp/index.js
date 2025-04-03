@@ -185,7 +185,7 @@ const TopUp = () => {
 
   const renderAmount = () => {
     // console.log(amount);
-    return amount + ' ' + t('元');
+    return amount + ' ' + t('美元');
   };
 
   const getAmount = async (value) => {

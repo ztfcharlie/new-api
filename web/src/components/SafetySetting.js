@@ -210,12 +210,12 @@ const SafetySetting = () => {
 
   const submitPayAddress = async () => {
     if (inputs.ServerAddress === '') {
-      showError('请先填写服务器地址');
+      showError(t('请先填写服务器地址'));
       return;
     }
     if (originInputs['TopupGroupRatio'] !== inputs.TopupGroupRatio) {
       if (!verifyJSON(inputs.TopupGroupRatio)) {
-        showError('充值分组倍率不是合法的 JSON 字符串');
+        showError(t('充值分组倍率不是合法的 JSON 字符串'));
         return;
       }
       await updateOption('TopupGroupRatio', inputs.TopupGroupRatio);
@@ -390,18 +390,18 @@ const SafetySetting = () => {
           </Header>
           <Form.Group widths='equal'>
             <Form.Input
-              label='服务器地址'
-              placeholder='例如：https://yourdomain.com'
+              label={t('服务器地址')}
+              placeholder=""
               value={inputs.ServerAddress}
               name='ServerAddress'
               onChange={handleInputChange}
             />
           </Form.Group>
           <Form.Button onClick={submitServerAddress}>
-            更新服务器地址
+            {t('更新服务器地址')}
           </Form.Button>
           <Header as='h3' inverted={isDark}>
-            代理设置
+            {t('代理设置')}
           </Header>
           <Form.Group widths='equal'>
             <Form.Input

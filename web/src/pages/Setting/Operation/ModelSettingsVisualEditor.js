@@ -38,7 +38,7 @@ export default function ModelSettingsVisualEditor(props) {
 
       setModels(modelData);
     } catch (error) {
-      console.error('JSON解析错误:', error);
+      console.error(t('JSON解析错误:'), error);
     }
   }, [props.options]);
 
@@ -116,7 +116,7 @@ export default function ModelSettingsVisualEditor(props) {
       props.refresh();
 
     } catch (error) {
-      console.error('保存失败:', error);
+      console.error(t('保存失败:'), error);
       showError(t('保存失败，请重试'));
     } finally {
       setLoading(false);

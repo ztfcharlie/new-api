@@ -10,6 +10,7 @@ import {
   TagInput,
   Spin,
 } from '@douyinfe/semi-ui';
+import { useTranslation } from 'react-i18next';
 const { Text } = Typography;
 import {
   removeTrailingSlash,
@@ -20,6 +21,7 @@ import {
 import { API } from '../helpers/api';
 
 const SystemSetting = () => {
+  const { t } = useTranslation();
   let [inputs, setInputs] = useState({
     PasswordLoginEnabled: '',
     PasswordRegisterEnabled: '',
@@ -233,48 +235,55 @@ const SystemSetting = () => {
       }
     }
     
-    const options = [
-      { key: 'PayAddress', value: removeTrailingSlash(inputs.PayAddress) }
-    ];
+    const options = [];
+
+    // 添加 PayAddress 时进行空值检查
+    if (inputs.PayAddress) {
+      options.push({ key: 'PayAddress', value: removeTrailingSlash(inputs.PayAddress) });
+    }
     
-    if (inputs.EpayId !== '') {
+    if (inputs.EpayId) {
       options.push({ key: 'EpayId', value: inputs.EpayId });
     }
     if (inputs.EpayKey !== undefined && inputs.EpayKey !== '') {
       options.push({ key: 'EpayKey', value: inputs.EpayKey });
     }
-    if (inputs.StripeKey !== '') {
+    if (inputs.StripeKey) {
       options.push({ key: 'StripeKey', value: inputs.StripeKey });
     }
     if (inputs.StripeWebHookKey !== undefined && inputs.StripeWebHookKey !== '') {
       options.push({ key: 'StripeWebHookKey', value: inputs.StripeWebHookKey });
     }
-    if (inputs.CoinbaseKey !== '') {
+    if (inputs.CoinbaseKey) {
       options.push({ key: 'CoinbaseKey', value: inputs.CoinbaseKey });
     }
     if (inputs.CoinbaseWebHookKey !== undefined && inputs.CoinbaseWebHookKey !== '') {
       options.push({ key: 'CoinbaseWebHookKey', value: inputs.CoinbaseWebHookKey });
     }
-    if (inputs.PaypalKey !== '') {
+    if (inputs.PaypalKey) {
       options.push({ key: 'PaypalKey', value: inputs.PaypalKey });
     }
     if (inputs.PaypalWebHookKey !== undefined && inputs.PaypalWebHookKey !== '') {
       options.push({ key: 'PaypalWebHookKey', value: inputs.PaypalWebHookKey });
     }
-    if (inputs.Price !== '') {
+    if (inputs.Price !== undefined && inputs.Price !== '') {
       options.push({ key: 'Price', value: inputs.Price.toString() });
     }
-    if (inputs.MinTopUp !== '') {
+    if (inputs.MinTopUp !== undefined && inputs.MinTopUp !== '') {
       options.push({ key: 'MinTopUp', value: inputs.MinTopUp.toString() });
     }
-    if (inputs.CustomCallbackAddress !== '') {
+    if (inputs.CustomCallbackAddress) {
       options.push({ key: 'CustomCallbackAddress', value: inputs.CustomCallbackAddress });
     }
-    if (originInputs['TopupGroupRatio'] !== inputs.TopupGroupRatio) {
+    if (originInputs['TopupGroupRatio'] !== inputs.TopupGroupRatio && inputs.TopupGroupRatio) {
       options.push({ key: 'TopupGroupRatio', value: inputs.TopupGroupRatio });
     }
-    
-    await updateOptions(options);
+    // 只有在有选项需要更新时才调用 API
+    if (options.length > 0) {
+      await updateOptions(options);
+    } else {
+      showError(t('没有需要更新的选项'));
+    }
   };
 
   const submitSMTP = async () => {
@@ -603,8 +612,8 @@ const SystemSetting = () => {
                     <Form.InputNumber
                       field='Price'
                       precision={2}
-                      label='充值价格（x元/美金）'
-                      placeholder='例如：7，就是7元/美金'
+                      label='充值价格（x美元/美金）'
+                      placeholder='例如：1，就是1美元/美金'
                     />
                   </Col>
                   <Col xs={24} sm={24} md={8} lg={8} xl={8}>

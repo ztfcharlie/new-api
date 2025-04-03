@@ -807,7 +807,7 @@ const LogsTable = () => {
       if (isAdminUser && (logs[i].type === 0 || logs[i].type === 2)) {
         expandDataLocal.push({
           key: t('渠道信息'),
-          value: `${logs[i].channel} - ${logs[i].channel_name || '[未知]'}`
+          value: `${logs[i].channel} - ${logs[i].channel_name || t('[未知]')}`
         });
       }
       if (other?.ws || other?.audio) {

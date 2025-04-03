@@ -207,6 +207,7 @@ const LoginForm = () => {
                     placeholder={t('密码')}
                     name='password'
                     type='password'
+                    autocomplete="current-password"
                     onChange={(value) => handleChange('password', value)}
                   />
 

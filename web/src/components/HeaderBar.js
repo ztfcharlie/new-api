@@ -103,7 +103,8 @@ const HeaderBar = () => {
   const [styleState, styleDispatch] = useContext(StyleContext);
   const [statusState, statusDispatch] = useContext(StatusContext);
   let navigate = useNavigate();
-  const [currentLang, setCurrentLang] = useState(i18n.language);
+  const savedLang = localStorage.getItem('i18nextLng') || i18n.language;
+  const [currentLang, setCurrentLang] = useState(savedLang);
 
   const systemName = getSystemName();
   const logo = getLogo();
@@ -117,12 +118,32 @@ const HeaderBar = () => {
   const docsLink = statusState?.status?.docs_link || '';
   const isDemoSiteMode = statusState?.status?.demo_site_enabled || false;
 
-  let buttons = [
+  let buttons = [/*
     {
       text: t('首页'),
       itemKey: 'home',
       to: '/',
       icon: <IconHome style={headerIconStyle} />,
+    },*/
+    {
+      text: t('首页'),
+      itemKey: 'home',
+      to: '/',
+      icon: <IconHome style={headerIconStyle} />,
+      onClick: () => {
+        // 先确保在首页
+        navigate('/');
+        // 关闭左侧菜单栏
+        styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
+        styleDispatch({ type: 'SET_SIDER', payload: false });
+        // 使用 setTimeout 确保页面加载完成后再滚动
+        setTimeout(() => {
+          const element = document.getElementById('homeTop');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
     },
     {
       text: t('控制台'),
@@ -137,6 +158,7 @@ const HeaderBar = () => {
       icon: <IconPriceTag style={headerIconStyle} />,
     },
     // Only include the docs button if docsLink exists
+    /*
     ...(docsLink ? [{
       text: t('文档'),
       itemKey: 'docs',
@@ -144,6 +166,38 @@ const HeaderBar = () => {
       externalLink: docsLink,
       icon: <IconHelpCircle style={headerIconStyle} />,
     }] : []),
+      */
+    {
+      text: t('FAQ'),
+      itemKey: 'faq',
+      to: '/',
+      icon: <IconHelpCircle style={headerIconStyle} />,
+      onClick: () => {
+        // 先导航到首页
+        navigate('/');
+        // 关闭左侧菜单栏
+        styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
+        styleDispatch({ type: 'SET_SIDER', payload: false });
+        // 使用 setTimeout 并增加延时，确保页面完全加载
+        setTimeout(() => {
+          const element = document.getElementById('faqAncher');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          } else {
+            // 如果还没找到元素，继续尝试
+            const retryInterval = setInterval(() => {
+              const retryElement = document.getElementById('faqAncher');
+              if (retryElement) {
+                retryElement.scrollIntoView({ behavior: 'smooth' });
+                clearInterval(retryInterval);
+              }
+            }, 100);
+            // 设置最大重试时间为 3 秒
+            setTimeout(() => clearInterval(retryInterval), 3000);
+          }
+        }, 300); // 增加延时，给页面更多时间加载
+      }
+    },
     {
       text: t('关于'),
       itemKey: 'about',
@@ -209,6 +263,8 @@ const HeaderBar = () => {
 
   const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
+    localStorage.setItem('i18nextLng', lang); // 确保语言设置被保存
+    setCurrentLang(lang);
   };
 
   return (
@@ -350,10 +406,12 @@ const HeaderBar = () => {
                 {/* <Nav.Item itemKey={'about'} icon={<IconHelpCircle />} /> */}
                 <>
                   <Switch
-                    checkedText='🌞'
+                    id="theme-switch"  // 添加唯一的 id
+                    name="theme"       // 添加 name 属性
+                    checkedText=''
                     size={styleState.isMobile?'default':'large'}
                     checked={theme === 'dark'}
-                    uncheckedText='🌙'
+                    uncheckedText=''
                     style={switchStyle}
                     onChange={(checked) => {
                       setTheme(checked);
@@ -361,29 +419,29 @@ const HeaderBar = () => {
                   />
                 </>
                 <Dropdown
-                  position='bottomRight'
-                  render={
-                    <Dropdown.Menu style={dropdownStyle}>
-                      <Dropdown.Item
-                        onClick={() => handleLanguageChange('en')}
-                        type={currentLang === 'en' ? 'primary' : 'tertiary'}
-                      >
-                        English
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        onClick={() => handleLanguageChange('zh')}
-                        type={currentLang === 'zh' ? 'primary' : 'tertiary'}
-                      >
-                        中文
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  }
-                >
-                  <Nav.Item
-                    itemKey={'language'}
-                    icon={<IconLanguage style={headerIconStyle} />}
-                  />
-                </Dropdown>
+                    position='bottomRight'
+                    render={
+                      <Dropdown.Menu style={dropdownStyle}>
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('en')}
+                          type={currentLang === 'en' ? 'primary' : 'tertiary'}
+                        >
+                          English
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('zh')}
+                          type={currentLang === 'zh' ? 'primary' : 'tertiary'}
+                        >
+                          中文
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    }
+                  >
+                    <Nav.Item
+                      itemKey={'language'}
+                      text={currentLang.toUpperCase()}
+                    />
+                  </Dropdown>
                 {userState.user ? (
                   <>
                     <Dropdown
