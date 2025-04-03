@@ -1,56 +1,65 @@
 version: '3.4'
 
 services:
-  new-api:
-    image: calciumion/new-api:latest
-    container_name: new-api
+  burncloud-aiapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: burncloud-aiapi
     restart: always
     command: --log-dir /app/logs
-    ports:
-      - "3000:3000"
+    #ports:
+    #  - "3002:3000"
     volumes:
       - ./data:/data
       - ./logs:/app/logs
     environment:
-      - SQL_DSN=root:123456@tcp(mysql:3306)/new-api  # Point to the mysql service
-      - REDIS_CONN_STRING=redis://redis
-      - TZ=Asia/Shanghai
+      - SQL_DSN=${SQL_DSN}
       - GLOBAL_API_RATE_LIMIT_ENABLE=false
       - GLOBAL_API_RATE_LIMIT=300
       - GLOBAL_API_RATE_LIMIT_DURATION=60
       - GLOBAL_WEB_RATE_LIMIT_ENABLE=false
       - GLOBAL_WEB_RATE_LIMIT=300
       - GLOBAL_WEB_RATE_LIMIT_DURATION=60
-    #      - SESSION_SECRET=random_string  # 多机部署时设置，必须修改这个随机字符串！！！！！！！
-    #      - NODE_TYPE=slave  # Uncomment for slave node in multi-node deployment
-    #      - SYNC_FREQUENCY=60  # Uncomment if regular database syncing is needed
-    #      - FRONTEND_BASE_URL=https://openai.justsong.cn  # Uncomment for multi-node deployment with front-end URL
-
+      - CONSOLE_JWT_SECRET=${CONSOLE_JWT_SECRET}
+      - CONSOLE_API_DOMAIN=${CONSOLE_API_DOMAIN}
+      - REDIS_CONN_STRING=redis://burncloud-aiapi-redis
+      - TZ=Asia/Shanghai
     depends_on:
-      - redis
-      - mysql
+      - burncloud-aiapi-redis
+      - burncloud-aiapi-mysql
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -o '\"success\":\\s*true' | awk -F: '{print $$2}'"]
+      test: [ "CMD-SHELL", "curl -sf http://localhost:3000/api/status > /dev/null" ]
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - nginx-network  # 使用独立的虚拟网络
 
-  redis:
+  burncloud-aiapi-redis:
     image: redis:latest
-    container_name: redis
+    container_name: burncloud-aiapi-redis
     restart: always
+    networks:
+      - nginx-network  # 使用独立的虚拟网络
 
-  mysql:
+  burncloud-aiapi-mysql:
     image: mysql:8.2
-    container_name: mysql
+    container_name: burncloud-aiapi-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 123456  # Ensure this matches the password in SQL_DSN
+      MYSQL_ROOT_PASSWORD: burncloud123456!qwf
       MYSQL_DATABASE: new-api
     volumes:
-      - mysql_data:/var/lib/mysql
-    # ports:
-    #   - "3306:3306"  # If you want to access MySQL from outside Docker, uncomment
+      - ./mysql_data:/var/lib/mysql
+    #ports:
+    #  - "3306:3306"
+    networks:
+      - nginx-network  # 使用独立的虚拟网络
 
 volumes:
   mysql_data:
+
+networks:
+  nginx-network:
+    external: true  # 声明为外部网络
