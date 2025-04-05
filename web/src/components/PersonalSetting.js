@@ -83,7 +83,7 @@ const PersonalSetting = () => {
         notificationEmail: ''
     });
     const [showWebhookDocs, setShowWebhookDocs] = useState(false);
-
+    const [quotaForInviter, setQuotaForInviter] = useState("");
     useEffect(() => {
         let status = localStorage.getItem('status');
         if (status) {
@@ -100,6 +100,7 @@ const PersonalSetting = () => {
         loadModels().then();
         getAffLink().then();
         setTransferAmount(getQuotaPerUnit());
+        setQuotaForInviter(status.quota_for_inviter)
     }, []);
 
     useEffect(() => {
@@ -524,6 +525,18 @@ const PersonalSetting = () => {
                                 </div>
                             }
                         >
+                            
+                            {quotaForInviter>0?
+                            <>
+                                <Typography.Title heading={6}>{t('邀请奖励')}</Typography.Title>
+                                <div style={{marginTop: 10,marginBottom: 10}}>
+                                    {t('成功邀请通过电子邮件验证注册的用户将获得 {{count}} 的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。', {
+                                        count: renderQuota(quotaForInviter)
+                                    })}
+                                </div>
+                            </>
+                            :null}
+
                             <Typography.Title heading={6}>{t('邀请信息')}</Typography.Title>
                             <div style={{marginTop: 10}}>
                                 <Descriptions row>
