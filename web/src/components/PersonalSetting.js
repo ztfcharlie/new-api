@@ -579,156 +579,169 @@ const PersonalSetting = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div style={{marginTop: 10}}>
-                                <Typography.Text strong>{t('微信')}</Typography.Text>
-                                <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                    <div>
-                                        <Input
-                                            value={
-                                                userState.user && userState.user.wechat_id !== ''
-                                                    ? t('已绑定')
-                                                    : t('未绑定')
-                                            }
-                                            readonly={true}
-                                        ></Input>
+                            {
+                                status.wechat_login?(
+                                    <div style={{marginTop: 10}}>
+                                        <Typography.Text strong>{t('微信')}</Typography.Text>
+                                        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                            <div>
+                                                <Input
+                                                    value={
+                                                        userState.user && userState.user.wechat_id !== ''
+                                                            ? t('已绑定')
+                                                            : t('未绑定')
+                                                    }
+                                                    readonly={true}
+                                                ></Input>
+                                            </div>
+                                            <div>
+                                                <Button
+                                                    disabled={!status.wechat_login}
+                                                    onClick={() => {
+                                                        setShowWeChatBindModal(true);
+                                                    }}
+                                                >
+                                                    {userState.user && userState.user.wechat_id !== ''
+                                                        ? t('修改绑定')
+                                                        : status.wechat_login 
+                                                            ? t('绑定') 
+                                                            : t('未启用')}
+                                                </Button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <Button
-                                            disabled={!status.wechat_login}
-                                            onClick={() => {
-                                                setShowWeChatBindModal(true);
-                                            }}
-                                        >
-                                            {userState.user && userState.user.wechat_id !== ''
-                                                ? t('修改绑定')
-                                                : status.wechat_login 
-                                                    ? t('绑定') 
-                                                    : t('未启用')}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style={{marginTop: 10}}>
-                                <Typography.Text strong>{t('GitHub')}</Typography.Text>
-                                <div
-                                    style={{display: 'flex', justifyContent: 'space-between'}}
-                                >
-                                    <div>
-                                        <Input
-                                            value={
-                                                userState.user && userState.user.github_id !== ''
-                                                    ? userState.user.github_id
-                                                    : t('未绑定')
-                                            }
-                                            readonly={true}
-                                        ></Input>
-                                    </div>
-                                    <div>
-                                        <Button
-                                            onClick={() => {
-                                                onGitHubOAuthClicked(status.github_client_id);
-                                            }}
-                                            disabled={
-                                                (userState.user && userState.user.github_id !== '') ||
-                                                !status.github_oauth
-                                            }
-                                        >
-                                            {status.github_oauth ? t('绑定') : t('未启用')}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style={{marginTop: 10}}>
-                                <Typography.Text strong>{t('OIDC')}</Typography.Text>
-                                <div
-                                    style={{display: 'flex', justifyContent: 'space-between'}}
-                                >
-                                    <div>
-                                        <Input
-                                            value={
-                                                userState.user && userState.user.oidc_id !== ''
-                                                    ? userState.user.oidc_id
-                                                    : t('未绑定')
-                                            }
-                                            readonly={true}
-                                        ></Input>
-                                    </div>
-                                    <div>
-                                        <Button
-                                            onClick={() => {
-                                                onOIDCClicked(status.oidc_authorization_endpoint, status.oidc_client_id);
-                                            }}
-                                            disabled={
-                                                (userState.user && userState.user.oidc_id !== '') ||
-                                                !status.oidc_enabled
-                                            }
-                                        >
-                                            {status.oidc_enabled ? t('绑定') : t('未启用')}
-                                        </Button>
+                                ):null
+                            }
+                            {status.github_oauth?(
+                                <div style={{marginTop: 10}}>
+                                    <Typography.Text strong>{t('GitHub')}</Typography.Text>
+                                    <div
+                                        style={{display: 'flex', justifyContent: 'space-between'}}
+                                    >
+                                        <div>
+                                            <Input
+                                                value={
+                                                    userState.user && userState.user.github_id !== ''
+                                                        ? userState.user.github_id
+                                                        : t('未绑定')
+                                                }
+                                                readonly={true}
+                                            ></Input>
+                                        </div>
+                                        <div>
+                                            <Button
+                                                onClick={() => {
+                                                    onGitHubOAuthClicked(status.github_client_id);
+                                                }}
+                                                disabled={
+                                                    (userState.user && userState.user.github_id !== '') ||
+                                                    !status.github_oauth
+                                                }
+                                            >
+                                                {status.github_oauth ? t('绑定') : t('未启用')}
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div style={{marginTop: 10}}>
-                                <Typography.Text strong>{t('Telegram')}</Typography.Text>
-                                <div
-                                    style={{display: 'flex', justifyContent: 'space-between'}}
-                                >
-                                    <div>
-                                        <Input
-                                            value={
-                                                userState.user && userState.user.telegram_id !== ''
-                                                    ? userState.user.telegram_id
-                                                    : t('未绑定')
-                                            }
-                                            readonly={true}
-                                        ></Input>
+                            ):null}
+                            {status.oidc_enabled?(
+                                <div style={{marginTop: 10}}>
+                                    <Typography.Text strong>{t('OIDC')}</Typography.Text>
+                                    <div
+                                        style={{display: 'flex', justifyContent: 'space-between'}}
+                                    >
+                                        <div>
+                                            <Input
+                                                value={
+                                                    userState.user && userState.user.oidc_id !== ''
+                                                        ? userState.user.oidc_id
+                                                        : t('未绑定')
+                                                }
+                                                readonly={true}
+                                            ></Input>
+                                        </div>
+                                        <div>
+                                            <Button
+                                                onClick={() => {
+                                                    onOIDCClicked(status.oidc_authorization_endpoint, status.oidc_client_id);
+                                                }}
+                                                disabled={
+                                                    (userState.user && userState.user.oidc_id !== '') ||
+                                                    !status.oidc_enabled
+                                                }
+                                            >
+                                                {status.oidc_enabled ? t('绑定') : t('未启用')}
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <div>
-                                        {status.telegram_oauth ? (
-                                            userState.user.telegram_id !== '' ? (
-                                                <Button disabled={true}>{t('已绑定')}</Button>
+                                </div>
+                            ):null}
+                            {status.telegram_oauth?(
+                                <div style={{marginTop: 10}}>
+                                    <Typography.Text strong>{t('Telegram')}</Typography.Text>
+                                    <div
+                                        style={{display: 'flex', justifyContent: 'space-between'}}
+                                    >
+                                        <div>
+                                            <Input
+                                                value={
+                                                    userState.user && userState.user.telegram_id !== ''
+                                                        ? userState.user.telegram_id
+                                                        : t('未绑定')
+                                                }
+                                                readonly={true}
+                                            ></Input>
+                                        </div>
+                                        <div>
+                                            {status.telegram_oauth ? (
+                                                userState.user.telegram_id !== '' ? (
+                                                    <Button disabled={true}>{t('已绑定')}</Button>
+                                                ) : (
+                                                    <TelegramLoginButton
+                                                        dataAuthUrl='/api/oauth/telegram/bind'
+                                                        botName={status.telegram_bot_name}
+                                                    />
+                                                )
                                             ) : (
-                                                <TelegramLoginButton
-                                                    dataAuthUrl='/api/oauth/telegram/bind'
-                                                    botName={status.telegram_bot_name}
-                                                />
-                                            )
-                                        ) : (
-                                            <Button disabled={true}>{t('未启用')}</Button>
-                                        )}
+                                                <Button disabled={true}>{t('未启用')}</Button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div style={{marginTop: 10}}>
-                                <Typography.Text strong>{t('LinuxDO')}</Typography.Text>
-                                <div
-                                    style={{display: 'flex', justifyContent: 'space-between'}}
-                                >
-                                    <div>
-                                        <Input
-                                            value={
-                                                userState.user && userState.user.linux_do_id !== ''
-                                                    ? userState.user.linux_do_id
-                                                    : t('未绑定')
-                                            }
-                                            readonly={true}
-                                        ></Input>
-                                    </div>
-                                    <div>
-                                        <Button
-                                            onClick={() => {
-                                                onLinuxDOOAuthClicked(status.linuxdo_client_id);
-                                            }}
-                                            disabled={
-                                                (userState.user && userState.user.linux_do_id !== '') ||
-                                                !status.linuxdo_oauth
-                                            }
-                                        >
-                                            {status.linuxdo_oauth ? t('绑定') : t('未启用')}
-                                        </Button>
+                            ):null}
+                            {status.linuxdo_oauth?(
+                                <div style={{marginTop: 10}}>
+                                    <Typography.Text strong>{t('LinuxDO')}</Typography.Text>
+                                    <div
+                                        style={{display: 'flex', justifyContent: 'space-between'}}
+                                    >
+                                        <div>
+                                            <Input
+                                                value={
+                                                    userState.user && userState.user.linux_do_id !== ''
+                                                        ? userState.user.linux_do_id
+                                                        : t('未绑定')
+                                                }
+                                                readonly={true}
+                                            ></Input>
+                                        </div>
+                                        <div>
+                                            <Button
+                                                onClick={() => {
+                                                    onLinuxDOOAuthClicked(status.linuxdo_client_id);
+                                                }}
+                                                disabled={
+                                                    (userState.user && userState.user.linux_do_id !== '') ||
+                                                    !status.linuxdo_oauth
+                                                }
+                                            >
+                                                {status.linuxdo_oauth ? t('绑定') : t('未启用')}
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            ):null}
+                            
                             <div style={{marginTop: 10}}>
                                 <Space>
                                     <Button onClick={generateAccessToken}>
