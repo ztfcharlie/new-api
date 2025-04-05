@@ -24,7 +24,8 @@ services:
       - CONSOLE_JWT_SECRET=${CONSOLE_JWT_SECRET}
       - CONSOLE_API_DOMAIN=${CONSOLE_API_DOMAIN}
       - REDIS_CONN_STRING=redis://burncloud-aiapi-redis
-      - TZ=Asia/Shanghai
+      #- TZ=Asia/Shanghai
+      - TZ=America/New_York
     depends_on:
       - burncloud-aiapi-redis
       - burncloud-aiapi-mysql

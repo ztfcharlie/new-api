@@ -5,3 +5,8 @@
 .gitignore
 Makefile
 docs
+pythonTools
+mysql_data
+data
+logs
+one-api.db
