@@ -530,9 +530,9 @@ const PersonalSetting = () => {
                             <>
                                 <Typography.Title heading={6}>{t('邀请奖励')}</Typography.Title>
                                 <div style={{marginTop: 10,marginBottom: 10}}>
-                                    {t('成功邀请通过电子邮件验证注册的用户将获得 {{count}} 的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。', {
-                                        count: renderQuota(quotaForInviter)
-                                    })}
+                                    {t('成功邀请通过电子邮件验证注册的用户将获得')}
+                                    <span style={{color: 'rgba(var(--semi-red-5), 1)'}}> {renderQuota(quotaForInviter)} </span>
+                                    {t('的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。')}
                                 </div>
                             </>
                             :null}
