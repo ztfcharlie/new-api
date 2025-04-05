@@ -233,6 +233,7 @@ const UsersTable = () => {
   const [activePage, setActivePage] = useState(1);
   const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchInviter, setSearchInviter] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchGroup, setSearchGroup] = useState('');
   const [groupOptions, setGroupOptions] = useState([]);
@@ -327,14 +328,14 @@ const UsersTable = () => {
     }
   };
 
-  const searchUsers = async (startIdx, pageSize, searchKeyword, searchGroup) => {
-    if (searchKeyword === '' && searchGroup === '') {
+  const searchUsers = async (startIdx, pageSize, searchKeyword, searchGroup,searchInviter) => {
+    if (searchKeyword === '' && searchGroup === '' && searchInviter === '') {
         // if keyword is blank, load files instead.
         await loadUsers(startIdx, pageSize);
         return;
     }
     setSearching(true);
-    const res = await API.get(`/api/user/search?keyword=${searchKeyword}&group=${searchGroup}&p=${startIdx}&page_size=${pageSize}`);
+    const res = await API.get(`/api/user/search?keyword=${searchKeyword}&group=${searchGroup}&inviter=${searchInviter}&p=${startIdx}&page_size=${pageSize}`);
     const { success, message, data } = res.data;
     if (success) {
         const newPageData = data.items;
@@ -349,6 +350,9 @@ const UsersTable = () => {
 
   const handleKeywordChange = async (value) => {
     setSearchKeyword(value.trim());
+  };
+  const handleInviterChange = async (value) => {
+    setSearchInviter(value.trim());
   };
 
   const handlePageChange = (page) => {
@@ -425,7 +429,7 @@ const UsersTable = () => {
       ></EditUser>
       <Form
         onSubmit={() => {
-          searchUsers(activePage, pageSize, searchKeyword, searchGroup);
+          searchUsers(activePage, pageSize, searchKeyword, searchGroup,searchInviter);
         }}
         labelPosition='left'
       >
@@ -453,6 +457,20 @@ const UsersTable = () => {
                 searchUsers(activePage, pageSize, searchKeyword, value);
               }}
             />
+
+            <Tooltip content={t('推荐人用户名')}>
+              <Form.Input
+                label={t('推荐人用户名')}
+                icon='search'
+                field='inviter'
+                iconPosition='left'
+                placeholder={t('推荐人用户名')}
+                value={searchInviter}
+                loading={searching}
+                onChange={(value) => handleInviterChange(value)}
+              />
+            </Tooltip>
+
             <Button
               label={t('查询')}
               type='primary'
