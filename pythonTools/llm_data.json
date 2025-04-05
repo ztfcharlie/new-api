@@ -1,0 +1,943 @@
+[
+        {
+            "provider": "OpenAI",
+            "models": [
+                {
+                    "model_name": "GPT-4.5",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed (~2T estimated)",
+                    "features": [
+                        "Advanced reasoning capabilities",
+                        "Enhanced processing speed",
+                        "Improved context understanding",
+                        "Better instruction following",
+                        "256K token context window"
+                    ],
+                    "application_scenarios": [
+                        "Complex problem solving",
+                        "Advanced research",
+                        "Enterprise applications",
+                        "Large-scale data analysis",
+                        "Professional content creation"
+                    ]
+                },
+                {
+                    "model_name": "GPT-4O",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Optimized performance",
+                        "Advanced reasoning",
+                        "Enhanced efficiency",
+                        "Improved response quality",
+                        "128K token context window"
+                    ],
+                    "application_scenarios": [
+                        "High-performance computing",
+                        "Enterprise solutions",
+                        "Complex task processing",
+                        "Professional applications"
+                    ]
+                },
+                {
+                    "model_name": "GPT-4O-Mini",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Lightweight version of GPT-4O",
+                        "Balanced performance",
+                        "Efficient processing",
+                        "Cost-effective",
+                        "32K token context window"
+                    ],
+                    "application_scenarios": [
+                        "Medium-scale applications",
+                        "Efficient processing needs",
+                        "Cost-sensitive deployments",
+                        "General purpose tasks"
+                    ]
+                },
+                {
+                    "model_name": "GPT-3.5 Turbo",
+                    "release_date": "2022-Q4 (Updated 2024)",
+                    "parameter_scale": "175B",
+                    "features": [
+                        "Fast inference",
+                        "Cost-effective",
+                        "Good instruction following",
+                        "Stable performance",
+                        "16K token context window"
+                    ],
+                    "application_scenarios": [
+                        "General conversation",
+                        "Content creation",
+                        "Basic coding tasks",
+                        "Customer service",
+                        "Educational tools"
+                    ]
+                },
+                {
+                    "model_name": "O1",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Optimized for speed",
+                        "Reduced latency",
+                        "Cost-effective processing",
+                        "Efficient resource usage",
+                        "Advanced reasoning capabilities"
+                    ],
+                    "application_scenarios": [
+                        "Real-time applications",
+                        "High-throughput processing",
+                        "Enterprise solutions",
+                        "Quick response systems"
+                    ]
+                },
+                {
+                    "model_name": "O1-Mini",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Lightweight O1 variant",
+                        "Very fast processing",
+                        "Minimal resource usage",
+                        "Optimized for efficiency",
+                        "Compact model size"
+                    ],
+                    "application_scenarios": [
+                        "Edge computing",
+                        "Mobile applications",
+                        "Resource-constrained environments",
+                        "High-speed processing needs"
+                    ]
+                },
+                {
+                    "model_name": "O3-Mini",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Advanced reasoning in compact form",
+                        "Efficient processing",
+                        "Optimized performance",
+                        "Balance of speed and capability",
+                        "Specialized task handling"
+                    ],
+                    "application_scenarios": [
+                        "Specialized processing tasks",
+                        "Efficient reasoning applications",
+                        "Medium-scale deployments",
+                        "Balanced performance needs"
+                    ]
+                },
+                {
+                    "model_name": "Sora",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Text-to-video generation",
+                        "High-quality video synthesis",
+                        "Complex scene understanding",
+                        "Temporal consistency",
+                        "Realistic motion generation"
+                    ],
+                    "application_scenarios": [
+                        "Video content creation",
+                        "Visual storytelling",
+                        "Creative productions",
+                        "Digital media generation"
+                    ]
+                },
+                {
+                    "model_name": "DALL·E 3",
+                    "release_date": "2023-Q4",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Advanced image generation",
+                        "Improved detail accuracy",
+                        "Better prompt understanding",
+                        "Enhanced artistic quality",
+                        "More precise control"
+                    ],
+                    "application_scenarios": [
+                        "Professional image creation",
+                        "Digital art generation",
+                        "Design visualization",
+                        "Creative content production"
+                    ]
+                },
+                {
+                    "model_name": "DALL·E 2",
+                    "release_date": "2022-Q2",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Image generation",
+                        "Image editing",
+                        "Style variation",
+                        "Resolution options",
+                        "Basic prompt understanding"
+                    ],
+                    "application_scenarios": [
+                        "Basic image creation",
+                        "Simple design tasks",
+                        "Creative experimentation",
+                        "Visual content generation"
+                    ]
+                },
+                {
+                    "model_name": "TTS-1",
+                    "release_date": "2023-Q4",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Natural text-to-speech",
+                        "Multiple voices",
+                        "Good pronunciation",
+                        "Efficient processing",
+                        "Standard quality audio"
+                    ],
+                    "application_scenarios": [
+                        "Basic audio content creation",
+                        "Voice applications",
+                        "General purpose TTS",
+                        "Accessibility solutions"
+                    ]
+                },
+                {
+                    "model_name": "TTS-1 HD",
+                    "release_date": "2023-Q4",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "High-definition audio output",
+                        "Enhanced voice quality",
+                        "Superior naturalness",
+                        "Better emotional expression",
+                        "Advanced pronunciation accuracy"
+                    ],
+                    "application_scenarios": [
+                        "Professional audio production",
+                        "High-quality voice content",
+                        "Premium applications",
+                        "Broadcasting and media"
+                    ]
+                }
+            ]
+        },
+        {
+            "provider": "Anthropic",
+            "models": [
+                {
+                    "model_name": "Claude 3.7 Sonnet",
+                    "release_date": "2024-Q2",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Balanced performance and speed",
+                        "Strong reasoning capabilities",
+                        "Improved instruction following",
+                        "200K token context window",
+                        "Cost-effective processing",
+                        "Enhanced multimodal understanding"
+                    ],
+                    "application_scenarios": [
+                        "General purpose tasks",
+                        "Business applications",
+                        "Content creation",
+                        "Research assistance",
+                        "Data analysis",
+                        "Educational support"
+                    ]
+                },
+                {
+                    "model_name": "Claude 3.5 Haiku",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Fast and efficient processing",
+                        "Optimized for speed",
+                        "Good balance of capability and performance",
+                        "Shorter context window",
+                        "Cost-effective solution",
+                        "Quick response times"
+                    ],
+                    "application_scenarios": [
+                        "Real-time applications",
+                        "Quick responses",
+                        "Simple to moderate tasks",
+                        "High-volume processing",
+                        "Customer service",
+                        "Basic content generation"
+                    ]
+                },
+                {
+                    "model_name": "Claude 3 Opus",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Most capable Claude model",
+                        "Enhanced reasoning capabilities",
+                        "Advanced problem solving",
+                        "Multimodal capabilities",
+                        "200K token context window",
+                        "High accuracy and reliability",
+                        "Superior academic and analytical capabilities"
+                    ],
+                    "application_scenarios": [
+                        "Complex research and analysis",
+                        "Advanced scientific tasks",
+                        "Professional content creation",
+                        "Enterprise solutions",
+                        "Complex problem solving",
+                        "Multimodal analysis"
+                    ]
+                },
+                {
+                    "model_name": "Claude 3 Medica",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Specialized medical knowledge",
+                        "Advanced medical terminology understanding",
+                        "Healthcare compliance aware",
+                        "Medical research capabilities",
+                        "Clinical decision support",
+                        "Healthcare data analysis"
+                    ],
+                    "application_scenarios": [
+                        "Medical research",
+                        "Healthcare documentation",
+                        "Clinical support",
+                        "Medical education",
+                        "Healthcare analytics",
+                        "Medical literature review"
+                    ]
+                },
+                {
+                    "model_name": "Claude 3 Legal",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Specialized legal knowledge",
+                        "Legal document analysis",
+                        "Legal research capabilities",
+                        "Regulatory compliance awareness",
+                        "Legal terminology understanding",
+                        "Case law analysis"
+                    ],
+                    "application_scenarios": [
+                        "Legal research",
+                        "Contract analysis",
+                        "Legal document review",
+                        "Regulatory compliance",
+                        "Legal education",
+                        "Case law research"
+                    ]
+                }
+            ]
+        },
+        {
+            "provider": "DeepSeek",
+            "models": [
+                {
+                    "model_name": "DeepSeek-V3",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Vision-language model",
+                        "Advanced image understanding",
+                        "Multi-image processing",
+                        "High-resolution image support",
+                        "Detailed visual analysis",
+                        "Complex visual reasoning",
+                        "Multi-turn visual dialogue"
+                    ],
+                    "application_scenarios": [
+                        "Visual question answering",
+                        "Image analysis and description",
+                        "Visual content understanding",
+                        "Image-based problem solving",
+                        "Visual assistance",
+                        "Multi-modal applications"
+                    ]
+                },
+                {
+                    "model_name": "DeepSeek-R1",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Advanced reasoning capabilities",
+                        "Complex problem solving",
+                        "Mathematical computation",
+                        "Logical analysis",
+                        "Scientific reasoning",
+                        "Extended context understanding",
+                        "Improved accuracy in technical tasks"
+                    ],
+                    "application_scenarios": [
+                        "Scientific research",
+                        "Technical problem solving",
+                        "Mathematical analysis",
+                        "Academic research",
+                        "Complex reasoning tasks",
+                        "Professional applications"
+                    ]
+                }
+            ]
+        },
+        {
+            "provider": "Google",
+            "models": [
+                {
+                    "model_name": "Gemini 2.5 Pro",
+                    "release_date": "2024-Q2",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Advanced multimodal capabilities",
+                        "Enhanced reasoning and analysis",
+                        "Improved context understanding",
+                        "Superior task completion",
+                        "Advanced code generation",
+                        "128K token context window",
+                        "Real-time processing capabilities"
+                    ],
+                    "application_scenarios": [
+                        "Complex multimodal tasks",
+                        "Advanced research and analysis",
+                        "Professional development",
+                        "Enterprise solutions",
+                        "Creative content generation",
+                        "Advanced coding projects"
+                    ]
+                },
+                {
+                    "model_name": "Gemini 2.0 Flash",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "High-speed processing",
+                        "Optimized performance",
+                        "Efficient resource usage",
+                        "Real-time responses",
+                        "Balanced capabilities",
+                        "32K token context window"
+                    ],
+                    "application_scenarios": [
+                        "Real-time applications",
+                        "High-throughput processing",
+                        "Interactive services",
+                        "Quick response systems",
+                        "Consumer applications"
+                    ]
+                },
+                {
+                    "model_name": "Gemini 2.0 Flash-Lite",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Lightweight architecture",
+                        "Very fast inference",
+                        "Minimal resource requirements",
+                        "Efficient processing",
+                        "Mobile-optimized",
+                        "16K token context window"
+                    ],
+                    "application_scenarios": [
+                        "Mobile applications",
+                        "Edge computing",
+                        "Resource-constrained environments",
+                        "Quick response needs",
+                        "Consumer devices"
+                    ]
+                },
+                {
+                    "model_name": "Gemini 1.5 Flash",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Balanced performance",
+                        "Good processing speed",
+                        "Reliable outputs",
+                        "Cost-effective",
+                        "32K token context window"
+                    ],
+                    "application_scenarios": [
+                        "General purpose applications",
+                        "Business solutions",
+                        "Content generation",
+                        "Customer service",
+                        "Educational tools"
+                    ]
+                },
+                {
+                    "model_name": "Gemini 1.5 Flash-8B",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "8 billion",
+                    "features": [
+                        "Compact model size",
+                        "Efficient processing",
+                        "Quick response time",
+                        "Low resource usage",
+                        "16K token context window"
+                    ],
+                    "application_scenarios": [
+                        "Edge devices",
+                        "Mobile applications",
+                        "Lightweight deployments",
+                        "Basic task processing",
+                        "Resource-constrained environments"
+                    ]
+                },
+                {
+                    "model_name": "Gemini 1.5 Pro",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Strong reasoning capabilities",
+                        "Multimodal processing",
+                        "Long context understanding",
+                        "Advanced task handling",
+                        "1M token context window"
+                    ],
+                    "application_scenarios": [
+                        "Professional applications",
+                        "Research and analysis",
+                        "Content creation",
+                        "Complex problem solving",
+                        "Enterprise solutions"
+                    ]
+                },
+                {
+                    "model_name": "Imagen 3",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Advanced image generation",
+                        "High-quality outputs",
+                        "Improved style control",
+                        "Better prompt understanding",
+                        "Enhanced detail generation",
+                        "Multiple resolution support"
+                    ],
+                    "application_scenarios": [
+                        "Professional image creation",
+                        "Digital art generation",
+                        "Design visualization",
+                        "Marketing content",
+                        "Creative projects"
+                    ]
+                },
+                {
+                    "model_name": "Gemini Embedding Experimental",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Advanced text embeddings",
+                        "Semantic understanding",
+                        "Cross-lingual capabilities",
+                        "Context-aware representations",
+                        "Optimized for search",
+                        "Efficient vector generation"
+                    ],
+                    "application_scenarios": [
+                        "Semantic search",
+                        "Document similarity",
+                        "Information retrieval",
+                        "Content recommendation",
+                        "Language understanding",
+                        "Research applications"
+                    ]
+                }
+            ]
+        },
+        {
+            "provider": "X AI (XAI)",
+            "models": [
+                {
+                    "model_name": "Grok-2 Vision",
+                    "release_date": "2023-12",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Multimodal capabilities",
+                        "Advanced vision understanding",
+                        "Real-time visual processing",
+                        "Complex scene analysis",
+                        "Latest experimental features",
+                        "Continuous updates",
+                        "Bleeding edge capabilities"
+                    ],
+                    "application_scenarios": [
+                        "Computer vision tasks",
+                        "Visual content analysis",
+                        "Real-time scene understanding",
+                        "Visual AI research",
+                        "Multimodal applications"
+                    ]
+                },
+                {
+                    "model_name": "Grok-2 Image",
+                    "release_date": "2023-12",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Image generation",
+                        "Image editing",
+                        "Style transfer",
+                        "Visual content creation",
+                        "Experimental image features",
+                        "Latest generation capabilities",
+                        "Advanced editing tools"
+                    ],
+                    "application_scenarios": [
+                        "Digital art creation",
+                        "Image manipulation",
+                        "Creative design",
+                        "Content generation",
+                        "Visual asset production"
+                    ]
+                },
+                {
+                    "model_name": "Grok-2 Base",
+                    "release_date": "2023-12",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Advanced language understanding",
+                        "Real-time information processing",
+                        "Complex reasoning",
+                        "Code generation",
+                        "Internet-aware responses",
+                        "Latest language features",
+                        "Continuous improvements"
+                    ],
+                    "application_scenarios": [
+                        "Natural language processing",
+                        "Real-time data analysis",
+                        "Software development",
+                        "Content creation",
+                        "Information synthesis"
+                    ]
+                },
+                {
+                    "model_name": "Grok Beta",
+                    "release_date": "2023-12",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Early access vision features",
+                        "Experimental visual processing",
+                        "Beta testing capabilities",
+                        "Early access features",
+                        "Experimental capabilities",
+                        "Beta testing environment"
+                    ],
+                    "application_scenarios": [
+                        "Early adopter testing",
+                        "Experimental applications",
+                        "Research and development",
+                        "Feature validation",
+                        "Prototype development"
+                    ]
+                }
+            ]
+        },
+        {
+            "provider": "Meta",
+            "models": [
+                {
+                    "model_name": "Llama 3.3 70B",
+                    "release_date": "2024-Q2",
+                    "parameter_scale": "70 billion",
+                    "features": [
+                        "Advanced reasoning capabilities",
+                        "Enhanced multilingual support",
+                        "Improved context understanding",
+                        "Better instruction following",
+                        "Advanced code generation",
+                        "128K context window",
+                        "Multimodal capabilities"
+                    ],
+                    "application_scenarios": [
+                        "Large-scale AI research",
+                        "Enterprise applications",
+                        "Complex problem solving",
+                        "Multilingual processing",
+                        "Advanced code generation"
+                    ]
+                },
+                {
+                    "model_name": "Llama 3.2 70B",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "70 billion",
+                    "features": [
+                        "Improved performance",
+                        "Enhanced stability",
+                        "Better reasoning",
+                        "64K context window"
+                    ],
+                    "application_scenarios": [
+                        "Research and development",
+                        "Enterprise solutions",
+                        "Data analysis",
+                        "Content generation",
+                        "Language processing"
+                    ]
+                },
+                {
+                    "model_name": "Llama 3.1 70B",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "70 billion",
+                    "features": [
+                        "Initial Llama 3 architecture",
+                        "Improved training methodology",
+                        "Enhanced performance over Llama 2",
+                        "32K context window"
+                    ],
+                    "application_scenarios": [
+                        "Academic research",
+                        "Language understanding",
+                        "Text generation",
+                        "Data processing",
+                        "AI development"
+                    ]
+                },
+                {
+                    "model_name": "Llama 2 70B",
+                    "release_date": "2023-07",
+                    "parameter_scale": "70 billion",
+                    "features": [
+                        "Strong language understanding",
+                        "Comprehensive knowledge base",
+                        "4K context window",
+                        "Open source availability"
+                    ],
+                    "application_scenarios": [
+                        "Open source projects",
+                        "Research applications",
+                        "Text analysis",
+                        "Content creation",
+                        "Educational purposes"
+                    ]
+                },
+                {
+                    "model_name": "Code Llama 34B",
+                    "release_date": "2023-08",
+                    "parameter_scale": "34 billion",
+                    "features": [
+                        "Specialized code generation",
+                        "Multi-language support",
+                        "Code completion",
+                        "Code analysis",
+                        "Documentation generation",
+                        "100K context window for code"
+                    ],
+                    "application_scenarios": [
+                        "Software development",
+                        "Code automation",
+                        "Programming assistance",
+                        "Technical documentation",
+                        "Developer productivity tools"
+                    ]
+                }
+            ]
+        },
+        {
+            "provider": "Baidu",
+            "models": [
+                {
+                    "model_name": "ERNIE 4.0",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Knowledge-enhanced pre-training",
+                        "Advanced reasoning capabilities",
+                        "Multi-modal understanding and generation",
+                        "Complex logical inference",
+                        "Long-text comprehension",
+                        "Enhanced multilingual support",
+                        "32K token context window"
+                    ],
+                    "application_scenarios": [
+                        "Enterprise-level dialogue systems",
+                        "Intelligent content generation",
+                        "Knowledge-based Q&A",
+                        "Professional document analysis",
+                        "Cross-modal applications"
+                    ]
+                },
+                {
+                    "model_name": "ERNIE-Bot 4.0",
+                    "release_date": "2024-Q1",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Dialogue-optimized interactions",
+                        "Context-aware understanding",
+                        "Knowledge integration",
+                        "Personalized responses",
+                        "16K token context window"
+                    ],
+                    "application_scenarios": [
+                        "Intelligent customer service",
+                        "Interactive dialogue systems",
+                        "Personal assistance",
+                        "Business communications",
+                        "Educational interactions"
+                    ]
+                },
+                {
+                    "model_name": "ERNIE-Bot-8K",
+                    "release_date": "2023-Q4",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "8K token context window",
+                        "Long document processing",
+                        "Document summarization",
+                        "Enhanced memory management",
+                        "Efficient processing of lengthy texts"
+                    ],
+                    "application_scenarios": [
+                        "Long document analysis",
+                        "Academic paper processing",
+                        "Legal document review",
+                        "Technical documentation",
+                        "Research assistance"
+                    ]
+                },
+                {
+                    "model_name": "ERNIE-Speed",
+                    "release_date": "2023-Q4",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Rapid response capability",
+                        "Lightweight deployment",
+                        "Resource optimization",
+                        "High-efficiency processing",
+                        "Low latency performance"
+                    ],
+                    "application_scenarios": [
+                        "Real-time applications",
+                        "Mobile applications",
+                        "Edge computing",
+                        "High-concurrency services",
+                        "Interactive systems"
+                    ]
+                },
+                {
+                    "model_name": "ERNIE-Code",
+                    "release_date": "2023-Q3",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "Code generation",
+                        "Code conversion",
+                        "Code completion",
+                        "Multi-language support",
+                        "Programming assistance"
+                    ],
+                    "application_scenarios": [
+                        "Software development",
+                        "Code review",
+                        "Programming education",
+                        "Technical documentation",
+                        "Development automation"
+                    ]
+                },
+                {
+                    "model_name": "Stable Diffusion XL",
+                    "release_date": "2023-Q4",
+                    "parameter_scale": "Not officially disclosed",
+                    "features": [
+                        "High-quality image generation",
+                        "Advanced image editing",
+                        "Style transfer capabilities",
+                        "High-resolution output",
+                        "Multi-style support"
+                    ],
+                    "application_scenarios": [
+                        "Digital art creation",
+                        "Commercial design",
+                        "Marketing materials",
+                        "Content visualization",
+                        "Creative assistance"
+                    ]
+                }
+            ]
+        },
+        {
+            "provider": "Alibaba Cloud",
+            "models": [
+                {
+                    "model_name": "Qwen-72B",
+                    "release_date": "2024-03",
+                    "parameter_scale": "72 billion parameters",
+                    "features": [
+                        "Advanced reasoning capabilities",
+                        "Enhanced code comprehension",
+                        "Superior textual understanding",
+                        "Multilingual support",
+                        "128K context length support",
+                        "High-quality domain expertise",
+                        "Advanced language processing"
+                    ],
+                    "application_scenarios": [
+                        "Enterprise applications",
+                        "Complex reasoning tasks",
+                        "Large-scale language processing",
+                        "Research and development",
+                        "Cross-lingual applications"
+                    ]
+                },
+                {
+                    "model_name": "Qwen-2.5-Video",
+                    "release_date": "2024-03",
+                    "parameter_scale": "Not disclosed",
+                    "features": [
+                        "Text-to-video generation",
+                        "Advanced diffusion transformer architecture",
+                        "High-quality video reconstruction",
+                        "Visual content creation",
+                        "Multimodal capabilities"
+                    ],
+                    "application_scenarios": [
+                        "Video content creation",
+                        "Marketing materials",
+                        "Digital advertising",
+                        "Creative content production",
+                        "Visual storytelling"
+                    ]
+                },
+                {
+                    "model_name": "Qwen-2.5-Base",
+                    "release_date": "2024-03",
+                    "parameter_scale": "Varies (500M - 72B)",
+                    "features": [
+                        "Enhanced reasoning capabilities",
+                        "Improved mathematical processing",
+                        "Advanced coding abilities",
+                        "Knowledge retention",
+                        "Complex instruction handling",
+                        "Multimodal processing"
+                    ],
+                    "application_scenarios": [
+                        "Software development",
+                        "Data analysis",
+                        "Content generation",
+                        "Research applications",
+                        "Enterprise solutions"
+                    ]
+                },
+                {
+                    "model_name": "Qwen-1.8B",
+                    "release_date": "2024-01",
+                    "parameter_scale": "1.8 billion parameters",
+                    "features": [
+                        "Lightweight processing",
+                        "Efficient computation",
+                        "Quick response time",
+                        "Resource-efficient deployment",
+                        "Specialized task optimization"
+                    ],
+                    "application_scenarios": [
+                        "Edge computing",
+                        "Mobile applications",
+                        "Small-scale deployments",
+                        "Specific task optimization",
+                        "Resource-constrained environments"
+                    ]
+                }
+            ]
+        }
+    ]
