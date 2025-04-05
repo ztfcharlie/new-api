@@ -462,13 +462,13 @@ const UsersTable = () => {
               }}
             />
 
-            <Tooltip content={t('推荐人用户名')}>
+            <Tooltip content={t('推荐人')}>
               <Form.Input
-                label={t('推荐人用户名')}
+                label={t('推荐人')}
                 icon='search'
                 field='inviter'
                 iconPosition='left'
-                placeholder={t('推荐人用户名')}
+                placeholder={t('推荐人')}
                 value={searchInviter}
                 loading={searching}
                 onChange={(value) => handleInviterChange(value)}
