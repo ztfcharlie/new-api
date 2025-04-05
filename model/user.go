@@ -147,7 +147,7 @@ func GetAllUsers(startIdx int, num int) (users []*User, total int64, err error) 
 	return users, total, nil
 }
 
-func SearchUsers(keyword string, group string, startIdx int, num int) ([]*User, int64, error) {
+func SearchUsers(keyword string, group string, inviter string, startIdx int, num int) ([]*User, int64, error) {
 	var users []*User
 	var total int64
 	var err error
@@ -167,28 +167,41 @@ func SearchUsers(keyword string, group string, startIdx int, num int) ([]*User, 
 	query := tx.Unscoped().Model(&User{})
 
 	// 构建搜索条件
-	likeCondition := "username LIKE ? OR email LIKE ? OR display_name LIKE ?"
-
-	// 尝试将关键字转换为整数ID
-	keywordInt, err := strconv.Atoi(keyword)
-	if err == nil {
-		// 如果是数字，同时搜索ID和其他字段
-		likeCondition = "id = ? OR " + likeCondition
-		if group != "" {
-			query = query.Where("("+likeCondition+") AND "+groupCol+" = ?",
-				keywordInt, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", group)
-		} else {
-			query = query.Where(likeCondition,
-				keywordInt, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
+	var inviterUser User
+	// 推荐人
+	if inviter != "" {
+		result := DB.Where("username = ?", inviter).First(&inviterUser)
+		if result.Error != nil {
+			return make([]*User, 0), 0, err
 		}
-	} else {
-		// 非数字关键字，只搜索字符串字段
-		if group != "" {
-			query = query.Where("("+likeCondition+") AND "+groupCol+" = ?",
-				"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", group)
+		if inviterUser.Id != 0 {
+			query = query.Where("inviter_id = ?", inviterUser.Id)
+		}
+	}
+	if keyword != "" || group != "" {
+		likeCondition := "username LIKE ? OR email LIKE ? OR display_name LIKE ?"
+
+		// 尝试将关键字转换为整数ID
+		keywordInt, err := strconv.Atoi(keyword)
+		if err == nil {
+			// 如果是数字，同时搜索ID和其他字段
+			likeCondition = "id = ? OR " + likeCondition
+			if group != "" {
+				query = query.Where("("+likeCondition+") AND "+groupCol+" = ?",
+					keywordInt, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", group)
+			} else {
+				query = query.Where(likeCondition,
+					keywordInt, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
+			}
 		} else {
-			query = query.Where(likeCondition,
-				"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
+			// 非数字关键字，只搜索字符串字段
+			if group != "" {
+				query = query.Where("("+likeCondition+") AND "+groupCol+" = ?",
+					"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", group)
+			} else {
+				query = query.Where(likeCondition,
+					"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
+			}
 		}
 	}
 

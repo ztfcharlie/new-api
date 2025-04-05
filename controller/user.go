@@ -276,6 +276,7 @@ func GetAllUsers(c *gin.Context) {
 func SearchUsers(c *gin.Context) {
 	keyword := c.Query("keyword")
 	group := c.Query("group")
+	inviter := c.Query("inviter")
 	p, _ := strconv.Atoi(c.Query("p"))
 	pageSize, _ := strconv.Atoi(c.Query("page_size"))
 	if p < 1 {
@@ -285,7 +286,7 @@ func SearchUsers(c *gin.Context) {
 		pageSize = common.ItemsPerPage
 	}
 	startIdx := (p - 1) * pageSize
-	users, total, err := model.SearchUsers(keyword, group, startIdx, pageSize)
+	users, total, err := model.SearchUsers(keyword, group, inviter, startIdx, pageSize)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
