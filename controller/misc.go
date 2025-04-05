@@ -73,6 +73,7 @@ func GetStatus(c *gin.Context) {
 			"oidc_enabled":                system_setting.GetOIDCSettings().Enabled,
 			"oidc_client_id":              system_setting.GetOIDCSettings().ClientId,
 			"oidc_authorization_endpoint": system_setting.GetOIDCSettings().AuthorizationEndpoint,
+			"quota_for_inviter":           common.QuotaForInviter,
 			// 添加各支付方式的状态
 			"stripe_key":   setting.StripeKey != "",
 			"coinbase_key": setting.CoinbaseKey != "",

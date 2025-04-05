@@ -52,6 +52,10 @@ const UsersTable = () => {
       dataIndex: 'username',
     },
     {
+      title: t('邮箱'),
+      dataIndex: 'email',
+    },
+    {
       title: t('分组'),
       dataIndex: 'group',
       render: (text, record, index) => {
