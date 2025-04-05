@@ -57,7 +57,7 @@ export const StyleProvider = ({ children }) => {
     const updateShowSider = () => {
       // check pathname
       const pathname = window.location.pathname;
-      if (pathname === '' || pathname === '/' || pathname.includes('/home') || pathname.includes('/chat')) {
+      if (pathname === '' || pathname === '/' || pathname.includes('/home') || pathname.includes('/chat') || pathname.includes('/about') || pathname.includes('/faq')) {
         dispatch({ type: 'SET_SIDER', payload: false });
         dispatch({ type: 'SET_INNER_PADDING', payload: false });
       } else {
