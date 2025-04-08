@@ -42,9 +42,6 @@ const About = () => {
             <Layout.Content>
               <p>{t('可在设置页面设置关于内容，支持 HTML & Markdown')}</p>
               <p> Burncloud Inc. </p>
-              <p>
-                {t('本项目根据MIT许可证授权，需在遵守Apache-2.0协议的前提下使用。')}
-              </p>
             </Layout.Content>
           </Layout>
         </>

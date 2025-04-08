@@ -74,7 +74,7 @@ const Home = () => {
     <>
       {homePageContentLoaded && homePageContent === '' ? (
         <>
-
+        index page content is empty, please check the server configuration.
         </>
       ) : (
         <>
