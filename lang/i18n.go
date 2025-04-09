@@ -27,82 +27,21 @@ func LoadTranslations(lang string) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	// 定义可能的搜索路径
-	searchPaths := []string{
-		filepath.Join("lang", lang+".json"),             // 当前目录下的 lang
-		filepath.Join(".", "lang", lang+".json"),        // 显式当前目录
-		filepath.Join("..", "lang", lang+".json"),       // 上级目录
-		filepath.Join("..", "..", "lang", lang+".json"), // 上上级目录
-		filepath.Join("/app/lang", lang+".json"),        // Docker容器中的标准位置
-		filepath.Join("/data/lang", lang+".json"),       // 数据目录
+	filePath := filepath.Join("lang", lang+".json")
+	//帮我写个log记录这个filePath是什么
+	//fmt.Println("filePath:", filePath)
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return err
 	}
 
-	// 获取可执行文件所在目录
-	execPath, err := os.Executable()
-	if err == nil {
-		execDir := filepath.Dir(execPath)
-		// 添加可执行文件目录下的搜索路径
-		searchPaths = append(searchPaths,
-			filepath.Join(execDir, "lang", lang+".json"),
-			filepath.Join(filepath.Dir(execDir), "lang", lang+".json"),
-		)
+	var langData map[string]string
+	if err := json.Unmarshal(data, &langData); err != nil {
+		return err
 	}
 
-	// 获取工作目录
-	workDir, err := os.Getwd()
-	if err == nil {
-		fmt.Printf("Current working directory: %s\n", workDir)
-	}
-
-	// 尝试所有可能的路径
-	var lastErr error
-	for _, path := range searchPaths {
-		absPath, _ := filepath.Abs(path)
-		fmt.Printf("Trying to load language file from: %s\n", absPath)
-
-		data, err := os.ReadFile(path)
-		if err == nil {
-			var langData map[string]string
-			if err := json.Unmarshal(data, &langData); err != nil {
-				fmt.Printf("Error unmarshaling JSON from %s: %v\n", absPath, err)
-				lastErr = err
-				continue
-			}
-
-			translations[lang] = langData
-			fmt.Printf("Successfully loaded language file from: %s\n", absPath)
-			return nil
-		}
-		lastErr = err
-	}
-
-	// 如果环境变量中指定了路径，也尝试加载
-	if envPath := os.Getenv("LANG_PATH"); envPath != "" {
-		path := filepath.Join(envPath, lang+".json")
-		fmt.Printf("Trying to load language file from env path: %s\n", path)
-
-		if data, err := os.ReadFile(path); err == nil {
-			var langData map[string]string
-			if err := json.Unmarshal(data, &langData); err == nil {
-				translations[lang] = langData
-				fmt.Printf("Successfully loaded language file from env path: %s\n", path)
-				return nil
-			}
-		}
-	}
-
-	// 所有尝试都失败了，返回最后一个错误
-	return fmt.Errorf("failed to load language file %s.json from any location. Last error: %v", lang, lastErr)
-}
-
-// 添加一个初始化函数
-func init() {
-	// 预加载语言文件
-	for _, lang := range []string{"en", "zh"} {
-		if err := LoadTranslations(lang); err != nil {
-			fmt.Printf("Warning: Failed to load %s translations: %v\n", lang, err)
-		}
-	}
+	translations[lang] = langData
+	return nil
 }
 
 // T 获取翻译文本

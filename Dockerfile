@@ -29,6 +29,9 @@ RUN apk update \
     && apk add --no-cache ca-certificates tzdata ffmpeg \
     && update-ca-certificates
 
+# 从 builder2 阶段复制语言文件
+COPY --from=builder2 /build/lang /app/lang
+
 COPY --from=builder2 /build/one-api /
 EXPOSE 3000
 WORKDIR /data
