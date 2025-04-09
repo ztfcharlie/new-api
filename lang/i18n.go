@@ -20,59 +20,86 @@ var (
 	mutex        sync.RWMutex
 )
 
+func init() {
+	fmt.Println("=== Language System Debug Info ===")
+
+	// 打印当前工作目录
+	if workDir, err := os.Getwd(); err == nil {
+		fmt.Printf("Working Directory: %s\n", workDir)
+	}
+
+	// 打印可执行文件位置
+	if execPath, err := os.Executable(); err == nil {
+		fmt.Printf("Executable Path: %s\n", execPath)
+	}
+
+	// 列出 /app/lang 目录内容
+	if files, err := os.ReadDir("/app/lang"); err == nil {
+		fmt.Println("Contents of /app/lang:")
+		for _, file := range files {
+			fmt.Printf("  - %s\n", file.Name())
+		}
+	}
+
+	fmt.Println("===========================")
+}
+
+// LoadTranslations 加载指定语言的翻译文件
 // LoadTranslations 加载指定语言的翻译文件
 func LoadTranslations(lang string) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
+	// 定义可能的搜索路径
+	searchPaths := []string{
+		filepath.Join("/app/lang", lang+".json"),  // Docker容器中的标准位置
+		filepath.Join("/data/lang", lang+".json"), // 当前工作目录
+		filepath.Join("lang", lang+".json"),       // 相对路径
+		filepath.Join("..", "lang", lang+".json"), // 上级目录
+	}
+
+	// 获取可执行文件所在目录
+	if execPath, err := os.Executable(); err == nil {
+		execDir := filepath.Dir(execPath)
+		// 添加可执行文件相关的路径
+		searchPaths = append(searchPaths,
+			filepath.Join(execDir, "lang", lang+".json"),
+			filepath.Join(filepath.Dir(execDir), "lang", lang+".json"),
+		)
+	}
+
 	// 获取当前工作目录
-	currentDir, err := os.Getwd()
-	if err != nil {
-		fmt.Printf("Error getting current directory: %v\n", err)
-		return err
+	if workDir, err := os.Getwd(); err == nil {
+		fmt.Printf("Current working directory: %s\n", workDir)
+		// 添加工作目录相关的路径
+		searchPaths = append(searchPaths,
+			filepath.Join(workDir, "lang", lang+".json"),
+		)
 	}
 
-	filePath := filepath.Join("lang", lang+".json")
-	absPath, err := filepath.Abs(filePath)
-	if err != nil {
-		fmt.Printf("Error getting absolute path: %v\n", err)
-		return err
+	// 尝试所有可能的路径
+	var lastErr error
+	for _, path := range searchPaths {
+		absPath, _ := filepath.Abs(path)
+		fmt.Printf("Trying to load language file from: %s\n", absPath)
+
+		data, err := os.ReadFile(path)
+		if err == nil {
+			var langData map[string]string
+			if err := json.Unmarshal(data, &langData); err != nil {
+				fmt.Printf("Error unmarshaling JSON from %s: %v\n", absPath, err)
+				lastErr = err
+				continue
+			}
+
+			translations[lang] = langData
+			fmt.Printf("Successfully loaded language file from: %s\n", absPath)
+			return nil
+		}
+		lastErr = err
 	}
 
-	// 打印详细的路径信息
-	fmt.Printf("Current Directory: %s\n", currentDir)
-	fmt.Printf("Relative Path: %s\n", filePath)
-	fmt.Printf("Absolute Path: %s\n", absPath)
-
-	// 检查文件是否存在
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		fmt.Printf("Translation file does not exist: %s\n", filePath)
-		return err
-	}
-
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		fmt.Printf("Error reading translation file: %v\n", err)
-		return err
-	}
-
-	// 打印文件内容长度和部分内容
-	fmt.Printf("File content length: %d bytes\n", len(data))
-	if len(data) > 100 {
-		fmt.Printf("First 100 bytes: %s\n", string(data[:100]))
-	}
-
-	var langData map[string]string
-	if err := json.Unmarshal(data, &langData); err != nil {
-		fmt.Printf("Error unmarshaling JSON: %v\n", err)
-		return err
-	}
-
-	// 打印加载的翻译数量
-	fmt.Printf("Loaded %d translations for language: %s\n", len(langData), lang)
-
-	translations[lang] = langData
-	return nil
+	return fmt.Errorf("failed to load language file %s.json from any location. Last error: %v", lang, lastErr)
 }
 
 // T 获取翻译文本

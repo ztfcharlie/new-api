@@ -27,12 +27,15 @@ FROM alpine
 RUN apk update \
     && apk upgrade \
     && apk add --no-cache ca-certificates tzdata ffmpeg \
-    && update-ca-certificates
+    && update-ca-certificates\
+    && mkdir -p /app/lang    # 创建语言文件目录
 
 # 从 builder2 阶段复制语言文件
 COPY --from=builder2 /build/lang /app/lang
+COPY --from=builder2 /build/one-api /app/
 
-COPY --from=builder2 /build/one-api /
-EXPOSE 3000
 WORKDIR /data
-ENTRYPOINT ["/one-api"]
+VOLUME /data
+
+EXPOSE 3000
+ENTRYPOINT ["/app/one-api"]
