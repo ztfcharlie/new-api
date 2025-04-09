@@ -6,7 +6,7 @@ import enTranslation from './locales/en.json';
 import zhTranslation from './locales/zh.json';
 
 // 获取保存的语言设置或默认使用浏览器语言
-const savedLanguage = localStorage.getItem('i18nextLng') || navigator.language.split('-')[0];
+const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
 
 i18n
   .use(LanguageDetector)
