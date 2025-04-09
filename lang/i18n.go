@@ -52,10 +52,9 @@ func LoadTranslations(lang string) error {
 
 	// 定义可能的搜索路径
 	searchPaths := []string{
-		filepath.Join("/app/lang", lang+".json"),  // Docker容器中的标准位置
-		filepath.Join("/data/lang", lang+".json"), // 当前工作目录
-		filepath.Join("lang", lang+".json"),       // 相对路径
-		filepath.Join("..", "lang", lang+".json"), // 上级目录
+		filepath.Join("/usr/local/share/one-api/lang", lang+".json"), // 新的标准位置
+		filepath.Join("/data/lang", lang+".json"),                    // 向后兼容
+		filepath.Join("lang", lang+".json"),
 	}
 
 	// 获取可执行文件所在目录
