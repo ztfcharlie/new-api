@@ -20,6 +20,7 @@ var (
 	mutex        sync.RWMutex
 )
 
+/*
 func init() {
 	fmt.Println("=== Language System Debug Info ===")
 
@@ -43,6 +44,7 @@ func init() {
 
 	fmt.Println("===========================")
 }
+*/
 
 // LoadTranslations 加载指定语言的翻译文件
 // LoadTranslations 加载指定语言的翻译文件
@@ -69,7 +71,7 @@ func LoadTranslations(lang string) error {
 
 	// 获取当前工作目录
 	if workDir, err := os.Getwd(); err == nil {
-		fmt.Printf("Current working directory: %s\n", workDir)
+		//fmt.Printf("Current working directory: %s\n", workDir)
 		// 添加工作目录相关的路径
 		searchPaths = append(searchPaths,
 			filepath.Join(workDir, "lang", lang+".json"),
@@ -80,19 +82,19 @@ func LoadTranslations(lang string) error {
 	var lastErr error
 	for _, path := range searchPaths {
 		absPath, _ := filepath.Abs(path)
-		fmt.Printf("Trying to load language file from: %s\n", absPath)
+		//fmt.Printf("Trying to load language file from: %s\n", absPath)
 
 		data, err := os.ReadFile(path)
 		if err == nil {
 			var langData map[string]string
 			if err := json.Unmarshal(data, &langData); err != nil {
-				fmt.Printf("Error unmarshaling JSON from %s: %v\n", absPath, err)
+				//fmt.Printf("Error unmarshaling JSON from %s: %v\n", absPath, err)
 				lastErr = err
 				continue
 			}
 
 			translations[lang] = langData
-			fmt.Printf("Successfully loaded language file from: %s\n", absPath)
+			//fmt.Printf("Successfully loaded language file from: %s\n", absPath)
 			return nil
 		}
 		lastErr = err
@@ -113,59 +115,90 @@ func T(c *gin.Context, key string, args ...interface{}) string {
 		lang = DefaultLang
 	}
 
-	fmt.Printf("Looking up translation - Language: %s, Key: %s\n", lang, key)
+	//fmt.Printf("Looking up translation - Language: %s, Key: %s\n", lang, key)
 
 	// 检查语言数据是否存在
 	langData, ok := translations[lang]
 	if !ok {
-		fmt.Printf("No translations found for language: %s\n", lang)
+		//fmt.Printf("No translations found for language: %s\n", lang)
 		return key
 	}
 
 	// 检查翻译是否存在
 	text, exists := langData[key]
 	if !exists {
-		fmt.Printf("No translation found for key: %s in language: %s\n", key, lang)
+		//fmt.Printf("No translation found for key: %s in language: %s\n", key, lang)
 		return key
 	}
 
 	if len(args) > 0 {
 		result := fmt.Sprintf(text, args...)
-		fmt.Printf("Formatted translation: %s\n", result)
+		//fmt.Printf("Formatted translation: %s\n", result)
 		return result
 	}
 
-	fmt.Printf("Found translation: %s\n", text)
+	//fmt.Printf("Found translation: %s\n", text)
 	return text
 }
 
 // GetCurrentLang 从上下文获取当前语言设置
 func GetCurrentLang(c *gin.Context) string {
 	if lang, exists := c.Get(ContextKeyLang); exists {
-		fmt.Printf("Language from context: %s\n", lang)
+		//fmt.Printf("Language from context: %s\n", lang)
 		return lang.(string)
 	}
-	fmt.Printf("Using default language: %s\n", DefaultLang)
+	//fmt.Printf("Using default language: %s\n", DefaultLang)
 	return DefaultLang
 }
 
 // GetSupportedLanguages 获取支持的语言列表
+// GetSupportedLanguages 获取支持的语言列表
 func GetSupportedLanguages() []string {
-	files, err := os.ReadDir("lang")
-	if err != nil {
-		fmt.Printf("Error reading lang directory: %v\n", err)
-		return []string{"en", "zh"}
+	// 定义可能的搜索路径
+	searchPaths := []string{
+		filepath.Join("/usr/local/share/one-api/lang"), // 标准位置
+		filepath.Join("/app/lang"),                     // Docker容器位置
+		filepath.Join("/data/lang"),                    // 数据目录
+		"lang",                                         // 相对路径
 	}
 
-	var languages []string
-	for _, file := range files {
-		if !file.IsDir() && filepath.Ext(file.Name()) == ".json" {
-			lang := filepath.Base(file.Name())
-			languages = append(languages, lang[:len(lang)-5])
+	// 获取可执行文件所在目录
+	if execPath, err := os.Executable(); err == nil {
+		execDir := filepath.Dir(execPath)
+		searchPaths = append(searchPaths,
+			filepath.Join(execDir, "lang"),
+			filepath.Join(filepath.Dir(execDir), "lang"),
+		)
+	}
+
+	// 获取工作目录
+	if workDir, err := os.Getwd(); err == nil {
+		searchPaths = append(searchPaths,
+			filepath.Join(workDir, "lang"),
+		)
+	}
+
+	// 尝试所有可能的路径
+	for _, path := range searchPaths {
+		files, err := os.ReadDir(path)
+		if err == nil {
+			var languages []string
+			for _, file := range files {
+				if !file.IsDir() && filepath.Ext(file.Name()) == ".json" {
+					lang := filepath.Base(file.Name())
+					languages = append(languages, lang[:len(lang)-5])
+				}
+			}
+			if len(languages) > 0 {
+				fmt.Printf("Found language files in: %s\n", path)
+				return languages
+			}
 		}
 	}
-	fmt.Printf("Supported languages: %v\n", languages)
-	return languages
+
+	// 如果没有找到任何语言文件，返回默认支持的语言
+	fmt.Printf("No language files found, using default languages\n")
+	return []string{"en", "zh"}
 }
 
 // LanguageMiddleware 语言中间件

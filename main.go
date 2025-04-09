@@ -54,10 +54,16 @@ func main() {
 		common.FatalLog("failed to initialize database: " + err.Error())
 	}
 	// 初始化语言包
-	for _, language := range lang.GetSupportedLanguages() {
-		if err := lang.LoadTranslations(language); err != nil {
-			common.SysError(fmt.Sprintf("Failed to load language pack %s: %v", language, err))
+	supportedLangs := lang.GetSupportedLanguages()
+	if len(supportedLangs) > 0 {
+		common.SysLog(fmt.Sprintf("Found supported languages: %v", supportedLangs))
+		for _, language := range supportedLangs {
+			if err := lang.LoadTranslations(language); err != nil {
+				common.SysError(fmt.Sprintf("Failed to load language pack %s: %v", language, err))
+			}
 		}
+	} else {
+		common.SysError("No language files found, using default translations")
 	}
 	// Initialize SQL Database
 	err = model.InitLogDB()
