@@ -19,9 +19,9 @@ API.interceptors.request.use(
     if (currentLang) {
       config.headers["I18n-Next-lng"] = currentLang;
       // 添加调试日志
-      console.log('Setting language header:', currentLang);
+      //console.log('Setting language header:', currentLang);
     } else {
-      console.log('No language found in localStorage');
+      //console.log('No language found in localStorage');
     }
     return config;
   },
@@ -56,7 +56,7 @@ export function updateAPI() {
       const currentLang = localStorage.getItem('i18nextLng');
       if (currentLang) {
         config.headers["I18n-Next-lng"] = currentLang;
-        console.log('Setting language header (after update):', currentLang);
+        //console.log('Setting language header (after update):', currentLang);
       }
       return config;
     },
