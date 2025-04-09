@@ -1,14 +1,22 @@
+/* ================ 基础样式 ================ */
 body {
   margin: 0;
   padding-top: 0;
-  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, 'Microsoft YaHei',
-    sans-serif;
+  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, 'Microsoft YaHei', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scrollbar-width: none;
   color: var(--semi-color-text-0) !important;
   background-color: var(--semi-color-bg-0) !important;
   height: 100vh;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 #root {
@@ -18,150 +26,71 @@ body {
   overflow: hidden;
 }
 
-#root > section > header > section > div > div > div > div.semi-navigation-header-list-outer > div.semi-navigation-list-wrapper > ul > div > a > li > span{
-  font-weight: 600 !important;
+/* ================ 导航栏样式 ================ */
+/* 顶部导航 */
+.topnav {
+  padding: 0 16px;
 }
 
-.semi-descriptions-double-small .semi-descriptions-item {
-  padding-right: 30px;
+.topnav .semi-navigation-item {
+  border-radius: 4px;
+  margin: 0 2px;
+  transition: all 0.3s ease;
+  color: var(--semi-color-text-0) !important;
 }
 
-@media only screen and (max-width: 767px) {
-  /*.semi-navigation-sub-wrap .semi-navigation-sub-title, .semi-navigation-item {*/
-  /*  padding: 0 0;*/
-  /*}*/
-  .topnav {
-    padding: 0 8px;
-  }
-  
-  .topnav .semi-navigation-item {
-    margin: 0 1px;
-    padding: 0 4px;
-  }
-  
-  .topnav .semi-navigation-list-wrapper {
-    max-width: calc(55vw - 20px);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  #root > section > header > section > div > div > div > div.semi-navigation-footer > div > a > li {
-    padding: 0 0;
-  }
-  #root > section > header > section > div > div > div > div.semi-navigation-header-list-outer > div.semi-navigation-list-wrapper > ul > div > a > li {
-    padding: 0 5px;
-  }
-  #root > section > header > section > div > div > div > div.semi-navigation-footer > div:nth-child(1) > a > li {
-    padding: 0 5px;
-  }
-  .semi-navigation-footer {
-    padding-left: 0;
-    padding-right: 0;
-  }
-  .semi-table-tbody,
-  .semi-table-row,
-  .semi-table-row-cell {
-    display: block !important;
-    width: auto !important;
-    padding: 2px !important;
-  }
-  .semi-table-row-cell {
-    border-bottom: 0 !important;
-  }
-  .semi-table-tbody > .semi-table-row {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-  .semi-space {
-    /*display: block!important;*/
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    row-gap: 3px;
-    column-gap: 10px;
-  }
-
-  .semi-navigation-horizontal .semi-navigation-header {
-    margin-right: 0;
-  }
-
-  /* 确保移动端内容可滚动 */
-  .semi-layout-content {
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior-y: auto !important;
-  }
-
-  /* 修复移动端下拉刷新 */
-  body {
-    overflow: visible !important;
-    overscroll-behavior-y: auto !important;
-    position: static !important;
-    height: 100% !important;
-  }
-  
-  /* 确保内容区域在移动端可以正常滚动 */
-  #root {
-    overflow: visible !important;
-    height: 100% !important;
-  }
-  
-  /* 隐藏在移动设备上 */
-  .hide-on-mobile {
-    display: none !important;
-  }
+.header-bar-text {
+  color: var(--semi-color-text-0);
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.semi-table-tbody > .semi-table-row > .semi-table-row-cell {
-  padding: 16px 14px;
+.header-bar-text:hover {
+  color: rgb(249 115 22) !important;
 }
 
-.channel-table {
-  .semi-table-tbody > .semi-table-row > .semi-table-row-cell {
-    padding: 16px 8px;
-  }
+/* 导航项图标颜色 */
+.topnav .semi-navigation-item-icon,
+.topnav .semi-icon,
+.topnav .semi-navigation-item-text {
+  color: var(--semi-color-text-0) !important;
 }
 
-/*.semi-layout {*/
-/*  height: 100%;*/
-/*}*/
-
-.tableShow {
-  display: revert;
+/* 导航项悬停效果 */
+.topnav .semi-icon:hover,
+.topnav .semi-navigation-item-icon:hover,
+.topnav .semi-navigation-item-text:hover,
+.topnav .semi-navigation-item:hover .semi-navigation-item-icon,
+.topnav .semi-navigation-item:hover .semi-navigation-item-text,
+.topnav .semi-navigation-item:hover .semi-icon {
+  color: rgb(249 115 22) !important;
 }
 
-.semi-chat {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  height: 100%;
+/* 选中状态 */
+.topnav .semi-navigation-item-selected {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: rgb(249 115 22) !important;
+  font-weight: 600;
 }
 
-.semi-chat-chatBox-content {
-  min-width: auto;
-  word-break: break-word;
+.topnav .semi-navigation-item-selected .semi-navigation-item-icon,
+.topnav .semi-navigation-item-selected .semi-icon,
+.topnav .semi-navigation-item-selected .semi-navigation-item-text {
+  color: rgb(249 115 22) !important;
 }
 
-.tableHiddle {
-  display: none !important;
-}
-
-body::-webkit-scrollbar {
-  display: none;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
+/* ================ 侧边栏样式 ================ */
 .semi-navigation-item {
   margin-bottom: 0;
 }
 
-/* 自定义侧边栏按钮悬停效果 */
+/* 侧边栏悬停效果 */
 .semi-navigation-item:hover {
   transform: translateX(2px);
   box-shadow: 0 2px 8px rgba(var(--semi-color-primary-rgb), 0.2);
 }
 
-/* 自定义侧边栏按钮选中效果 */
+/* 侧边栏选中效果 */
 .semi-navigation-item-selected {
   position: relative;
   overflow: hidden;
@@ -178,72 +107,7 @@ code {
   animation: slideIn 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-/*.semi-navigation-vertical {*/
-/*  !*flex: 0 0 auto;*!*/
-/*  !*display: flex;*!*/
-/*  !*flex-direction: column;*!*/
-/*  !*width: 100%;*!*/
-/*  height: 100%;*/
-/*  overflow: hidden;*/
-/*}*/
-
-.main-content {
-  padding: 4px;
-  height: 100%;
-}
-
-.small-icon .icon {
-  font-size: 1em !important;
-}
-
-.custom-footer {
-  font-size: 1.1em;
-}
-
-/* 顶部栏样式 */
-.topnav {
-  padding: 0 16px;
-}
-
-.topnav .semi-navigation-item {
-  border-radius: 4px;
-  margin: 0 2px;
-  transition: all 0.3s ease;
-}
-
-.topnav .semi-navigation-item:hover {
-  background-color: var(--semi-color-primary-light-default);
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(var(--semi-color-primary-rgb), 0.2);
-}
-
-.topnav .semi-navigation-item-selected {
-  background-color: var(--semi-color-primary-light-default);
-  color: var(--semi-color-primary);
-  font-weight: 600;
-}
-
-/* 顶部栏文本样式 */
-.header-bar-text {
-  color: var(--semi-color-text-0);
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.header-bar-text:hover {
-  color: var(--semi-color-primary);
-}
-
-/* 自定义滚动条样式 */
+/* ================ 滚动条样式 ================ */
 .semi-layout-content::-webkit-scrollbar,
 .semi-sider::-webkit-scrollbar {
   width: 6px;
@@ -266,10 +130,141 @@ code {
   background: transparent;
 }
 
-/* Custom sidebar shadow */
-/*.custom-sidebar-nav {*/
-/*  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08) !important;*/
-/*  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08) !important;*/
-/*  -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08) !important;*/
-/*  min-height: 100%;*/
-/*}*/
+/* ================ 表格样式 ================ */
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell {
+  padding: 16px 14px;
+}
+
+.channel-table .semi-table-tbody > .semi-table-row > .semi-table-row-cell {
+  padding: 16px 8px;
+}
+
+.tableShow {
+  display: revert;
+}
+
+.tableHiddle {
+  display: none !important;
+}
+
+/* ================ 聊天组件样式 ================ */
+.semi-chat {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  height: 100%;
+}
+
+.semi-chat-chatBox-content {
+  min-width: auto;
+  word-break: break-word;
+}
+
+/* ================ 其他组件样式 ================ */
+.main-content {
+  padding: 4px;
+  height: 100%;
+}
+
+.small-icon .icon {
+  font-size: 1em !important;
+}
+
+.custom-footer {
+  font-size: 1.1em;
+}
+
+.semi-descriptions-double-small .semi-descriptions-item {
+  padding-right: 30px;
+}
+
+/* ================ 动画 ================ */
+@keyframes slideIn {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ================ 响应式样式 ================ */
+@media only screen and (max-width: 767px) {
+  /* 导航相关 */
+  .topnav {
+    padding: 0 8px;
+  }
+  
+  .topnav .semi-navigation-item {
+    margin: 0 1px;
+    padding: 0 4px;
+  }
+  
+  .topnav .semi-navigation-list-wrapper {
+    max-width: calc(55vw - 20px);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  /* 导航布局调整 */
+  .semi-navigation-horizontal .semi-navigation-header {
+    margin-right: 0;
+  }
+  
+  .semi-navigation-footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* 表格响应式 */
+  .semi-table-tbody,
+  .semi-table-row,
+  .semi-table-row-cell {
+    display: block !important;
+    width: auto !important;
+    padding: 2px !important;
+  }
+  
+  .semi-table-row-cell {
+    border-bottom: 0 !important;
+  }
+  
+  .semi-table-tbody > .semi-table-row {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .semi-table .semi-table-column-selection {
+    text-align: left;
+  }
+
+  /* 间距组件响应式 */
+  .semi-space {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    row-gap: 3px;
+    column-gap: 10px;
+  }
+
+  /* 移动端滚动优化 */
+  .semi-layout-content {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  body {
+    overflow: visible !important;
+    overscroll-behavior-y: auto !important;
+    position: static !important;
+    height: 100% !important;
+  }
+
+  #root {
+    overflow: visible !important;
+    height: 100% !important;
+  }
+
+  /* 移动端隐藏元素 */
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
