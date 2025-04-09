@@ -82,7 +82,7 @@ func LoadTranslations(lang string) error {
 	var lastErr error
 	for _, path := range searchPaths {
 		absPath, _ := filepath.Abs(path)
-		//fmt.Printf("Trying to load language file from: %s\n", absPath)
+		fmt.Printf("Trying to load language file from: %s\n", absPath)
 
 		data, err := os.ReadFile(path)
 		if err == nil {
