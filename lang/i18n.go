@@ -57,7 +57,7 @@ func T(c *gin.Context, key string, args ...interface{}) string {
 	}
 
 	// 打印当前使用的语言
-	//fmt.Println("Current language:", lang)
+	fmt.Println("Current language:", lang)
 
 	// 打印是否找到翻译
 	//translation := translations[lang][key]

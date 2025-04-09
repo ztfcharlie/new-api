@@ -194,17 +194,17 @@ func SendEmailVerification(c *gin.Context) {
 	code := common.GenerateVerificationCode(6)
 	common.RegisterVerificationCodeWithKey(email, code, common.EmailVerificationPurpose)
 	// 1. 先打印T函数返回的原始字符串
-	//translatedStr := lang.T(c, "misc.email.verification_subject")
-	//fmt.Println("Translated string:", translatedStr)
+	translatedStr := lang.T(c, "misc.email.verification_subject")
+	fmt.Println("Translated string:", translatedStr)
 
 	// 2. 确认是否成功获取到翻译
-	//if translatedStr == "misc.email.verification_subject" {
-	//	fmt.Println("Translation not found!")
-	//}
+	if translatedStr == "misc.email.verification_subject" {
+		fmt.Println("Translation not found!")
+	}
 	subject := fmt.Sprintf(lang.T(c, "misc.email.verification_subject"), common.SystemName)
-	//fmt.Println("Translation ruslt!", subject)
+	fmt.Println("Translation ruslt!", subject)
 	content := fmt.Sprintf(lang.T(c, "misc.email.verification_content"), common.SystemName, code, common.VerificationValidMinutes)
-	//fmt.Println("Translation ruslt content!", content)
+	fmt.Println("Translation ruslt content!", content)
 	err := common.SendEmail(subject, email, content)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
