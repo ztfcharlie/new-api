@@ -81,8 +81,8 @@ func LoadTranslations(lang string) error {
 	// 尝试所有可能的路径
 	var lastErr error
 	for _, path := range searchPaths {
-		absPath, _ := filepath.Abs(path)
-		fmt.Printf("Trying to load language file from: %s\n", absPath)
+		//absPath, _ := filepath.Abs(path)
+		//fmt.Printf("Trying to load language file from: %s\n", absPath)
 
 		data, err := os.ReadFile(path)
 		if err == nil {
@@ -190,14 +190,14 @@ func GetSupportedLanguages() []string {
 				}
 			}
 			if len(languages) > 0 {
-				fmt.Printf("Found language files in: %s\n", path)
+				//fmt.Printf("Found language files in: %s\n", path)
 				return languages
 			}
 		}
 	}
 
 	// 如果没有找到任何语言文件，返回默认支持的语言
-	fmt.Printf("No language files found, using default languages\n")
+	//fmt.Printf("No language files found, using default languages\n")
 	return []string{"en", "zh"}
 }
 
@@ -208,7 +208,7 @@ func LanguageMiddleware() gin.HandlerFunc {
 		if lang == "" {
 			lang = DefaultLang
 		}
-		fmt.Printf("Language middleware - Selected language: %s\n", lang)
+		//fmt.Printf("Language middleware - Selected language: %s\n", lang)
 		c.Set(ContextKeyLang, lang)
 		c.Next()
 	}
