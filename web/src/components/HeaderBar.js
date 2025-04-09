@@ -460,7 +460,7 @@ const HeaderBar = () => {
               return (
                 <div onClick={(e) => {
                   // 添加 FAQ 到不需要设置内边距的页面列表中
-                  if (props.itemKey === 'home' || props.itemKey === 'about' || props.itemKey === 'faq') {
+                  if (props.itemKey === 'home' || props.itemKey === 'about' || props.itemKey === 'faq' || props.itemKey === 'language') {
                     styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
                     styleDispatch({ type: 'SET_SIDER', payload: false });
                   } else {

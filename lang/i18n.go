@@ -56,6 +56,13 @@ func T(c *gin.Context, key string, args ...interface{}) string {
 		lang = DefaultLang
 	}
 
+	// 打印当前使用的语言
+	//fmt.Println("Current language:", lang)
+
+	// 打印是否找到翻译
+	//translation := translations[lang][key]
+	//fmt.Println("Translation found for key", key, ":", translation != "")
+
 	if langData, ok := translations[lang]; ok {
 		if text, exists := langData[key]; exists {
 			if len(args) > 0 {
