@@ -295,6 +295,12 @@ export function renderQuota(quota, digits = 2) {
   }
   return renderNumber(quota);
 }
+// 返利比例
+export function getQuotaRatio(quota, digits = 2) {
+  let quotaPerUnit = localStorage.getItem('quota_per_unit');
+  quotaPerUnit = parseFloat(quotaPerUnit);
+  return ((quotaPerUnit/quota)*100) + "%";
+}
 
 export function renderModelPrice(
   inputTokens,

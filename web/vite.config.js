@@ -1,6 +1,8 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig, transformWithEsbuild } from 'vite';
 import {resolve} from "path";
+import tailwindcss from '@tailwindcss/vite'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
@@ -27,6 +29,7 @@ export default defineConfig({
       },
     },
     react(),
+    tailwindcss(),
   ],
   optimizeDeps: {
     force: true,

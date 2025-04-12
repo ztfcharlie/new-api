@@ -268,3 +268,6 @@ code {
     display: none !important;
   }
 }
+
+
+@import "tailwindcss";
