@@ -291,30 +291,43 @@ func RequestOpenAI2ClaudeMessage(textRequest dto.GeneralOpenAIRequest) (*dto.Cla
 	claudeRequest.Messages = claudeMessages
 	return &claudeRequest, nil
 }
-
 func StreamResponseClaude2OpenAI(reqMode int, claudeResponse *dto.ClaudeResponse) *dto.ChatCompletionsStreamResponse {
+	// 创建一个新的 ChatCompletionsStreamResponse 结构体实例
 	var response dto.ChatCompletionsStreamResponse
+	// 设置响应对象类型为 "chat.completion.chunk"
 	response.Object = "chat.completion.chunk"
+	// 设置模型名称
 	response.Model = claudeResponse.Model
+	// 初始化 Choices 列表
 	response.Choices = make([]dto.ChatCompletionsStreamResponseChoice, 0)
+	// 初始化工具调用列表
 	tools := make([]dto.ToolCallResponse, 0)
+	// 创建一个新的 ChatCompletionsStreamResponseChoice 结构体实例
 	var choice dto.ChatCompletionsStreamResponseChoice
+
+	// 如果请求模式是完成模式
 	if reqMode == RequestModeCompletion {
+		// 设置内容字符串为 Claude 响应的 Completion 字段
 		choice.Delta.SetContentString(claudeResponse.Completion)
+		// 获取并转换停止原因
 		finishReason := stopReasonClaude2OpenAI(claudeResponse.StopReason)
+		// 如果停止原因不为 "null"，则设置 FinishReason
 		if finishReason != "null" {
 			choice.FinishReason = &finishReason
 		}
 	} else {
+		// 根据 Claude 响应类型进行处理
 		if claudeResponse.Type == "message_start" {
+			// 设置响应 ID 和模型名称
 			response.Id = claudeResponse.Message.Id
 			response.Model = claudeResponse.Message.Model
-			//claudeUsage = &claudeResponse.Message.Usage
+			// 设置角色为 "assistant"
 			choice.Delta.SetContentString("")
 			choice.Delta.Role = "assistant"
 		} else if claudeResponse.Type == "content_block_start" {
+			// 检查 ContentBlock 是否存在
 			if claudeResponse.ContentBlock != nil {
-				//choice.Delta.SetContentString(claudeResponse.ContentBlock.Text)
+				// 如果 ContentBlock 类型是 "tool_use"，则添加到工具调用列表
 				if claudeResponse.ContentBlock.Type == "tool_use" {
 					tools = append(tools, dto.ToolCallResponse{
 						ID:   claudeResponse.ContentBlock.Id,
@@ -326,46 +339,60 @@ func StreamResponseClaude2OpenAI(reqMode int, claudeResponse *dto.ClaudeResponse
 					})
 				}
 			} else {
+				// 如果 ContentBlock 不存在，返回 nil
 				return nil
 			}
 		} else if claudeResponse.Type == "content_block_delta" {
+			// 检查 Delta 是否存在
 			if claudeResponse.Delta != nil {
+				// 设置索引
 				choice.Index = *claudeResponse.Index
+				// 设置 Delta 内容
 				choice.Delta.Content = claudeResponse.Delta.Text
+				// 根据 Delta 类型进行处理
 				switch claudeResponse.Delta.Type {
 				case "input_json_delta":
+					// 添加工具调用响应
 					tools = append(tools, dto.ToolCallResponse{
 						Function: dto.FunctionResponse{
 							Arguments: *claudeResponse.Delta.PartialJson,
 						},
 					})
 				case "signature_delta":
-					// 加密的不处理
+					// 对加密内容不处理，设置空行
 					signatureContent := "\n"
 					choice.Delta.ReasoningContent = &signatureContent
 				case "thinking_delta":
+					// 设置思考内容
 					thinkingContent := claudeResponse.Delta.Thinking
 					choice.Delta.ReasoningContent = &thinkingContent
 				}
 			}
 		} else if claudeResponse.Type == "message_delta" {
+			// 获取并转换停止原因
 			finishReason := stopReasonClaude2OpenAI(*claudeResponse.Delta.StopReason)
+			// 如果停止原因不为 "null"，则设置 FinishReason
 			if finishReason != "null" {
 				choice.FinishReason = &finishReason
 			}
-			//claudeUsage = &claudeResponse.Usage
 		} else if claudeResponse.Type == "message_stop" {
+			// 如果是 message_stop 类型，返回 nil
 			return nil
 		} else {
+			// 如果是其他类型，返回 nil
 			return nil
 		}
 	}
+
+	// 如果有工具调用，设置工具调用列表
 	if len(tools) > 0 {
-		choice.Delta.Content = nil // compatible with other OpenAI derivative applications, like LobeOpenAICompatibleFactory ...
+		choice.Delta.Content = nil // 兼容其他 OpenAI 派生应用
 		choice.Delta.ToolCalls = tools
 	}
+	// 将 choice 添加到 Choices 列表
 	response.Choices = append(response.Choices, choice)
 
+	// 返回构建的响应
 	return &response
 }
 
@@ -479,15 +506,22 @@ func FormatClaudeResponseInfo(requestMode int, claudeResponse *dto.ClaudeRespons
 	}
 	return true
 }
-
 func HandleStreamResponseData(c *gin.Context, info *relaycommon.RelayInfo, claudeInfo *ClaudeResponseInfo, data string, requestMode int) *dto.OpenAIErrorWithStatusCode {
+	// 声明一个 ClaudeResponse 结构体实例，用于存放解码后的数据
 	var claudeResponse dto.ClaudeResponse
+
+	// 将 JSON 字符串解码到 claudeResponse 中
 	err := common.DecodeJsonStr(data, &claudeResponse)
 	if err != nil {
+		// 解码失败时记录系统错误并返回错误信息
 		common.SysError("error unmarshalling stream response: " + err.Error())
 		return service.OpenAIErrorWrapper(err, "stream_response_error", http.StatusInternalServerError)
 	}
+
+	// 检查解码后的响应是否包含错误信息
 	if claudeResponse.Error != nil && claudeResponse.Error.Type != "" {
+		// 返回包含错误类型和消息的错误响应
+		common.LogInfo(c, fmt.Sprintf("ClaudeResponse contains error: %s", claudeResponse.Error.Message))
 		return &dto.OpenAIErrorWithStatusCode{
 			Error: dto.OpenAIError{
 				Code:    "stream_response_error",
@@ -497,41 +531,65 @@ func HandleStreamResponseData(c *gin.Context, info *relaycommon.RelayInfo, claud
 			StatusCode: http.StatusInternalServerError,
 		}
 	}
+
+	// 根据 RelayFormat 判断是处理 Claude 格式还是 OpenAI 格式
 	if info.RelayFormat == relaycommon.RelayFormatClaude {
+		common.LogInfo(c, "Processing Claude format")
+
+		// 如果请求模式是完成模式
 		if requestMode == RequestModeCompletion {
+			// 将响应中的 Completion 字段追加到 ResponseText
 			claudeInfo.ResponseText.WriteString(claudeResponse.Completion)
+			common.LogInfo(c, fmt.Sprintf("Appended completion: %s", claudeResponse.Completion))
 		} else {
+			// 处理不同类型的响应数据
 			if claudeResponse.Type == "message_start" {
-				// message_start, 获取usage
+				// 如果是 message_start，更新模型名称和使用情况
 				info.UpstreamModelName = claudeResponse.Message.Model
 				claudeInfo.Usage.PromptTokens = claudeResponse.Message.Usage.InputTokens
 				claudeInfo.Usage.PromptTokensDetails.CachedTokens = claudeResponse.Message.Usage.CacheReadInputTokens
 				claudeInfo.Usage.PromptTokensDetails.CachedCreationTokens = claudeResponse.Message.Usage.CacheCreationInputTokens
 				claudeInfo.Usage.CompletionTokens = claudeResponse.Message.Usage.OutputTokens
+				common.LogInfo(c, fmt.Sprintf("Processed message_start: Model=%s, PromptTokens=%d", info.UpstreamModelName, claudeInfo.Usage.PromptTokens))
 			} else if claudeResponse.Type == "content_block_delta" {
+				// 如果是 content_block_delta，将 Delta 中的文本追加到 ResponseText
 				claudeInfo.ResponseText.WriteString(claudeResponse.Delta.GetText())
+				common.LogInfo(c, fmt.Sprintf("Appended content_block_delta: %s", claudeResponse.Delta.GetText()))
 			} else if claudeResponse.Type == "message_delta" {
+				// 如果是 message_delta，更新使用情况
 				if claudeResponse.Usage.InputTokens > 0 {
-					// 不叠加，只取最新的
+					// 不叠加，只取最新的输入令牌数
 					claudeInfo.Usage.PromptTokens = claudeResponse.Usage.InputTokens
 				}
 				claudeInfo.Usage.CompletionTokens = claudeResponse.Usage.OutputTokens
 				claudeInfo.Usage.TotalTokens = claudeInfo.Usage.PromptTokens + claudeInfo.Usage.CompletionTokens
+				common.LogInfo(c, fmt.Sprintf("Processed message_delta: PromptTokens=%d, CompletionTokens=%d", claudeInfo.Usage.PromptTokens, claudeInfo.Usage.CompletionTokens))
 			}
 		}
+		// 处理 Claude 数据块
+		common.LogInfo(c, fmt.Sprintf("Sending to ClaudeChunkData: Type=%s, Data=%s", claudeResponse.Type, data))
 		helper.ClaudeChunkData(c, claudeResponse, data)
 	} else if info.RelayFormat == relaycommon.RelayFormatOpenAI {
+		common.LogInfo(c, "Processing OpenAI format")
+
+		// 将 Claude 格式的响应转换为 OpenAI 格式
 		response := StreamResponseClaude2OpenAI(requestMode, &claudeResponse)
 
+		// 格式化 Claude 响应信息并检查是否成功
 		if !FormatClaudeResponseInfo(requestMode, &claudeResponse, response, claudeInfo) {
+			common.LogInfo(c, "Failed to format ClaudeResponseInfo")
 			return nil
 		}
 
+		// 发送转换后的响应数据
 		err = helper.ObjectData(c, response)
 		if err != nil {
+			// 记录发送失败的错误
 			common.LogError(c, "send_stream_response_failed: "+err.Error())
 		}
 	}
+	// 返回 nil 表示成功处理
+	common.LogInfo(c, "HandleStreamResponseData completed successfully")
 	return nil
 }
 
