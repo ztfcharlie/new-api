@@ -1,4 +1,8 @@
 {
+        "faq.empty.records": "No records were found",
+        "faq.search.documents": "Search Documents...",
+
+
         "error.auth.invalid_token": "Invalid access token",
         "error.auth.token_expired": "Access token has expired",
         "error.auth.permission_denied": "Insufficient permissions",

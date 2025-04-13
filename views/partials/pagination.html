@@ -1,0 +1,46 @@
+{{define "partials/pagination"}}
+<div class="semi-table-pagination-outer">
+    <span class="semi-table-pagination-info">第 {{.pagination.StartCount}} - {{.pagination.EndCount}} 条，共
+        {{.pagination.Total}} 条</span><span class="semi-table-pagination-wrapper">
+        <ul class="semi-page">
+            <li role="button" aria-disabled="true" aria-label="Previous"
+                class="semi-page-item semi-page-prev {{if $.pagination.PrevPage.Disabled}}semi-page-item-disabled{{end}}"
+                x-semi-prop="prevText">
+                <a href="{{if $.pagination.PrevPage.Disabled}}#{{else}}{{ .pagination.PrevPage.Link }}{{end}}"
+                    class="{{if $.pagination.PrevPage.Disabled}}semi-page-item-disabled{{end}}">
+                    <span role="img" aria-label="chevron_left" class="semi-icon semi-icon-large semi-icon-chevron_left">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
+                            focusable="false" aria-hidden="true">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M16.28 4.24a1.5 1.5 0 0 1 0 2.12l-5.66 5.66 5.66 5.65a1.5 1.5 0 1 1-2.12 2.13l-6.72-6.72a1.5 1.5 0 0 1 0-2.12l6.72-6.72a1.5 1.5 0 0 1 2.12 0Z"
+                                fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </a>
+            </li>
+            {{ range .pagination.Pages}}
+            <li class="semi-page-item {{if eq .Page $.pagination.Page}}semi-page-item-active{{end}}"
+                aria-label="Page {{.Page}}">
+                <a href="{{.Link}}">{{.Page}}</a>
+            </li>
+            {{end}}
+            <li role="button" aria-disabled="false" aria-label="Next"
+                class="semi-page-item semi-page-next {{if $.pagination.NextPage.Disabled}}semi-page-item-disabled{{end}}"
+                x-semi-prop="nextText">
+                <a href="{{if $.pagination.NextPage.Disabled}}#{{else}}{{ .pagination.NextPage.Link }}{{end}}"
+                    class="{{if $.pagination.NextPage.Disabled}}semi-page-item-disabled{{end}}">
+                    <span role="img" aria-label="chevron_right"
+                        class="semi-icon semi-icon-large semi-icon-chevron_right">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
+                            focusable="false" aria-hidden="true">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M7.44 19.8a1.5 1.5 0 0 1 0-2.13l5.66-5.65-5.66-5.66a1.5 1.5 0 1 1 2.12-2.12l6.72 6.72a1.5 1.5 0 0 1 0 2.12L9.56 19.8a1.5 1.5 0 0 1-2.12 0Z"
+                                fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </span>
+</div>
+{{end}}

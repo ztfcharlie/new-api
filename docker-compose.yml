@@ -13,6 +13,7 @@ services:
     volumes:
       - ./data:/data
       - ./logs:/app/logs
+      - ./public:/public
     environment:
       - SQL_DSN=${SQL_DSN}
       - GLOBAL_API_RATE_LIMIT_ENABLE=false

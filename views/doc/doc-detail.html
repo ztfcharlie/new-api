@@ -1,0 +1,26 @@
+
+
+
+{{template "partials/header" .}} 
+<link rel="stylesheet" type="text/css" href="/static/css/doc.css" />
+<div class="burncloud-container-docs-detail"> 
+    <div class="container">
+        <div class="breadcrumb">
+        <a href="/">Home</a> / <a href="/docs">Docs</a> / {{.doc.Title}}
+        </div>
+        <div class="divider"></div>
+        <div class="article-title">
+            {{.doc.Title}}
+        </div>
+        <div class="article-meta">
+        By Burncloud &nbsp; | &nbsp; {{formatDate .doc.CreatedAt}}
+        </div>
+        <div class="article-summary">
+            {{.doc.Summary}}
+        </div>
+        <div class="article-content">
+            {{safe .doc.Content}}
+        </div>
+    </div>
+</div>
+{{template "partials/footer" .}} 

@@ -12,6 +12,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var groupCol string
@@ -92,6 +93,7 @@ func chooseDB(envName string) (*gorm.DB, error) {
 		common.UsingMySQL = true
 		return gorm.Open(mysql.Open(dsn), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
+			Logger:      logger.Default.LogMode(logger.Info),
 		})
 	}
 	// Use SQLite
@@ -211,6 +213,10 @@ func migrateDB() error {
 		return err
 	}
 	err = DB.AutoMigrate(&Task{})
+	if err != nil {
+		return err
+	}
+	err = DB.AutoMigrate(&Doc{})
 	if err != nil {
 		return err
 	}

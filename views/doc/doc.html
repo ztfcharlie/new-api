@@ -1,0 +1,52 @@
+{{template "partials/header" .}} 
+<link rel="stylesheet" type="text/css" href="/static/css/docs.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/pagination.css" />
+
+<div id="burncloud-section">
+  <div class="burncloud-container-docs">
+    <div class="container">
+      <!-- 搜索部分 -->
+      <section class="search-section">
+        <div class="search-container">
+          <form method="get" action="/docs">
+            <input
+              type="text"
+              class="search-input"
+              id="searchInput"
+              name="keywords"
+              placeholder="{{T "faq.search.documents"}}"
+              value="{{.keywords}}"
+            />
+            <button class="search-button" type="submit">🔍</button>
+          </form>
+
+        </div>
+      </section>
+    </div>
+    <!-- FAQ 部分 -->
+    <div class="out_container_product-list faq-section" id="faqAncher">
+      <div class="container">
+        {{if .docs}}
+          {{ range .docs }}
+          <div class="faq-item">
+            <div class="faq-question">
+              <a href="/doc/{{ .Id }}">
+                  {{ .Title }}
+              </a>
+            </div>
+            <div class="faq-answer">
+              {{ .Summary }}
+            </div>
+          </div>
+          {{ end }} 
+          {{template "partials/pagination" .}}
+        {{else}}
+          {{T "faq.empty.records"}}
+        {{ end }} 
+      </div>
+    </div>
+  </div>
+</div>
+
+{{template "partials/footer" .}} 
+

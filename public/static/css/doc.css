@@ -1,0 +1,74 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f9f9f9;
+}
+
+.burncloud-container-docs-detail .container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+}
+
+.burncloud-container-docs-detail .breadcrumb {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.burncloud-container-docs-detail .breadcrumb a {
+  text-decoration: none;
+  color: #ff6b4a;
+}
+
+.burncloud-container-docs-detail .breadcrumb a:hover {
+  color: #ff8f70;
+}
+
+.burncloud-container-docs-detail .article-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.burncloud-container-docs-detail .divider {
+  height: 1px;
+  background-color: #ddd;
+  margin: 10px 0 20px;
+  max-width: 1200px;
+}
+
+.burncloud-container-docs-detail .article-meta {
+  font-size: 14px;
+  color: #999;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.burncloud-container-docs-detail .article-summary {
+  font-size: 16px;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+.burncloud-container-docs-detail .article-content {
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.burncloud-container-docs-detail .article-content a {
+  color: #ff6b4a;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.burncloud-container-docs-detail .article-content a:hover {
+  color: #ff8f70;
+}
