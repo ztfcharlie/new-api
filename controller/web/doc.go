@@ -3,6 +3,7 @@ package web
 import (
 	"html/template"
 	"net/http"
+	"one-api/lang"
 	"one-api/model"
 	"strconv"
 
@@ -11,13 +12,14 @@ import (
 
 func GetDoc(cc *gin.Context) {
 	c := getWebContext(cc)
-
 	id, _ := strconv.Atoi(c.Param("id"))
-	doc, err := model.GetDocById(id)
+	tmpDoc := model.Doc{Id: id, Status: 1}
+	doc, err := tmpDoc.GetDoc()
 	if err != nil {
-		c.String(http.StatusNotFound, "404")
+		c.abortError(http.StatusNotFound, lang.T(nil, "error.status.404"))
 		return
 	}
+	doc.Increment("views")
 	// seo
 	meta := map[string]string{
 		"title":       doc.Title,
@@ -36,7 +38,11 @@ func GetAllDocs(cc *gin.Context) {
 	c := getWebContext(cc)
 	keywords := c.Query("keywords")
 	p, startIdx, pageSize := c.getPageParams()
-	docs, total, err := model.GetAllDocs(keywords, startIdx, pageSize)
+	query := model.DocQuery{
+		Title:  keywords,
+		Status: 1,
+	}
+	docs, total, err := model.GetAllDocs(query, startIdx, pageSize)
 	if err != nil {
 		c.abortError(http.StatusOK, err.Error())
 		return
@@ -48,7 +54,7 @@ func GetAllDocs(cc *gin.Context) {
 		"description": "文章描述",
 	}
 	c.render("doc.html", gin.H{
-		"keywords":   keywords,
+		"title":      keywords,
 		"docs":       docs,
 		"meta":       meta,
 		"pagination": c.getPagination(p, pageSize, total),

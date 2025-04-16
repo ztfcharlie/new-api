@@ -10,6 +10,7 @@ import PersonalSetting from '../../components/PersonalSetting';
 import OperationSetting from '../../components/OperationSetting';
 import RateLimitSetting from '../../components/RateLimitSetting.js';
 import ModelSetting from '../../components/ModelSetting.js';
+import DocSetting from '@/components/DocSetting';
 
 const Setting = () => {
   const { t } = useTranslation();
@@ -43,6 +44,11 @@ const Setting = () => {
       tab: t('其他设置'),
       content: <OtherSetting />,
       itemKey: 'other',
+    });
+    panes.push({
+      tab: t('文章设置'),
+      content: <DocSetting />,
+      itemKey: 'docs',
     });
   }
   const onChangeTab = (key) => {

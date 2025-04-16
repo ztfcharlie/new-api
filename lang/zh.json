@@ -1,6 +1,8 @@
 {
     "faq.empty.records": "没有找到相关记录",
     "faq.search.documents": "搜索文档...",
+    "error.status.404": "找不到该记录",
+
 
     "error.auth.invalid_token": "无效的访问令牌",
     "error.auth.token_expired": "访问令牌已过期",

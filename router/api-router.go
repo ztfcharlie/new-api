@@ -160,5 +160,14 @@ func SetApiRouter(router *gin.Engine) {
 			taskRoute.GET("/self", middleware.UserAuth(), controller.GetUserTask)
 			taskRoute.GET("/", middleware.AdminAuth(), controller.GetAllTask)
 		}
+		docRoute := apiRouter.Group("/doc")
+		docRoute.Use(middleware.AdminAuth())
+		{
+			docRoute.POST("/", controller.AddDoc)
+			docRoute.DELETE("/:id", controller.DeleteDoc)
+			docRoute.PUT("/:id", controller.UpdateDoc)
+			docRoute.GET("/:id", controller.GetDoc)
+			docRoute.GET("/", controller.GetAllDocs)
+		}
 	}
 }

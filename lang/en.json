@@ -1,6 +1,7 @@
 {
         "faq.empty.records": "No records were found",
         "faq.search.documents": "Search Documents...",
+        "error.status.404": "404 not found",
 
 
         "error.auth.invalid_token": "Invalid access token",
