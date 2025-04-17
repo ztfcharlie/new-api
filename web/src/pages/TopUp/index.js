@@ -229,174 +229,176 @@ const TopUp = () => {
           <h3>{t('我的钱包')}</h3>
         </Layout.Header>
         <Layout.Content>
-          <Modal
-            title={t('确定要充值吗')}
-            visible={open}
-            onOk={onlineTopUp}
-            onCancel={handleCancel}
-            maskClosable={false}
-            size={'small'}
-            centered={true}
-          >
-            <p>{t('充值数量')}：{topUpCount}</p>
-            <p>{t('实付金额')}：{renderAmount()}</p>
-            <p>{t('是否确认充值？')}</p>
-          </Modal>
-
-          <div className="relative">
-            <div
-              style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}
-            >
-              <Card style={{ width: '500px', padding: '20px' }}>
-                <Title level={3} style={{ textAlign: 'center' }}>
-                  {t('余额')} {renderQuota(userQuota)}
-                </Title>
-                <div style={{ marginTop: 20 }}>
-                  <Divider>{t('兑换余额')}</Divider>
-                  <Form>
-                    <Form.Input
-                      field={'redemptionCode'}
-                      label={t('兑换码')}
-                      placeholder={t('兑换码')}
-                      name='redemptionCode'
-                      value={redemptionCode}
-                      onChange={(value) => {
-                        setRedemptionCode(value);
-                      }}
-                    />
-                    <Space>
-                      {topUpLink ? (
-                        <Button
-                          type={'primary'}
-                          theme={'solid'}
-                          onClick={openTopUpLink}
+                <Modal
+                  title={t('确定要充值吗')}
+                  visible={open}
+                  onOk={onlineTopUp}
+                  onCancel={handleCancel}
+                  maskClosable={false}
+                  size={'small'}
+                  centered={true}
+                >
+                  <p>{t('充值数量')}：{topUpCount}</p>
+                  <p>{t('实付金额')}：{renderAmount()}</p>
+                  <p>{t('是否确认充值？')}</p>
+                </Modal>
+              <div className="relative">
+                  <Row gutter={24}> 
+                  <Col xs={24} md={12}>
+                    <div style={{ padding: 20 }}>
+                        <div
+                          style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}
                         >
-                          {t('获取兑换码')}
-                        </Button>
-                      ) : null}
-                      <Button
-                        type={'warning'}
-                        theme={'solid'}
-                        onClick={topUp}
-                        disabled={isSubmitting}
+                          <Card style={{ width: '500px', padding: '20px' }}>
+                            <Title level={3} style={{ textAlign: 'center' }}>
+                              {t('余额')} {renderQuota(userQuota)}
+                            </Title>
+                            <div style={{ marginTop: 20 }}>
+                              <Divider>{t('兑换余额')}</Divider>
+                              <Form>
+                                <Form.Input
+                                  field={'redemptionCode'}
+                                  label={t('兑换码')}
+                                  placeholder={t('兑换码')}
+                                  name='redemptionCode'
+                                  value={redemptionCode}
+                                  onChange={(value) => {
+                                    setRedemptionCode(value);
+                                  }}
+                                />
+                                <Space>
+                                  {topUpLink ? (
+                                    <Button
+                                      type={'primary'}
+                                      theme={'solid'}
+                                      onClick={openTopUpLink}
+                                    >
+                                      {t('获取兑换码')}
+                                    </Button>
+                                  ) : null}
+                                  <Button
+                                    type={'warning'}
+                                    theme={'solid'}
+                                    onClick={topUp}
+                                    disabled={isSubmitting}
+                                  >
+                                    {isSubmitting ? t('兑换中...') : t('兑换')}
+                                  </Button>
+                                </Space>
+                              </Form>
+                            </div>
+                            <div style={{ marginTop: 20 }}>
+                              <Divider>{t('在线充值')}</Divider>
+                              <Form>
+                                <Form.Input
+                                  disabled={!enableOnlineTopUp}
+                                  field={'redemptionCount'}
+                                  label={t('实付金额：') + ' ' + renderAmount()}
+                                  placeholder={t('充值数量，最低 ') + renderQuotaWithAmount(minTopUp)}
+                                  name='redemptionCount'
+                                  type={'number'}
+                                  value={topUpCount}
+                                  onChange={async (value) => {
+                                    if (value < 1) {
+                                      value = 1;
+                                    }
+                                    setTopUpCount(value);
+                                    await getAmount(value);
+                                  }}
+                                />
+                                <Space>
+                                  {/* <Button
+                                    type={'primary'}
+                                    theme={'solid'}
+                                    onClick={async () => {
+                                      preTopUp('zfb');
+                                    }}
+                                  >
+                                    {t('支付宝')}
+                                  </Button>
+                                  <Button
+                                    style={{
+                                      backgroundColor: 'rgba(var(--semi-green-5), 1)',
+                                    }}
+                                    type={'primary'}
+                                    theme={'solid'}
+                                    onClick={async () => {
+                                      preTopUp('wx');
+                                    }}
+                                  >
+                                    {t('微信')}
+                                  </Button> */}
+                                  {enableStripe && (
+                                    <Button
+                                      style={{
+                                        backgroundColor: 'rgba(var(--semi-cyan-5), 1)',
+                                      }}
+                                      type={'primary'}
+                                      theme={'solid'}
+                                      onClick={async () => {
+                                        preTopUp('stripe');
+                                      }}
+                                    >
+                                      {t('Stripe')}
+                                    </Button>
+                                  )}
+                                  {/* 添加 Coinbase 按钮 */}
+                                  {enableCoinbase && (
+                                      <Button
+                                        style={{
+                                          backgroundColor: '#0052FF',
+                                        }}
+                                        type={'primary'}
+                                        theme={'solid'}
+                                        onClick={async () => {
+                                          preTopUp('coinbase');
+                                        }}
+                                      >
+                                        {t('Coinbase')}
+                                      </Button>
+                                    )}
+                                  {/* 添加 PayPal 按钮 */}
+                                  {enablePaypal && (
+                                    <Button
+                                      style={{
+                                        backgroundColor: '#003087',
+                                      }}
+                                      type={'primary'}
+                                      theme={'solid'}
+                                      onClick={async () => {
+                                        preTopUp('paypal');
+                                      }}
+                                    >
+                                      {t('PayPal')}
+                                    </Button>
+                                  )}
+                                </Space>
+                              </Form>
+                            </div>
+                            {/*<div style={{ display: 'flex', justifyContent: 'right' }}>*/}
+                            {/*    <Text>*/}
+                            {/*        <Link onClick={*/}
+                            {/*            async () => {*/}
+                            {/*                window.location.href = '/topup/history'*/}
+                            {/*            }*/}
+                            {/*        }>充值记录</Link>*/}
+                            {/*    </Text>*/}
+                            {/*</div>*/}
+                          </Card>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <div
+                        className="absolute top-11"
                       >
-                        {isSubmitting ? t('兑换中...') : t('兑换')}
-                      </Button>
-                    </Space>
-                  </Form>
-                </div>
-                <div style={{ marginTop: 20 }}>
-                  <Divider>{t('在线充值')}</Divider>
-                  <Form>
-                    <Form.Input
-                      disabled={!enableOnlineTopUp}
-                      field={'redemptionCount'}
-                      label={t('实付金额：') + ' ' + renderAmount()}
-                      placeholder={t('充值数量，最低 ') + renderQuotaWithAmount(minTopUp)}
-                      name='redemptionCount'
-                      type={'number'}
-                      value={topUpCount}
-                      onChange={async (value) => {
-                        if (value < 1) {
-                          value = 1;
-                        }
-                        setTopUpCount(value);
-                        await getAmount(value);
-                      }}
-                    />
-                    <Space>
-                      {/* <Button
-                        type={'primary'}
-                        theme={'solid'}
-                        onClick={async () => {
-                          preTopUp('zfb');
-                        }}
-                      >
-                        {t('支付宝')}
-                      </Button>
-                      <Button
-                        style={{
-                          backgroundColor: 'rgba(var(--semi-green-5), 1)',
-                        }}
-                        type={'primary'}
-                        theme={'solid'}
-                        onClick={async () => {
-                          preTopUp('wx');
-                        }}
-                      >
-                        {t('微信')}
-                      </Button> */}
-                      {enableStripe && (
-                        <Button
-                          style={{
-                            backgroundColor: 'rgba(var(--semi-cyan-5), 1)',
-                          }}
-                          type={'primary'}
-                          theme={'solid'}
-                          onClick={async () => {
-                            preTopUp('stripe');
-                          }}
-                        >
-                          {t('Stripe')}
-                        </Button>
-                      )}
-                      {/* 添加 Coinbase 按钮 */}
-                      {enableCoinbase && (
-                          <Button
-                            style={{
-                              backgroundColor: '#0052FF',
-                            }}
-                            type={'primary'}
-                            theme={'solid'}
-                            onClick={async () => {
-                              preTopUp('coinbase');
-                            }}
-                          >
-                            {t('Coinbase')}
-                          </Button>
-                        )}
-                      {/* 添加 PayPal 按钮 */}
-                      {enablePaypal && (
-                        <Button
-                          style={{
-                            backgroundColor: '#003087',
-                          }}
-                          type={'primary'}
-                          theme={'solid'}
-                          onClick={async () => {
-                            preTopUp('paypal');
-                          }}
-                        >
-                          {t('PayPal')}
-                        </Button>
-                      )}
-                    </Space>
-                  </Form>
-                </div>
-                {/*<div style={{ display: 'flex', justifyContent: 'right' }}>*/}
-                {/*    <Text>*/}
-                {/*        <Link onClick={*/}
-                {/*            async () => {*/}
-                {/*                window.location.href = '/topup/history'*/}
-                {/*            }*/}
-                {/*        }>充值记录</Link>*/}
-                {/*    </Text>*/}
-                {/*</div>*/}
-              </Card>
-            </div>
-
-            <div
-              className="absolute right-0 top-0"
-            >
-              <AffLinkCard setUserQuota={(quota)=>{
-                setUserQuota(quota);
-              }}></AffLinkCard>
-            </div>
-
-          </div>
-
-
-          
+                        <AffLinkCard setUserQuota={(quota)=>{
+                          setUserQuota(quota);
+                        }}></AffLinkCard>
+                      </div>
+                    </Col>
+                  </Row>
+              </div>
         </Layout.Content>
       </Layout>
     </div>

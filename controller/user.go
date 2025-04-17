@@ -413,7 +413,7 @@ func TransferAffQuota(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": lang.T(c, "user.quota.transfer_failed") + err.Error(),
+			"message": lang.T(c, "user.quota.transfer_failed", err.Error()),
 		})
 		return
 	}
