@@ -156,7 +156,7 @@ export default (props) => {
             <Descriptions.Item itemKey={t('待使用收益')}>
               <span>{renderQuota(userState?.user?.aff_quota)}</span>
               <Button
-                type={'secondary'}
+                type={'warning'}
                 onClick={() => setOpenTransfer(true)}
                 size={'small'}
                 style={{ marginLeft: 10 }}
