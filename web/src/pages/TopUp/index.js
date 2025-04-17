@@ -244,7 +244,7 @@ const TopUp = () => {
                 </Modal>
               <div className="relative">
                   <Row gutter={24}> 
-                  <Col xs={24} md={12}>
+                  <Col xs={24} sm={24} md={24} lg={12} xl={12}>
                     <div style={{ padding: 20 }}>
                         <div
                           style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}
@@ -388,13 +388,15 @@ const TopUp = () => {
                         </div>
                       </div>
                     </Col>
-                    <Col xs={24} md={12}>
-                      <div
-                        className="absolute top-11"
-                      >
-                        <AffLinkCard setUserQuota={(quota)=>{
-                          setUserQuota(quota);
-                        }}></AffLinkCard>
+                    <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                      <div style={{ padding: 20 }}>
+                        <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}
+                        >
+                          <AffLinkCard setUserQuota={(quota)=>{
+                            setUserQuota(quota);
+                          }}></AffLinkCard>
+                        </div>
+                        
                       </div>
                     </Col>
                   </Row>
