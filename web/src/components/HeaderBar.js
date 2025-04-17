@@ -24,6 +24,7 @@ import {
   IconInfoCircle,
   IconCreditCard,
   IconTerminal,
+  IconDescend,
 } from '@douyinfe/semi-icons';
 import { Avatar, Button, Dropdown, Layout, Nav, Switch, Tag } from '@douyinfe/semi-ui';
 import { stringToColor } from '../helpers/render';
@@ -261,7 +262,7 @@ const themeButtonStyle = {
   margin: '0 8px'
 };
 
-const HeaderBar = () => {
+const HeaderBar = (headerProps) => {
   const { t, i18n } = useTranslation();
   const [userState, userDispatch] = useContext(UserContext);
   const [styleState, styleDispatch] = useContext(StyleContext);
@@ -322,6 +323,12 @@ const HeaderBar = () => {
           icon: <IconHelpCircleStroked style={headerIconStyle} />,
         },
         {
+          text: t('文章'),
+          itemKey: 'docs',
+          to: '/docs',
+          icon: <IconDescend style={headerIconStyle} />,
+        },
+        {
           text: t('关于'),
           itemKey: 'about',
           to: '/about',
@@ -365,6 +372,12 @@ const HeaderBar = () => {
       itemKey: 'faq',
       to: '/faq',
       icon: <IconHelpCircleStroked style={headerIconStyle} />,
+    },
+    {
+      text: t('文章'),
+      itemKey: 'docs',
+      to: '/docs',
+      icon: <IconDescend style={headerIconStyle} />,
     },
     {
       text: t('关于'),
@@ -456,9 +469,14 @@ const HeaderBar = () => {
                 home: '/',
                 chat: '/chat',
                 faq: '/faq',  // 添加这一行
+                docs: '/docs',  // 添加这一行
               };
               return (
                 <div onClick={(e) => {
+                  if(props.itemKey === 'docs' || headerProps.type === 'web'){
+                    location.href = props.to
+                    return
+                  }
                   // 添加 FAQ 到不需要设置内边距的页面列表中
                   if (props.itemKey === 'home' || props.itemKey === 'about' || props.itemKey === 'faq' || props.itemKey === 'language') {
                     styleDispatch({ type: 'SET_INNER_PADDING', payload: false });

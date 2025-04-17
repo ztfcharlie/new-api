@@ -69,7 +69,7 @@ const PageLayout = () => {
         zIndex: 100,
         boxShadow: '0 1px 6px rgba(0, 0, 0, 0.08)'
       }}>
-        <HeaderBar />
+        <HeaderBar type="web"/>
       </Header>
     </Layout>
   )
