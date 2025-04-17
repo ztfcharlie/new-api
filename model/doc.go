@@ -41,7 +41,7 @@ func GetAllDocs(query DocQuery, startIdx int, num int) (docs []*Doc, total int64
 
 	// Get total count within transaction
 	countQuery := tx.Unscoped()
-	if query.Id >= 0 {
+	if query.Id != 0 {
 		countQuery = countQuery.Where("id = ?", query.Id)
 	}
 	if query.Title != "" {
@@ -56,7 +56,7 @@ func GetAllDocs(query DocQuery, startIdx int, num int) (docs []*Doc, total int64
 		return nil, 0, err
 	}
 	tx = tx.Unscoped().Select("id", "title", "summary", "keywords", "description", "views", "weight", `type`, "created_at", "updated_at", "status")
-	if query.Id >= 0 {
+	if query.Id != 0 {
 		tx = tx.Where("id = ?", query.Id)
 	}
 	if query.Title != "" {
