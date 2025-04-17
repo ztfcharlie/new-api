@@ -10,12 +10,14 @@ import (
 
 func SetWebRenderRouter(router *gin.Engine) {
 	// router.Use(gzip.Gzip(gzip.DefaultCompression))
+	views.Initialize()
 	router.SetHTMLTemplate(views.Templates)
 	webRouter := router.Group("")
 	{
 		webRouter.Use(middleware.GlobalWebRateLimit())
 		// 静态资源
 		webRouter.Static("/static", "./public/static")
+		webRouter.Static("/webHtml", "./public/webHtml")
 		// 模板目录
 		webRouter.GET("/docs", web.GetAllDocs)
 		webRouter.GET("/doc/:id", web.GetDoc)

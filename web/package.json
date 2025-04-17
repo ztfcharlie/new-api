@@ -36,7 +36,10 @@
     "build": "vite build",
     "lint": "prettier . --check",
     "lint:fix": "prettier . --write",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:web": "vite -c vite.web.config.js",
+    "build:web": "vite build -c vite.web.config.js",
+    "preview:web": "vite preview"
   },
   "eslintConfig": {
     "extends": [
