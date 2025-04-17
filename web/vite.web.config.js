@@ -9,6 +9,7 @@ function assetsInjectPosition(){
       const assetRegex = /<(script|link)[^>]*>[\s\S]*?<\/script[^>]*>|<link[^>]*>/gi;
       const assets = html.match(assetRegex) || [];
       let newHtml = html.replace(assetRegex, '');
+      newHtml = newHtml.replace(/\n{3,}/g, '\n\n');
       newHtml = newHtml.replace(
         '<!-- # ASSETS HERE -->',
         `<!-- # ASSETS HERE -->\n${assets.join('\n')}`
