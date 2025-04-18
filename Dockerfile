@@ -16,13 +16,14 @@ ENV GO111MODULE=on \
 WORKDIR /build
 
 ADD go.mod go.sum ./
+# RUN go env -w  GOPROXY=https://goproxy.cn,direct
 RUN go mod download
 
 COPY . .
 COPY --from=builder /build/dist ./web/dist
-COPY --from=builder /public/webHtml ./public/webHtml
+COPY --from=builder /public ./public
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)'" -o one-api
-
+# RUN go run main.go
 FROM alpine
 
 RUN apk update \
