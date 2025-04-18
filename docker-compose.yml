@@ -8,12 +8,12 @@ services:
     container_name: burncloud-aiapi
     restart: always
     command: --log-dir /app/logs
-    #ports:
+    # ports:
     #  - "3002:3000"
     volumes:
       - ./data:/data
       - ./logs:/app/logs
-      - ./public:/public
+      # - ./public:/public
     environment:
       - SQL_DSN=${SQL_DSN}
       - GLOBAL_API_RATE_LIMIT_ENABLE=false
