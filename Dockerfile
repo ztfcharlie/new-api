@@ -25,7 +25,7 @@ COPY --from=builder /public ./public
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)'" -o one-api
 # RUN go run main.go
 FROM alpine
-
+WORKDIR /data
 RUN apk update \
     && apk upgrade \
     && apk add --no-cache ca-certificates tzdata ffmpeg \
@@ -38,6 +38,7 @@ RUN apk update \
 COPY --from=builder2 /build/lang/*.json /usr/local/share/one-api/lang/
 COPY --from=builder2 /build/one-api /
 COPY --from=builder2 /build/public /data/public
+COPY --from=builder2 /build/public /public
 EXPOSE 3000
-WORKDIR /data
+
 ENTRYPOINT ["/one-api"]
