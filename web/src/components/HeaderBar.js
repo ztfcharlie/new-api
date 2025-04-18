@@ -447,8 +447,11 @@ const HeaderBar = (headerProps) => {
     i18n.changeLanguage(lang);
     localStorage.setItem('i18nextLng', lang); // 确保语言设置被保存
     setCurrentLang(lang);
+    if(headerProps.type === 'web'){
+      window.location.reload();
+    }
   };
-
+  
   return (
     <>
       <Layout>
@@ -503,6 +506,13 @@ const HeaderBar = (headerProps) => {
                       className="header-bar-text"
                       style={{ textDecoration: 'none' }}
                       to={routerMap[props.itemKey]}
+                      onClick={(e) => {
+                        if(props.itemKey === 'docs' || headerProps.type === 'web'){
+                          e.preventDefault();
+                          location.href = props.to
+                          return
+                        }
+                      }}
                     >
                       {itemElement}
                     </Link>

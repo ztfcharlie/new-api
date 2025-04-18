@@ -2,6 +2,9 @@
     "faq.empty.records": "没有找到相关记录",
     "faq.search.documents": "搜索文档...",
     "error.status.404": "找不到该记录",
+    "doc.seo.title": "文章",
+    "doc.seo.keywords": "文章关键词",
+    "doc.seo.description": "文章描述",
 
 
     "error.auth.invalid_token": "无效的访问令牌",

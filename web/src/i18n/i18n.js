@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-
+import cookie from 'js-cookie';
 import enTranslation from './locales/en.json';
 import zhTranslation from './locales/zh.json';
 
@@ -35,6 +35,7 @@ i18n
 // 确保语言变更时保存到 localStorage
 i18n.on('languageChanged', (lng) => {
   localStorage.setItem('i18nextLng', lng);
+  cookie.set("i18nextLng",lng,{ expires: 365 });
 });
 
 export default i18n;

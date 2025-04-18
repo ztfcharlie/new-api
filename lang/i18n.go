@@ -206,6 +206,9 @@ func LanguageMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		lang := c.GetHeader("i18n-next-lng")
 		if lang == "" {
+			lang, _ = c.Cookie("i18nextLng")
+		}
+		if lang == "" {
 			lang = DefaultLang
 		}
 		//fmt.Printf("Language middleware - Selected language: %s\n", lang)
