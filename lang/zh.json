@@ -1,6 +1,6 @@
 {
-    "faq.empty.records": "没有找到相关记录",
-    "faq.search.documents": "搜索文档...",
+    "doc.empty.records": "没有找到相关记录",
+    "doc.search.documents": "搜索文档...",
     "error.status.404": "找不到该记录",
     "doc.seo.title": "文章",
     "doc.seo.keywords": "文章关键词",
