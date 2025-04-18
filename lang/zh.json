@@ -2,9 +2,9 @@
     "doc.empty.records": "没有找到相关记录",
     "doc.search.documents": "搜索文档...",
     "error.status.404": "找不到该记录",
-    "doc.seo.title": "文章",
-    "doc.seo.keywords": "文章关键词",
-    "doc.seo.description": "文章描述",
+    "doc.seo.title": "Burnlcoud AI大模型文档中心",
+    "doc.seo.keywords": "Burnlcoud, AI大模型, API接口, 文档, 使用手册, 开发指南",
+    "doc.seo.description": "在Burnlcoud文档中心，您可以找到全面的AI大模型API接口使用手册和开发指南，帮助您快速上手并充分利用我们的平台。",
 
 
     "error.auth.invalid_token": "无效的访问令牌",

@@ -35,15 +35,15 @@ const DocsTable = () => {
     });
     const [showEdit, setShowEdit] = useState(false)
     const columns = [
-        { title: 'ID', dataIndex: 'id', width: 90 },
-        { title: '标题', dataIndex: 'title', width: 200, ellipsis: true },
-        { title: '内容摘要', dataIndex: 'summary', width: 200, ellipsis: true },
+        { title: 'Id', dataIndex: 'id', width: 80 },
+        { title: 'Title', dataIndex: 'title', width: 300, ellipsis: true },
+        /*{ title: '内容摘要', dataIndex: 'summary', width: 200, ellipsis: true },
         { title: 'SEO关键字', dataIndex: 'keywords', width: 200, ellipsis: true },
-        { title: 'SEO描述', dataIndex: 'description', width: 200, ellipsis: true },
-        { title: '浏览量', dataIndex: 'views' },
-        { title: '权重', dataIndex: 'weight' },
-        { title: '添加时间', dataIndex: 'fmt_created_at', width: 160 },
-        { title: '更新时间', dataIndex: 'fmt_updated_at', width: 160 },
+        { title: 'SEO描述', dataIndex: 'description', width: 200, ellipsis: true },*/
+        { title: 'Views', dataIndex: 'views', width: 60, ellipsis: true  },
+        { title: 'Weight', dataIndex: 'weight', width: 60, ellipsis: true  },
+        { title: 'Add', dataIndex: 'fmt_created_at', width: 120 },
+        /*{ title: 'Update', dataIndex: 'fmt_updated_at', width: 160 },*/
         {
             title: t('状态'),
             dataIndex: 'status',
@@ -114,8 +114,8 @@ const DocsTable = () => {
 
     const formatDocList = useMemo(() => {
         return docList.map((item) => {
-            item.fmt_created_at = formatDateTime(item.created_at, 'YYYY-MM-DD HH:mm:ss');
-            item.fmt_updated_at = formatDateTime(item.updated_at, 'YYYY-MM-DD HH:mm:ss');
+            item.fmt_created_at = formatDateTime(item.created_at, 'YYYY-MM-DD');
+            item.fmt_updated_at = formatDateTime(item.updated_at, 'YYYY-MM-DD');
             return item
         })
     }, [docList])
