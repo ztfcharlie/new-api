@@ -35,7 +35,7 @@ RUN apk update \
 # 从 builder2 阶段复制文件
 COPY --from=builder2 /build/lang/*.json /usr/local/share/one-api/lang/
 COPY --from=builder2 /build/one-api /
-COPY --from=builder2 /build/public /public
+COPY --from=builder2 /build/public /usr/local/share/one-api/
 EXPOSE 3000
 WORKDIR /data
 ENTRYPOINT ["/one-api"]
