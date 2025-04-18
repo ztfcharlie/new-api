@@ -1,8 +1,7 @@
 {{define "partials/pagination"}}
 <div class="semi-table-pagination-outer">
-    <span class="semi-table-pagination-info">{{T 'doc.items.from'}} {{.pagination.StartCount}} - {{.pagination.EndCount}} {{T 'doc.items.to
-        '}}，{{T 'doc.items.total'}}
-        {{.pagination.Total}} {{T 'doc.items.items'}}</span><span class="semi-table-pagination-wrapper">
+    <span class="semi-table-pagination-info"> {{.pagination.StartCount}} - {{.pagination.EndCount}} ，Total 
+        {{.pagination.Total}} </span><span class="semi-table-pagination-wrapper">
         <ul class="semi-page">
             <li role="button" aria-disabled="true" aria-label="Previous"
                 class="semi-page-item semi-page-prev {{if $.pagination.PrevPage.Disabled}}semi-page-item-disabled{{end}}"

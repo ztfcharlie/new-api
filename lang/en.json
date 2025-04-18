@@ -5,10 +5,6 @@
         "doc.seo.title": "Burnlcoud AI Model Documentation Center",
         "doc.seo.keywords": "Burnlcoud, AI model, API interface, documentation, user manual, development guide",
         "doc.seo.description": "In the Burnlcoud Documentation Center, you can find comprehensive user manuals and development guides for our AI model API interfaces, helping you get started quickly and make the most of our platform.",
-        "doc.items.from":"From",
-        "doc.items.to":"items",
-        "doc.items.total":"total",
-        "doc.items.items":"items",
 
         "error.auth.invalid_token": "Invalid access token",
         "error.auth.token_expired": "Access token has expired",
