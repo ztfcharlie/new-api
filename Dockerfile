@@ -34,7 +34,7 @@ RUN apk update \
 # 从 builder2 阶段复制文件
 COPY --from=builder2 /build/lang/*.json /usr/local/share/one-api/lang/
 COPY --from=builder2 /build/one-api /
-COPY --from=builder2 /public/satic /public/static
+COPY --from=builder2 /public/static /public/static
 COPY --from=builder2 /public/webHtml /public/webHtml
 EXPOSE 3000
 WORKDIR /data
