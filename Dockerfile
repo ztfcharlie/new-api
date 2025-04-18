@@ -30,7 +30,9 @@ RUN apk update \
     && apk upgrade \
     && apk add --no-cache ca-certificates tzdata ffmpeg \
     && update-ca-certificates \
-    && mkdir -p /usr/local/share/one-api/lang    # 使用标准的应用数据目录
+    && mkdir -p /data/public \
+    && mkdir -p /usr/local/share/one-api/lang     # 使用标准的应用数据目录
+    
 
 # 从 builder2 阶段复制文件
 COPY --from=builder2 /build/lang/*.json /usr/local/share/one-api/lang/
