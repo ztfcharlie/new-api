@@ -5,7 +5,7 @@ COPY web/package.json .
 RUN bun install
 COPY ./web .
 COPY ./VERSION .
-RUN DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat VERSION) bun run build && bun run build:web
+RUN DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat VERSION) bun run build
 
 FROM golang:alpine AS builder2
 
@@ -20,6 +20,7 @@ RUN go mod download
 
 COPY . .
 COPY --from=builder /build/dist ./web/dist
+COPY --from=builder /public ./public
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)'" -o one-api
 
 FROM alpine
