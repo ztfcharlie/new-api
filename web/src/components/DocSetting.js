@@ -67,7 +67,7 @@ const DocsTable = () => {
         {
             title: '',
             dataIndex: 'operate',
-            width: 100,
+            width: 180,
             render: (text, record, index) => {
                 return (
                     <div>
