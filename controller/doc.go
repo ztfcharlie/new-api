@@ -120,10 +120,12 @@ func GetDoc(c *gin.Context) {
 func GetAllDocs(c *gin.Context) {
 	queryId := c.Query("id")
 	var docId int
+	var err error
 	if queryId != "" {
-		docId, _ = strconv.Atoi(queryId)
-	} else {
-		docId = -1
+		docId, err = strconv.Atoi(queryId)
+		if err != nil {
+			docId = -1
+		}
 	}
 
 	docTitle := c.Query("title")

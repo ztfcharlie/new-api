@@ -47,11 +47,12 @@ func GetAllDocs(cc *gin.Context) {
 		c.abortError(http.StatusOK, err.Error())
 		return
 	}
+
 	// seo
 	meta := map[string]string{
-		"title":       "文章列表",
-		"keywords":    "文章,doc",
-		"description": "文章描述",
+		"title":       lang.T(cc, "doc.seo.title"),
+		"keywords":    lang.T(cc, "doc.seo.keywords"),
+		"description": lang.T(cc, "doc.seo.description"),
 	}
 	c.render("doc.html", gin.H{
 		"title":      keywords,

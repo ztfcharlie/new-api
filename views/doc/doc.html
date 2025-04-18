@@ -14,7 +14,7 @@
               class="search-input"
               id="searchInput"
               name="keywords"
-              placeholder="{{T "faq.search.documents"}}"
+              placeholder="{{T "doc.search.documents"}}"
               value="{{.keywords}}"
             />
             <button class="search-button" type="submit">🔍</button>
@@ -41,7 +41,7 @@
           {{ end }} 
           {{template "partials/pagination" .}}
         {{else}}
-          {{T "faq.empty.records"}}
+          {{T "doc.empty.records"}}
         {{ end }} 
       </div>
     </div>
