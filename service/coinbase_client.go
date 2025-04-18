@@ -21,13 +21,13 @@ func GetCoinbaseClient() *CoinbaseClient {
 }
 
 type CoinbaseChargeRequest struct {
-	Name         string            `json:"name"`
-	Description  string           `json:"description"`
-	PricingType  string           `json:"pricing_type"`
-	LocalPrice   CoinbasePrice    `json:"local_price"`
-	Metadata     map[string]string `json:"metadata"`
-	RedirectURL  string           `json:"redirect_url"`
-	CancelURL    string           `json:"cancel_url"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	PricingType string            `json:"pricing_type"`
+	LocalPrice  CoinbasePrice     `json:"local_price"`
+	Metadata    map[string]string `json:"metadata"`
+	RedirectURL string            `json:"redirect_url"`
+	CancelURL   string            `json:"cancel_url"`
 }
 
 type CoinbasePrice struct {
@@ -44,7 +44,7 @@ type CoinbaseChargeResponse struct {
 // Purchase 创建支付会话
 func (c *CoinbaseClient) Purchase(args *PurchaseArgs) (string, map[string]string, error) {
 	apiURL := "https://api.commerce.coinbase.com/charges"
-	
+
 	// 构建支付请求
 	chargeRequest := CoinbaseChargeRequest{
 		Name:        args.Name,

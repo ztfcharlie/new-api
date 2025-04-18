@@ -446,6 +446,7 @@ func CoinbaseNotify(c *gin.Context) {
 
 	// 读取请求体
 	body, err := io.ReadAll(c.Request.Body)
+	//打印主题body
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
@@ -457,31 +458,41 @@ func CoinbaseNotify(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid signature"})
 		return
 	}
-
-	// 解析事件数据
-	var event struct {
-		Type string `json:"type"`
-		Data struct {
-			Metadata struct {
-				TradeNo string `json:"trade_no"`
-			} `json:"metadata"`
-		} `json:"data"`
+	// 解析事件数据 - 修改为正确的结构
+	var webhookData struct {
+		Event struct {
+			Type string `json:"type"`
+			Data struct {
+				Metadata map[string]string `json:"metadata"`
+			} `json:"data"`
+		} `json:"event"`
 	}
-	if err := json.Unmarshal(body, &event); err != nil {
+
+	if err := json.Unmarshal(body, &webhookData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
 		return
 	}
 
 	// 处理支付成功事件
-	if event.Type == "charge:confirmed" {
+	if webhookData.Event.Type == "charge:confirmed" {
+
+		// 获取交易号
+		tradeNo := webhookData.Event.Data.Metadata["trade_no"]
+		if tradeNo == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing trade_no"})
+			return
+		}
+
 		info := VerifyInfo{
-			ServiceTradeNo: event.Data.Metadata.TradeNo,
+			ServiceTradeNo: tradeNo,
 		}
 		err = handleOrderSuccess(info)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+	} else {
+		log.Printf("CoinbaseNotify: Unhandled event type: %s", webhookData.Event.Type)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "success"})
@@ -502,55 +513,92 @@ func verifyCoinbaseSignature(signature string, payload []byte, secret string) er
 	return nil
 }
 
-// 添加 PayPal 回调处理函数
-// 添加 PayPal IPN 回调处理函数
+// PayPal Webhook 回调处理函数
 func PaypalNotify(c *gin.Context) {
-	// 1. 首先读取原始 POST 数据
+	//log.Println("PaypalNotify: Starting PayPal Webhook handler")
+
+	// 1. 读取请求体
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		log.Printf(lang.T(c, "topup.log.paypal_read_body_failed"), err)
-		c.String(http.StatusBadRequest, "Failed")
+		log.Printf("PaypalNotify: Failed to read request body: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
+	log.Println("PaypalNotify: Successfully read request body")
+	//log.Printf("PaypalNotify: Raw webhook data: %s", string(body))
+
+	// 2. 解析 JSON 数据
+	var webhookData struct {
+		EventType string `json:"event_type"`
+		Resource  struct {
+			ID            string `json:"id"`
+			Status        string `json:"status"`
+			PurchaseUnits []struct {
+				ReferenceID string `json:"reference_id"`
+				Payments    struct {
+					Captures []struct {
+						ID     string `json:"id"`
+						Status string `json:"status"`
+					} `json:"captures"`
+				} `json:"payments"`
+			} `json:"purchase_units"`
+		} `json:"resource"`
+	}
+
+	if err := json.Unmarshal(body, &webhookData); err != nil {
+		log.Printf("PaypalNotify: Failed to parse JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+	//log.Printf("PaypalNotify: Parsed webhook data - event_type: %s, order_id: %s, status: %s", webhookData.EventType, webhookData.Resource.ID, webhookData.Resource.Status)
+
+	// 3. 验证事件类型和支付状态
+	if webhookData.EventType != "CHECKOUT.ORDER.APPROVED" {
+		log.Printf("PaypalNotify: Unhandled event type: %s", webhookData.EventType)
+		c.JSON(http.StatusOK, gin.H{"status": "success"}) // 返回成功，因为这是正常的通知
 		return
 	}
 
-	// 2. 记录接收到的 IPN 数据
-	log.Printf(lang.T(c, "topup.log.paypal_received_notification"), string(body))
-
-	// 3. 解析 POST 数据
-	err = c.Request.ParseForm()
-	if err != nil {
-		log.Printf(lang.T(c, "topup.log.paypal_parse_form_failed"), err)
-		c.String(http.StatusBadRequest, "Failed")
+	if webhookData.Resource.Status != "APPROVED" {
+		log.Printf("PaypalNotify: Order not completed, status: %s", webhookData.Resource.Status)
+		c.JSON(http.StatusOK, gin.H{"status": "success"})
 		return
 	}
 
-	// 4. 获取关键参数
-	paymentStatus := c.Request.PostForm.Get("payment_status")
-	txnId := c.Request.PostForm.Get("txn_id")
-	customData := c.Request.PostForm.Get("custom") // 这里会收到我们之前传入的 ServiceTradeNo
+	log.Println("PaypalNotify: Order is completed, proceeding with processing")
 
-	// 5. 验证支付状态
-	if paymentStatus != "Completed" {
-		log.Printf("PayPal IPN: 支付未完成，状态: %s", paymentStatus)
-		c.String(http.StatusOK, "OK") // 仍然返回成功，因为这是正常的通知
+	// 4. 查找交易号 - 直接使用 reference_id
+	var tradeNo string
+
+	// 检查 purchase_units 中的 referenceID
+	if len(webhookData.Resource.PurchaseUnits) > 0 {
+		tradeNo = webhookData.Resource.PurchaseUnits[0].ReferenceID
+		log.Printf("PaypalNotify: Using reference_id as trade_no: %s", tradeNo)
+	}
+
+	// 5. 验证是否找到交易号
+	if tradeNo == "" {
+		log.Println("PaypalNotify: Could not find reference_id in webhook data")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing reference_id"})
 		return
 	}
 
 	// 6. 处理订单
+	log.Printf("PaypalNotify: Processing order with trade_no: %s", tradeNo)
 	info := VerifyInfo{
-		ServiceTradeNo: customData,
+		ServiceTradeNo: tradeNo,
 	}
 
 	err = handleOrderSuccess(info)
 	if err != nil {
-		log.Printf("PayPal IPN: 处理订单失败: %v", err)
-		c.String(http.StatusInternalServerError, "Failed")
+		log.Printf("PaypalNotify: Failed to handle order success: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	log.Println("PaypalNotify: Order handled successfully")
 
-	// 7. 记录成功日志
-	log.Printf("PayPal IPN: 订单处理成功，交易号: %s, 订单号: %s", txnId, customData)
-
-	// 8. 返回成功响应
-	c.String(http.StatusOK, "OK")
+	// 7. 返回成功响应
+	log.Println("PaypalNotify: Sending success response")
+	c.JSON(http.StatusOK, gin.H{"status": "success"})
+	//log.Println("PaypalNotify: Webhook handler completed successfully")
 }
