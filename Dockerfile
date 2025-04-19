@@ -37,7 +37,6 @@ RUN apk update \
 COPY --from=builder2 /build/lang/*.json /usr/local/share/one-api/lang/
 COPY --from=builder2 /build/one-api /
 COPY --from=builder2 /build/public ./public
-COPY --from=builder2 /build/public /public
 EXPOSE 3000
 
 ENTRYPOINT ["/one-api"]

@@ -292,7 +292,7 @@ const HeaderBar = (headerProps) => {
     {
       text: null,
       itemKey: 'detail',
-      to: '/',
+      to: '/detail',
       icon: <DashboardIcon  style={headerIconStyle} />,
     },
     {
@@ -348,7 +348,7 @@ const HeaderBar = (headerProps) => {
     {
       text: t('控制台'),
       itemKey: 'detail',
-      to: '/',
+      to: '/detail',
       icon: <DashboardIcon style={headerIconStyle} />,
     },
     {
