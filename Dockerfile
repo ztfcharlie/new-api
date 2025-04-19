@@ -25,7 +25,7 @@ RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)'" -o one-
 # RUN go run main.go
 
 FROM alpine
-
+WORKDIR /data
 # RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
 RUN apk update \
     && apk upgrade \
@@ -37,7 +37,7 @@ RUN apk update \
 # 从 builder2 阶段复制文件
 COPY --from=builder2 /build/lang/*.json /usr/local/share/one-api/lang/
 COPY --from=builder2 /build/one-api /
-COPY --from=builder /public/webHtml /public/webHtml
+COPY --from=builder /public/webHtml ./public/webHtml
 EXPOSE 3000
-WORKDIR /data
+
 ENTRYPOINT ["/one-api"]
