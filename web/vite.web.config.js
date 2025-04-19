@@ -2,22 +2,6 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, transformWithEsbuild } from 'vite';
 import {resolve} from "path";
 import tailwindcss from '@tailwindcss/vite'
-function assetsInjectPosition(){
-  return {
-    name: "no-attribute",
-    transformIndexHtml(html) {
-      const assetRegex = /<(script|link)[^>]*>[\s\S]*?<\/script[^>]*>|<link[^>]*>/gi;
-      const assets = html.match(assetRegex) || [];
-      let newHtml = html.replace(assetRegex, '');
-      newHtml = newHtml.replace(/\n{3,}/g, '\n\n');
-      newHtml = newHtml.replace(
-        '<!-- # ASSETS HERE -->',
-        `<!-- # ASSETS HERE -->\n${assets.join('\n')}`
-      );
-      return newHtml;
-    }
-  }
-}
 // https://vitejs.dev/config/
 export default defineConfig({
   publicDir: "public-web",
@@ -46,7 +30,6 @@ export default defineConfig({
     },
     react(),
     tailwindcss(),
-    assetsInjectPosition()
   ],
   optimizeDeps: {
     force: true,

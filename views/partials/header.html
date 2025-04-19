@@ -11,7 +11,11 @@
     <link rel="stylesheet" type="text/css" href="/static/css/common.css" />
 </head>
 <body>
-
-{{template "partials/webHeader" .}}
-
+    <div id="header-wrap"></div>
+    <script src="/static/js/jquery.min.js"></script>
+    <script>
+        $.get("/webHtml/index-web.html", function (data) {
+            $("#header-wrap").html(data);
+        });
+    </script>
 {{end}}

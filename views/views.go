@@ -4,7 +4,6 @@ import (
 	"embed"
 	"html/template"
 	"one-api/lang"
-	"one-api/public"
 	"time"
 )
 
@@ -32,13 +31,4 @@ var funcMap = template.FuncMap{
 }
 
 // 模板文件
-var Templates *template.Template
-
-func Initialize() {
-	tmp1, err := template.New("").Funcs(funcMap).ParseFS(templatesFs, "*/*.html")
-	if err != nil {
-		panic(err)
-	}
-	Templates = template.Must(tmp1, err)
-	Templates = template.Must(tmp1.ParseFS(public.TemplatesFs, "webHtml/*.html"))
-}
+var Templates = template.Must(template.New("").Funcs(funcMap).ParseFS(templatesFs, "*/*.html"))
