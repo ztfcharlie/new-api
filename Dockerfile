@@ -21,11 +21,12 @@ RUN go mod download
 
 COPY . .
 COPY --from=builder /build/dist ./web/dist
-COPY --from=builder /public ./public
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)'" -o one-api
 # RUN go run main.go
+
 FROM alpine
-WORKDIR /data
+
+# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
 RUN apk update \
     && apk upgrade \
     && apk add --no-cache ca-certificates tzdata ffmpeg \
@@ -36,7 +37,7 @@ RUN apk update \
 # 从 builder2 阶段复制文件
 COPY --from=builder2 /build/lang/*.json /usr/local/share/one-api/lang/
 COPY --from=builder2 /build/one-api /
-COPY --from=builder2 /build/public ./public
+COPY --from=builder /public/webHtml /public/webHtml
 EXPOSE 3000
-
+WORKDIR /data
 ENTRYPOINT ["/one-api"]
