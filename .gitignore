@@ -15,4 +15,3 @@ mysql_data
 data
 logs
 temp/build-errors.log
-public/webHtml
