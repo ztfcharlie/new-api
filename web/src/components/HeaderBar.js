@@ -476,7 +476,9 @@ const HeaderBar = (headerProps) => {
               };
               return (
                 <div onClick={(e) => {
-                  if(props.itemKey === 'docs' || headerProps.type === 'web'){
+                  if(props.itemKey === 'docs' || headerProps.type === 'web'
+                    && props.to
+                  ){
                     location.href = props.to
                     return
                   }
@@ -507,7 +509,7 @@ const HeaderBar = (headerProps) => {
                       style={{ textDecoration: 'none' }}
                       to={routerMap[props.itemKey]}
                       onClick={(e) => {
-                        if(props.itemKey === 'docs' || headerProps.type === 'web'){
+                        if(props.itemKey === 'docs' || headerProps.type === 'web' && props.to){
                           e.preventDefault();
                           location.href = props.to
                           return
