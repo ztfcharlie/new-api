@@ -10,7 +10,6 @@ import (
 
 func SetWebRenderRouter(router *gin.Engine) {
 	// router.Use(gzip.Gzip(gzip.DefaultCompression))
-	views.Initialize()
 	router.SetHTMLTemplate(views.Templates)
 	webRouter := router.Group("")
 	{
