@@ -198,7 +198,7 @@
           </div>
           <div class="contact-options">
              <div class="working-hours">
-				<span>Support Hours: Monday - Friday</span>
+				<span>Support Hours: Monday to Friday</span>
                 <span>LA / CA, USA: 9:00 - 17:00</span>
                 <span>HK, China: 9:00 - 17:00</span>
              </div>
@@ -230,7 +230,8 @@
   <script>
       // 获取网站favicon
       function getFavicon() {
-        return '/contact_logo.png';
+          // 如果没有找到显式定义的图标，返回默认favicon路径
+          return '/contact_logo.png';
       }
 
       function initializeWidget() {
