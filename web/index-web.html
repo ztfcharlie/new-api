@@ -46,8 +46,8 @@
     }
     
     #whatsapp_level .header-icon {
-        width: 24px;
-        height: 24px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         object-fit: cover;
     }
@@ -152,8 +152,9 @@
           </div>
           <div class="contact-options">
             <div class="working-hours">
-               <span>Los Angeles Time: 9:00 - 17:00</span>
-               <span>Hong Kong Time: 9:00 - 17:00</span>
+                <span>Support Hours: Monday - Friday</span>
+                <span>LA / CA, USA: 9:00 - 17:00</span>
+                <span>HK, China: 9:00 - 17:00</span>
             </div>
                <div class="divider"></div>
              <a href="https://wa.me/13022752870" class="contact-option" target="_blank">
@@ -183,19 +184,7 @@
   <script>
       // 获取网站favicon
       function getFavicon() {
-          // 首先尝试获取高清图标
-          let favicon = document.querySelector('link[rel="icon"][sizes="192x192"]') ||
-                      document.querySelector('link[rel="icon"][sizes="180x180"]') ||
-                      document.querySelector('link[rel="apple-touch-icon"]') ||
-                      document.querySelector('link[rel="icon"]') ||
-                      document.querySelector('link[rel="shortcut icon"]');
-          
-          if (favicon) {
-              return favicon.href;
-          }
-          
-          // 如果没有找到显式定义的图标，返回默认favicon路径
-          return '/logo.png';
+            return '/contact_logo.png';
       }
 
       function initializeWidget() {
