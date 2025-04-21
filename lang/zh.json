@@ -6,7 +6,13 @@
     "doc.seo.keywords": "Burnlcoud, AI大模型, API接口, 文档, 使用手册, 开发指南",
     "doc.seo.description": "在Burnlcoud文档中心，您可以找到全面的AI大模型API接口使用手册和开发指南，帮助您快速上手并充分利用我们的平台。",
 
-
+    "error.file.not_exist":"文件不存在",
+    "error.file.too_large":"文件过大",
+    "error.file.upload_failed":"上传失败",
+    "error.file.not_allowed":"不允许上传此类型",
+    "error.file.mkdir_failed":"创建目录失败",
+    "error.file.change_name_failed":"更改文件名失败",
+    "error.file.upload_success":"上传成功",
     "error.auth.invalid_token": "无效的访问令牌",
     "error.auth.token_expired": "访问令牌已过期",
     "error.auth.permission_denied": "权限不足",

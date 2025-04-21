@@ -17,6 +17,7 @@ func SetWebRenderRouter(router *gin.Engine) {
 		// 静态资源
 		webRouter.Static("/static", "./public/static")
 		webRouter.Static("/webHtml", "./public/webHtml")
+		webRouter.Static("/uploads", "./public/uploads")
 		// 模板目录
 		webRouter.GET("/docs", web.GetAllDocs)
 		webRouter.GET("/doc/:id", web.GetDoc)

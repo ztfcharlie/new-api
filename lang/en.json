@@ -6,6 +6,13 @@
         "doc.seo.keywords": "Burnlcoud, AI model, API interface, documentation, user manual, development guide",
         "doc.seo.description": "In the Burnlcoud Documentation Center, you can find comprehensive user manuals and development guides for our AI model API interfaces, helping you get started quickly and make the most of our platform.",
 
+        "error.file.not_exist":"The file does not exist",
+        "error.file.too_large":"The file size is too large",
+        "error.file.upload_failed":"Upload failed",
+        "error.file.not_allowed":"The file type not allowed",
+        "error.file.mkdir_failed":"Failed to create a directory",
+        "error.file.change_name_failed":"Failed to change file name",
+        "error.file.upload_success":"Upload successful",
         "error.auth.invalid_token": "Invalid access token",
         "error.auth.token_expired": "Access token has expired",
         "error.auth.permission_denied": "Insufficient permissions",

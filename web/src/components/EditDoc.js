@@ -1,15 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatDateTime } from '@/helpers/datetime';
 import {
     Modal,
     Form
 } from '@douyinfe/semi-ui';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 
 import { API, showError, showSuccess } from '../helpers';
-import { Typography } from '@douyinfe/semi-ui';
+import Editor from '@/components/Editor'
 export default function (props) {
     const { t } = useTranslation();
     const [isEdit, setIsEdit] = useState(false);
@@ -53,6 +50,8 @@ export default function (props) {
             data.status = data.status > 0;
             setInputs(data);
             formApi.current.setValues(data);
+            // 编辑器的值
+            editorRef.current.setContent(data.content)
         } else {
             showError(message);
         }
@@ -69,7 +68,6 @@ export default function (props) {
         const values = formApi.current.getValues(); // 获取表单数据
         values.content = inputs.content;
         values.status = values.status ? 1 : -1;
-        // values.created_at = formatDateTime(values.created_at, 'YYYY-MM-DDTHH:mm:ss[Z]')
         setLoading(true);
         let res;
         if (isEdit) {
@@ -88,16 +86,10 @@ export default function (props) {
         }
         setLoading(false);
     }
-    const modules = {
-        toolbar: [
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-            ['link', 'image'],
-        ],
-        
+    const editorRef = useRef(null);
+    function changeContent(content){
+        handleInputChange('content',content);
     }
-
     return (
         <>
             <Modal
@@ -121,13 +113,9 @@ export default function (props) {
                         ]}
                         onChange={v => handleInputChange('title', v)}
                     ></Form.Input>
-                    <ReactQuill theme="snow" value={content}
-                        modules={modules}
-                        style={{ height: "300px", marginBottom: "50px" }}
-                        onChange={v => handleInputChange('content', v)}
-                    />
-
-                   
+                    <Form.Slot label="内容">
+                        <Editor ref={editorRef} changeContent={changeContent}/>
+                    </Form.Slot>                   
                     <Form.TextArea field='summary' label='内容摘要' initValue={summary}
                         rules={[
                             { required: true, message: '请输入内容摘要' },

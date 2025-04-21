@@ -160,6 +160,7 @@ func SetApiRouter(router *gin.Engine) {
 			taskRoute.GET("/self", middleware.UserAuth(), controller.GetUserTask)
 			taskRoute.GET("/", middleware.AdminAuth(), controller.GetAllTask)
 		}
+
 		docRoute := apiRouter.Group("/doc")
 		docRoute.Use(middleware.AdminAuth())
 		{
@@ -169,5 +170,11 @@ func SetApiRouter(router *gin.Engine) {
 			docRoute.GET("/:id", controller.GetDoc)
 			docRoute.GET("/", controller.GetAllDocs)
 		}
+		fileRoute := apiRouter.Group("/file")
+		fileRoute.Use(middleware.AdminAuth())
+		{
+			fileRoute.POST("/upload", controller.Upload)
+		}
+
 	}
 }
