@@ -50,7 +50,12 @@ func getHost(c *gin.Context) string {
 	if c.Request.TLS != nil {
 		scheme = "https"
 	}
-	return fmt.Sprintf("%s://%s", scheme, c.Request.Host)
+	domain := c.Request.URL.Host
+	fmt.Println("domain", domain)
+	if domain == "" {
+		domain = c.Request.Host
+	}
+	return fmt.Sprintf("%s://%s", scheme, domain)
 }
 func Upload(c *gin.Context) {
 	file, err := c.FormFile("file")
