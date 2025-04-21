@@ -8,6 +8,235 @@
         </div>
     </div>
 </footer>
+
+
+<style>
+    :root {
+        --whatsapp-light: #DCF8C6;
+        --whatsapp-green: #25D366;
+        --whatsapp-dark: #128C7E;
+        --chat-background: #eee;
+    }
+    #whatsapp_level .contact-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;  /* 添加这行，确保子元素右对齐 */
+    }
+    
+    #whatsapp_level .contact-popup {
+        display: none;
+        width: 300px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        margin-bottom: 15px;
+        overflow: hidden;
+        position: absolute;  /* 添加这行 */
+        bottom: 70px;       /* 添加这行，确保在按钮上方 */
+        right: 0;          /* 添加这行，右对齐 */
+    }
+    
+    #whatsapp_level .popup-header {
+        background: var(--whatsapp-green);
+        color: white;
+        padding: 20px;
+        position: relative;
+    }
+    
+    #whatsapp_level .popup-header h3 {
+        margin: 0;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    #whatsapp_level .header-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    #whatsapp_level .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 5px;
+        font-size: 20px;
+    }
+    
+    #whatsapp_level .contact-options {
+        padding: 15px;
+        background-color: var(--chat-background);
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25.5 25.5c0 0 75 0 75 75' stroke='%23DDD' fill='none'/%3E%3C/svg%3E");
+    }
+    
+    #whatsapp_level .contact-option {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin: 8px 0;
+        text-decoration: none;
+        color: #333;
+        background: white;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    #whatsapp_level .contact-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+    
+    #whatsapp_level .contact-option img {
+        width: 32px;
+        height: 32px;
+        margin-right: 15px;
+    }
+    
+    #whatsapp_level .contact-option span {
+        flex-grow: 1;
+    }
+    
+    #whatsapp_level .contact-option .arrow {
+        color: #999;
+    }
+    
+    #whatsapp_level .toggle-button {
+      position: relative;  /* 添加这行 */
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 1001;      /* 添加这行，确保按钮始终在最上层 */
+    }
+    
+    #whatsapp_level .toggle-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+     /* 添加工作时间的样式 */
+     #whatsapp_level .working-hours {
+        padding: 15px;
+        margin: 8px 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 14px;
+    }
+    
+    #whatsapp_level .divider {
+        height: 1px;
+        background: rgba(0,0,0,0.1);
+        margin: 8px 0;
+    }
+</style>
+  <div id="whatsapp_level">
+  <div class="contact-widget">
+      <div class="contact-popup" id="contactPopup">
+          <div class="popup-header">
+              <h3>
+                  <img id="siteIcon" class="header-icon" src="" alt="Site Icon">
+                  Our team is here for you
+              </h3>
+              <button class="close-button" onclick="togglePopup()">×</button>
+          </div>
+          <div class="contact-options">
+            <div class="working-hours">
+               <span>Los Angeles Time: 9:00 - 17:00</span>
+               <span>Hong Kong Time: 9:00 - 17:00</span>
+            </div>
+               <div class="divider"></div>
+             <a href="https://wa.me/13022752870" class="contact-option" target="_blank">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+                 <span>+1(302)275-2870</span> 
+                 <div class="arrow">›</div>
+             </a>
+             <div class="divider"></div>
+             <a href="https://t.me/BurncloudCharlie" class="contact-option" target="_blank">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
+                 <span>@BurncloudCharlie</span>
+                 <div class="arrow">›</div>
+             </a>
+             <div class="divider"></div>
+             <a href="mailto:Burncloud@gmail.com" class="contact-option">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Email">
+                 <span>Burncloud@gmail.com</span>
+                 <div class="arrow">›</div>
+             </a>
+         </div>
+      </div>
+      <div class="toggle-button" onclick="togglePopup()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Telegram" width="48" height="48">
+      </div>
+  </div>
+
+  <script>
+      // 获取网站favicon
+      function getFavicon() {
+          // 首先尝试获取高清图标
+          let favicon = document.querySelector('link[rel="icon"][sizes="192x192"]') ||
+                      document.querySelector('link[rel="icon"][sizes="180x180"]') ||
+                      document.querySelector('link[rel="apple-touch-icon"]') ||
+                      document.querySelector('link[rel="icon"]') ||
+                      document.querySelector('link[rel="shortcut icon"]');
+          
+          if (favicon) {
+              return favicon.href;
+          }
+          
+          // 如果没有找到显式定义的图标，返回默认favicon路径
+          return '/logo.png';
+      }
+
+      function initializeWidget() {
+          // 设置网站图标
+          const iconUrl = getFavicon();
+          const siteIcon = document.getElementById('siteIcon');
+          siteIcon.src = iconUrl;
+          
+          // 处理图标加载错误
+          siteIcon.onerror = function() {
+              // 如果图标加载失败，使用默认图标
+              this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="white"/></svg>';
+          };
+
+          // 初始化时隐藏弹窗
+          document.getElementById('contactPopup').style.display = 'none';
+      }
+
+      function togglePopup() {
+          const popup = document.getElementById('contactPopup');
+          popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+      }
+
+      // 页面加载完成后初始化
+      document.addEventListener('DOMContentLoaded', initializeWidget);
+  </script>
+  </div>
+
+
+
+
 <script>
     (function(h,o,t,j,a,r){
         h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
