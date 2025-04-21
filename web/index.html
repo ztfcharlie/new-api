@@ -167,6 +167,18 @@
         transform: scale(1.05);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+     /* 添加工作时间的样式 */
+     #whatsapp_level .working-hours {
+        padding: 15px;
+        margin: 8px 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 14px;
+    }
     
     #whatsapp_level .divider {
         height: 1px;
@@ -185,25 +197,20 @@
               <button class="close-button" onclick="togglePopup()">×</button>
           </div>
           <div class="contact-options">
-              <a href="https://wa.me/1234567890" class="contact-option" target="_blank">
+             <div class="working-hours">
+                <span>Los Angeles Time: 9:00 - 17:00</span>
+                <span>Hong Kong Time: 9:00 - 17:00</span>
+             </div>
+                <div class="divider"></div>
+              <a href="https://wa.me/13022752870" class="contact-option" target="_blank">
                   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-                  <span>WhatsApp</span>
-                  <div class="arrow">›</div>
-              </a>
-              <a href="https://wa.me/1234567890" class="contact-option" target="_blank">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-                  <span>WhatsApp</span>
+                  <span>+1(302)275-2870</span> 
                   <div class="arrow">›</div>
               </a>
               <div class="divider"></div>
-              <a href="https://t.me/yourusername" class="contact-option" target="_blank">
+              <a href="https://t.me/BurncloudCharlie" class="contact-option" target="_blank">
                   <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-                  <span>Telegram</span>
-                  <div class="arrow">›</div>
-              </a>
-              <a href="https://t.me/yourusername" class="contact-option" target="_blank">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-                  <span>Telegram</span>
+                  <span>@BurncloudCharlie</span>
                   <div class="arrow">›</div>
               </a>
               <div class="divider"></div>
