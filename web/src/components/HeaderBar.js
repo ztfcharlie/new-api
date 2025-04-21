@@ -673,6 +673,7 @@ const HeaderBar = (headerProps) => {
                     <Nav.Item
                       itemKey={'login'}
                       text={!styleState.isMobile?t('登录'):null}
+                      to="/login"
                       icon={<IconUserStroked style={headerIconStyle} />}
                     />
                     {
@@ -681,6 +682,7 @@ const HeaderBar = (headerProps) => {
                         <Nav.Item
                           itemKey={'register'}
                           text={t('注册')}
+                          to="/register"
                           icon={<IconKeyStroked style={headerIconStyle} />}
                         />
                       )
