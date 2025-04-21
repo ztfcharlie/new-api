@@ -14,6 +14,7 @@ services:
       # - ./data:/data
       - ./logs:/app/logs
       - ./public/static:/data/public/static
+      - ./public/uploads:/data/public/uploads
     environment:
       - SQL_DSN=${SQL_DSN}
       - GLOBAL_API_RATE_LIMIT_ENABLE=false
