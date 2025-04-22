@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   API,
   isMobile,
+  isRoot,
   showError,
   showSuccess,
   timestamp2string,
@@ -19,17 +20,19 @@ import {
   SideSheet,
   Space,
   Spin, TextArea,
-  Typography
+  Typography,
 } from '@douyinfe/semi-ui';
 import Title from '@douyinfe/semi-ui/lib/es/typography/title';
 import { Divider } from 'semantic-ui-react';
 import { useTranslation } from 'react-i18next';
-
+import { debounce } from 'lodash-es';
+import { ITEMS_PER_PAGE } from '../../constants';
 const EditToken = (props) => {
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
     name: '',
+    user_id:'',
     remain_quota: isEdit ? 0 : 500000,
     expired_time: -1,
     unlimited_quota: false,
@@ -41,6 +44,7 @@ const EditToken = (props) => {
   const [inputs, setInputs] = useState(originInputs);
   const {
     name,
+    user_id,
     remain_quota,
     expired_time,
     unlimited_quota,
@@ -83,7 +87,7 @@ const EditToken = (props) => {
     let res = await API.get(`/api/user/models`);
     const { success, message, data } = res.data;
     if (success) {
-      let localModelOptions = data.map((model) => ({
+      let localModelOptions = (data ?? []).map((model) => ({
         label: model,
         value: model,
       }));
@@ -129,6 +133,11 @@ const EditToken = (props) => {
   };
   useEffect(() => {
     setIsEdit(props.editingToken.id !== undefined);
+    if (props.editingToken.id !== undefined){
+      loadUser(props.editingToken.user_id);
+    }else{
+      loadUser('');
+    }
   }, [props.editingToken.id]);
 
   useEffect(() => {
@@ -240,7 +249,63 @@ const EditToken = (props) => {
     setInputs(originInputs); // 重置表单
     setTokenCount(1); // 重置数量为默认值
   };
+  // 用户部分
+  const [loadingUser, setLoadingUser] = useState(false);
+  const [userList, setUserList] = useState([]);
+  const [userSelect, setUserSelect] = useState({});
 
+  // 改变用户值
+  function changeUser(item){
+    handleInputChange('user_id', item.value)
+    setUserSelect(item)
+  }
+  // 初始化
+  async function loadUserList(){
+    setLoadingUser(true);
+    const res = await API.get(`/api/user/?p=1&page_size=${ITEMS_PER_PAGE}`);
+    const { success, message, data } = res.data;
+    if (success) {
+      const list = data.items.map(item=>({value:item.id,label:item.username}))
+      setUserList(list);
+    } else {
+      showError(message);
+    }
+    setLoadingUser(false);
+  };
+  async function loadUser(userId){
+    let res = undefined;
+    if (userId) {
+      res = await API.get(`/api/user/${userId}`);
+    } else {
+      res = await API.get(`/api/user/self`);
+    }
+    const { success, message, data } = res.data;
+    if (success) {
+      setUserSelect({value:data.id,label:data.username})
+      if(!userId){
+        handleInputChange('user_id', data.id);
+      }
+    } else {
+      showError(message);
+    }
+  };
+  // 搜索用户
+  async function searchUserList(inputValue){
+    setLoadingUser(true);
+    if (inputValue) {
+      const res = await API.get(`/api/user/search?keyword=${inputValue}&p=1&page_size=${ITEMS_PER_PAGE}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        const list = data.items.map(item=>({value:item.id,label:item.username}))
+        setUserList(list);
+      } else {
+        showError(message);
+      }
+    }else{
+      loadUserList();
+    }
+    setLoadingUser(false);
+  };
   return (
     <>
       <SideSheet
@@ -273,6 +338,29 @@ const EditToken = (props) => {
         width={isMobile() ? '100%' : 600}
       >
         <Spin spinning={loading}>
+          {isRoot()?(
+            <>
+              <div style={{ marginTop: 20, marginBottom: 20 }}>
+                <Typography.Text>{t('用户名')} {t('支持搜索用户的 ID、用户名、显示名称和邮箱地址')}</Typography.Text>
+              </div>
+              <Select
+                  style={{ width: 300 }}
+                  filter
+                  remote
+                  onChangeWithObject
+                  value={userSelect}
+                  onSearch={debounce(searchUserList, 1000)}
+                  optionList={userList}
+                  loading={loadingUser}
+                  onChange={(value) => changeUser(value)}
+                  emptyContent={null}
+                  label={t('用户名')}
+                  placeholder={t('请输入用户名')}
+              ></Select>
+            </>
+          ):null}
+          
+
           <Input
             style={{ marginTop: 20 }}
             label={t('名称')}

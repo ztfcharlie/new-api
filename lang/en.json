@@ -385,6 +385,7 @@
         "usedata.error.increase_data": "increaseQuotaData error: %s",
     
         "user.error.id_empty": "id is empty!",
+        "user.error.username_empty": "username is empty!",
         "user.error.affcode_empty": "affCode is empty!",
         "user.error.quota_min": "Minimum transfer quota is %s!",
         "user.error.insufficient_aff_quota": "Insufficient invitation quota!",

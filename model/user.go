@@ -240,6 +240,15 @@ func GetUserById(id int, selectAll bool) (*User, error) {
 	}
 	return &user, err
 }
+func GetUserByUsername(username string) (*User, error) {
+	if username == "" {
+		return nil, errors.New(lang.T(nil, "user.error.username_empty"))
+	}
+	user := User{Username: username}
+	var err error = nil
+	err = DB.First(&user, "username = ?", username).Error
+	return &user, err
+}
 
 func GetUserIdByAffCode(affCode string) (int, error) {
 	if affCode == "" {

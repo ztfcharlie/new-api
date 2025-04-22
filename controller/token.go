@@ -23,7 +23,13 @@ func GetAllTokens(c *gin.Context) {
 	} else if size > 100 {
 		size = 100
 	}
-	tokens, err := model.GetAllUserTokens(userId, p*size, size)
+	var tokens []*model.Token
+	var err error
+	if isRootUser(c) {
+		tokens, err = model.GetRootAllUserTokens(0, p*size, size)
+	} else {
+		tokens, err = model.GetAllUserTokens(userId, p*size, size)
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -43,7 +49,26 @@ func SearchTokens(c *gin.Context) {
 	userId := c.GetInt("id")
 	keyword := c.Query("keyword")
 	token := c.Query("token")
-	tokens, err := model.SearchUserTokens(userId, keyword, token)
+	username := c.Query("username")
+	var tokens []*model.Token
+	var err error
+	if isRootUser(c) {
+		if username != "" {
+			searchUser, err := model.GetUserByUsername(username)
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"success": false,
+					"message": err.Error(),
+				})
+				return
+			}
+			tokens, err = model.SearchRootUserTokens(searchUser.Id, keyword, token)
+		} else {
+			tokens, err = model.SearchRootUserTokens(0, keyword, token)
+		}
+	} else {
+		tokens, err = model.SearchUserTokens(userId, keyword, token)
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -69,7 +94,13 @@ func GetToken(c *gin.Context) {
 		})
 		return
 	}
-	token, err := model.GetTokenByIds(id, userId)
+
+	var token *model.Token
+	if isRootUser(c) {
+		token, err = model.GetRootTokenByIds(id)
+	} else {
+		token, err = model.GetTokenByIds(id, userId)
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -88,7 +119,13 @@ func GetToken(c *gin.Context) {
 func GetTokenStatus(c *gin.Context) {
 	tokenId := c.GetInt("token_id")
 	userId := c.GetInt("id")
-	token, err := model.GetTokenByIds(tokenId, userId)
+	var token *model.Token
+	var err error
+	if isRootUser(c) {
+		token, err = model.GetRootTokenByIds(tokenId)
+	} else {
+		token, err = model.GetTokenByIds(tokenId, userId)
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -149,6 +186,11 @@ func AddToken(c *gin.Context) {
 		AllowIps:           token.AllowIps,
 		Group:              token.Group,
 	}
+	if isRootUser(c) {
+		cleanToken.UserId = token.UserId
+	} else {
+		cleanToken.UserId = c.GetInt("id")
+	}
 	err = cleanToken.Insert()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -167,7 +209,12 @@ func AddToken(c *gin.Context) {
 func DeleteToken(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	userId := c.GetInt("id")
-	err := model.DeleteTokenById(id, userId)
+	var err error
+	if isRootUser(c) {
+		err = model.DeleteRootTokenById(id)
+	} else {
+		err = model.DeleteTokenById(id, userId)
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -201,7 +248,12 @@ func UpdateToken(c *gin.Context) {
 		})
 		return
 	}
-	cleanToken, err := model.GetTokenByIds(token.Id, userId)
+	var cleanToken *model.Token
+	if isRootUser(c) {
+		cleanToken, err = model.GetRootTokenByIds(token.Id)
+	} else {
+		cleanToken, err = model.GetTokenByIds(token.Id, userId)
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -238,7 +290,12 @@ func UpdateToken(c *gin.Context) {
 		cleanToken.AllowIps = token.AllowIps
 		cleanToken.Group = token.Group
 	}
-	err = cleanToken.Update()
+	if isRootUser(c) {
+		cleanToken.UserId = token.UserId
+		err = cleanToken.UpdateRoot()
+	} else {
+		err = cleanToken.Update()
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

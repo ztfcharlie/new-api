@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   API,
   copy,
+  isRoot,
   showError,
   showSuccess,
   timestamp2string,
@@ -292,6 +293,7 @@ const TokensTable = () => {
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchUsername, setSearchUsername] = useState('');
   const [searchToken, setSearchToken] = useState('');
   const [searching, setSearching] = useState(false);
   const [chats, setChats] = useState([]);
@@ -431,7 +433,7 @@ const TokensTable = () => {
   };
 
   const searchTokens = async () => {
-    if (searchKeyword === '' && searchToken === '') {
+    if (searchKeyword === '' && searchToken === '' && searchUsername === '') {
       // if keyword is blank, load files instead.
       await loadTokens(0);
       setActivePage(1);
@@ -439,7 +441,7 @@ const TokensTable = () => {
     }
     setSearching(true);
     const res = await API.get(
-      `/api/token/search?keyword=${searchKeyword}&token=${searchToken}`,
+      `/api/token/search?keyword=${searchKeyword}&username=${searchUsername}&token=${searchToken}`,
     );
     const { success, message, data } = res.data;
     if (success) {
@@ -454,7 +456,9 @@ const TokensTable = () => {
   const handleKeywordChange = async (value) => {
     setSearchKeyword(value.trim());
   };
-
+  const handleUsernameChange = async (value) => {
+    setSearchUsername(value.trim());
+  };
   const handleSearchTokenChange = async (value) => {
     setSearchToken(value.trim());
   };
@@ -522,6 +526,21 @@ const TokensTable = () => {
           loading={searching}
           onChange={handleKeywordChange}
         />
+
+        {isRoot()?(
+          <>
+          <Form.Input
+            field='username'
+            label={t('搜索用户名')}
+            placeholder={t('用户名')}
+            value={searchUsername}
+            loading={searching}
+            onChange={handleUsernameChange}
+          />
+          </>
+        ):null}
+
+
         <Form.Input
           field='token'
           label={t('密钥')}
