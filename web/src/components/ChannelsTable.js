@@ -653,6 +653,7 @@ const ChannelsTable = () => {
   const [idSort, setIdSort] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchGroup, setSearchGroup] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
   const [searchModel, setSearchModel] = useState('');
   const [searching, setSearching] = useState(false);
   const [updatingBalance, setUpdatingBalance] = useState(false);
@@ -677,7 +678,12 @@ const ChannelsTable = () => {
   const [showModelTestModal, setShowModelTestModal] = useState(false);
   const [currentTestChannel, setCurrentTestChannel] = useState(null);
   const [modelSearchKeyword, setModelSearchKeyword] = useState('');
-
+  const statusOptions = [
+    {value:1,label:"已启用"},
+    {value:2,label:"已禁用"},
+    {value:3,label:"自动禁用"},
+    {value:4,label:"未知状态"},
+  ]
 
   const removeRecord = (record) => {
     let newDataSource = [...channels];
@@ -929,15 +935,15 @@ const ChannelsTable = () => {
     }
   };
 
-  const searchChannels = async (searchKeyword, searchGroup, searchModel, enableTagMode) => {
-    if (searchKeyword === '' && searchGroup === '' && searchModel === '') {
+  const searchChannels = async (searchKeyword, searchGroup,searchStatus, searchModel, enableTagMode) => {
+    if (searchKeyword === '' && searchGroup === '' && searchStatus === '' && searchModel === '') {
       await loadChannels(0, pageSize, idSort, enableTagMode);
       setActivePage(1);
       return;
     }
     setSearching(true);
     const res = await API.get(
-      `/api/channel/search?keyword=${searchKeyword}&group=${searchGroup}&model=${searchModel}&id_sort=${idSort}&tag_mode=${enableTagMode}`
+      `/api/channel/search?keyword=${searchKeyword}&group=${searchGroup}&status=${searchStatus}&model=${searchModel}&id_sort=${idSort}&tag_mode=${enableTagMode}`
     );
     const { success, message, data } = res.data;
     if (success) {
@@ -1199,7 +1205,7 @@ const ChannelsTable = () => {
       />
       <Form
         onSubmit={() => {
-          searchChannels(searchKeyword, searchGroup, searchModel, enableTagMode);
+          searchChannels(searchKeyword, searchGroup,searchStatus, searchModel, enableTagMode);
         }}
         labelPosition="left"
       >
@@ -1232,7 +1238,17 @@ const ChannelsTable = () => {
               initValue={null}
               onChange={(v) => {
                 setSearchGroup(v);
-                searchChannels(searchKeyword, v, searchModel, enableTagMode);
+                searchChannels(searchKeyword, v, searchStatus,searchModel, enableTagMode);
+              }}
+            />
+            <Form.Select
+              field="status"
+              label={t('状态')}
+              optionList={[{ label: t('选择状态'), value: null }, ...statusOptions]}
+              initValue={null}
+              onChange={(v) => {
+                setSearchStatus(v);
+                searchChannels(searchKeyword, searchGroup,v, searchModel, enableTagMode);
               }}
             />
             <Button

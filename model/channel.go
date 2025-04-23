@@ -113,7 +113,7 @@ func GetChannelsByTag(tag string, idSort bool) ([]*Channel, error) {
 	return channels, err
 }
 
-func SearchChannels(keyword string, group string, model string, idSort bool) ([]*Channel, error) {
+func SearchChannels(keyword string, group string, status int, model string, idSort bool) ([]*Channel, error) {
 	var channels []*Channel
 	modelsCol := "`models`"
 
@@ -148,7 +148,10 @@ func SearchChannels(keyword string, group string, model string, idSort bool) ([]
 		whereClause = "(id = ? OR name LIKE ? OR " + keyCol + " = ?) AND " + modelsCol + " LIKE ?"
 		args = append(args, common.String2Int(keyword), "%"+keyword+"%", keyword, "%"+model+"%")
 	}
-
+	if status > 0 {
+		whereClause += " AND status = ?"
+		args = append(args, status)
+	}
 	// 执行查询
 	err := baseQuery.Where(whereClause, args...).Order(order).Find(&channels).Error
 	if err != nil {
