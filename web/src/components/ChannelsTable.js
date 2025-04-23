@@ -679,10 +679,10 @@ const ChannelsTable = () => {
   const [currentTestChannel, setCurrentTestChannel] = useState(null);
   const [modelSearchKeyword, setModelSearchKeyword] = useState('');
   const statusOptions = [
-    {value:1,label:"已启用"},
-    {value:2,label:"已禁用"},
-    {value:3,label:"自动禁用"},
-    {value:4,label:"未知状态"},
+    {value:1,label:t("已启用")},
+    {value:2,label:t("已禁用")},
+    {value:3,label:t("自动禁用")},
+    {value:4,label:t("未知状态")},
   ]
 
   const removeRecord = (record) => {
