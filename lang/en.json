@@ -65,7 +65,7 @@
         "user.setting.update_failed": "Failed to update settings: %s",
         "user.setting.update_success": "Settings updated",
     
-        "log.user.quota_changed": "Administrator changed user quota from %s to %s",
+        "log.user.quota_changed": "Administrator changed user quota from %s to %s \n Reason:%s",
         "user.quota.transfer_success": "Transfer successful",
         "user.quota.transfer_failed": "Transfer failed %s",
     

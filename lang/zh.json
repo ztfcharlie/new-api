@@ -65,7 +65,7 @@
     "user.setting.update_failed": "更新设置失败: %s",
     "user.setting.update_success": "设置已更新",
 
-    "log.user.quota_changed": "管理员将用户额度从 %s修改为 %s",
+    "log.user.quota_changed": "管理员将用户额度从 %s修改为 %s\n 原因：%s",
     "user.quota.transfer_success": "划转成功",
     "user.quota.transfer_failed": "划转失败 %s",
 

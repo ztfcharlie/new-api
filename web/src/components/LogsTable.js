@@ -22,7 +22,8 @@ import {
   Table,
   Tag,
   Tooltip,
-  Checkbox
+  Checkbox,
+  Typography,
 } from '@douyinfe/semi-ui';
 import { ITEMS_PER_PAGE } from '../constants';
 import {
@@ -565,7 +566,10 @@ const LogsTable = () => {
               }}
               style={{ maxWidth: 240 }}
             >
-              {text}
+              {/* {text} */}
+              <Typography.Text style={{ whiteSpace: 'pre-line' }}>
+                {text}
+              </Typography.Text>
             </Paragraph>
           );
         }

@@ -13,6 +13,7 @@ import {
   Space,
   Spin,
   Typography,
+  TextArea
 } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -23,6 +24,7 @@ const EditUser = (props) => {
   const [loading, setLoading] = useState(true);
   const [addQuotaModalOpen, setIsModalOpen] = useState(false);
   const [addQuotaLocal, setAddQuotaLocal] = useState('');
+  const [addReason, setAddReason] = useState('');
   const [inputs, setInputs] = useState({
     username: '',
     display_name: '',
@@ -32,6 +34,7 @@ const EditUser = (props) => {
     wechat_id: '',
     email: '',
     quota: 0,
+    reason:'',
     group: 'default',
   });
   const [groupOptions, setGroupOptions] = useState([]);
@@ -45,6 +48,7 @@ const EditUser = (props) => {
     telegram_id,
     email,
     quota,
+    reason,
     group,
   } = inputs;
   const handleInputChange = (name, value) => {
@@ -117,11 +121,12 @@ const EditUser = (props) => {
 
   const addLocalQuota = () => {
     let newQuota = parseInt(quota) + parseInt(addQuotaLocal);
-    setInputs((inputs) => ({ ...inputs, quota: newQuota }));
+    setInputs((inputs) => ({ ...inputs, quota: newQuota,reason:addReason }));
   };
 
   const openAddQuotaModal = () => {
     setAddQuotaLocal('0');
+    setAddReason('');
     setIsModalOpen(true);
   };
 
@@ -224,6 +229,15 @@ const EditUser = (props) => {
               </Space>
             </>
           )}
+          <div style={{ marginTop: 20 }}>
+            <Typography.Text>{`${t('原因')}`}</Typography.Text>
+          </div>
+          <TextArea
+            name='reason'
+            placeholder={t('请输入修改额度原因')}
+            onChange={(value) => handleInputChange('reason', value)}
+            value={reason}
+          />
           <Divider style={{ marginTop: 20 }}>{t('以下信息不可修改')}</Divider>
           <div style={{ marginTop: 20 }}>
             <Typography.Text>{t('已绑定的 GitHub 账户')}</Typography.Text>
@@ -298,6 +312,18 @@ const EditUser = (props) => {
           value={addQuotaLocal}
           type={'number'}
           autoComplete='new-password'
+        />
+
+        <div style={{ marginTop: 20 }}>
+          <Typography.Text>{`${t('原因')}`}</Typography.Text>
+        </div>
+        <TextArea
+          name='reason'
+          placeholder={t('请输入修改额度原因')}
+          onChange={(value) => {
+            setAddReason(value);
+          }}
+          value={addReason}
         />
       </Modal>
     </>

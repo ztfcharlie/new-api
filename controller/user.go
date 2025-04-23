@@ -500,7 +500,11 @@ func GetUserModels(c *gin.Context) {
 }
 
 func UpdateUser(c *gin.Context) {
-	var updatedUser model.User
+	type UpdateUserRequest struct {
+		model.User
+		Reason string `json:"reason"`
+	}
+	var updatedUser UpdateUserRequest
 	err := json.NewDecoder(c.Request.Body).Decode(&updatedUser)
 	if err != nil || updatedUser.Id == 0 {
 		c.JSON(http.StatusOK, gin.H{
@@ -554,7 +558,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 	if originUser.Quota != updatedUser.Quota {
-		model.RecordLog(originUser.Id, model.LogTypeManage, fmt.Sprintf(lang.T(c, "log.user.quota_changed"), common.LogQuota(originUser.Quota), common.LogQuota(updatedUser.Quota)))
+		model.RecordLog(originUser.Id, model.LogTypeManage, fmt.Sprintf(lang.T(c, "log.user.quota_changed"), common.LogQuota(originUser.Quota), common.LogQuota(updatedUser.Quota), updatedUser.Reason))
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
