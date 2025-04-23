@@ -54,15 +54,12 @@ func SearchTokens(c *gin.Context) {
 	var err error
 	if isRootUser(c) {
 		if username != "" {
+			searchUserId := -1
 			searchUser, err := model.GetUserByUsername(username)
-			if err != nil {
-				c.JSON(http.StatusOK, gin.H{
-					"success": false,
-					"message": err.Error(),
-				})
-				return
+			if err == nil {
+				searchUserId = searchUser.Id
 			}
-			tokens, err = model.SearchRootUserTokens(searchUser.Id, keyword, token)
+			tokens, err = model.SearchRootUserTokens(searchUserId, keyword, token)
 		} else {
 			tokens, err = model.SearchRootUserTokens(0, keyword, token)
 		}

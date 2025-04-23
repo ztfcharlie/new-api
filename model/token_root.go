@@ -36,7 +36,7 @@ func SearchRootUserTokens(userId int, keyword string, token string) (tokens []*T
 		token = strings.Trim(token, "sk-")
 	}
 	db := DB
-	if userId > 0 {
+	if userId != 0 {
 		db = db.Where("user_id = ?", userId)
 	}
 	if keyword != "" {
