@@ -16,4 +16,3 @@ data
 logs
 temp/build-errors.log
 public/webHtml
-public/uploads
