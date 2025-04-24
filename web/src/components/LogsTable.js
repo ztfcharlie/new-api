@@ -845,6 +845,7 @@ const LogsTable = () => {
         });
       }
       if (logs[i].type === 2) {
+        /*
         expandDataLocal.push({
           key: t('日志详情'),
           value: other?.claude
@@ -865,6 +866,7 @@ const LogsTable = () => {
               other.user_group_ratio
             ),
         });
+        */
       }
       if (logs[i].type === 2) {
         let modelMapped = other?.is_model_mapped && other?.upstream_model_name && other?.upstream_model_name !== '';

@@ -184,7 +184,7 @@ const ModelPricing = () => {
         );
       },
     },
-    {
+    /*{
       title: () => (
         <span style={{'display':'flex','alignItems':'center'}}>
           {t('倍率')}
@@ -228,7 +228,7 @@ const ModelPricing = () => {
         );
         return <div>{content}</div>;
       },
-    },
+    },*/
     {
       title: t('模型价格'),
       dataIndex: 'model_price',
@@ -357,7 +357,7 @@ const ModelPricing = () => {
         <Banner 
             type="info"
             fullMode={false}
-            description={<div>{t('按量计费费用 = 分组倍率 × 模型倍率 × （提示token数 + 补全token数 × 补全倍率）/ 500000 （单位：美元）')}</div>}
+            description={<div>{t('按量计费费用 = 分组倍率 ×（提示token数 × 提示价格 + 补全token数 × 补全价格）（单位：美元）')}</div>}
             closeIcon="null"
         />
         <br/>
