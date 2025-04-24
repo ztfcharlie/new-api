@@ -73,12 +73,13 @@ body {
   color: #ff8f70;
 }
 
-.burncloud-container-docs-detail .markdown-custom-code {
+.burncloud-container-docs-detail .toastui-editor-ww-code-block {
   background-color: #f0f0f0; /* Light gray background */
   color: #000000; /* Black font */
   padding: 10px;
   border-radius: 5px;
   font-family: 'Courier New', Courier, monospace; /* Monospace font */
+  font-size: 12px;
 }
 .burncloud-container-docs-detail .article-content img  {
   max-width: 500px;
