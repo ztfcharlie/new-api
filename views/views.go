@@ -3,6 +3,7 @@ package views
 import (
 	"embed"
 	"html/template"
+	"net/url"
 	"one-api/lang"
 	"time"
 )
@@ -27,6 +28,9 @@ var funcMap = template.FuncMap{
 	// 国际化
 	"T": func(key string) string {
 		return lang.T(nil, key)
+	},
+	"encode": func(path string) string {
+		return url.QueryEscape(path)
 	},
 }
 
