@@ -119,7 +119,7 @@ export default function (props) {
                         onChange={v => {
                             handleInputChange('title', v)
                             if(!isSlugReadonly){
-                                formApi.current.setValues({slug: slugify(v)})
+                                formApi.current.setValues({...inputs,slug: slugify(v)})
                             }
                         }}
                     ></Form.Input>
