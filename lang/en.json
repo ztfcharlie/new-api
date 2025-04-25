@@ -404,6 +404,8 @@
         "user.log.new_user_quota": "New user registration bonus %s",
         "user.log.invitee_quota": "Invitation code bonus %s",
         "user.log.inviter_quota": "Inviter bonus %s",
+        "user.log.inviter_quota_for_code": "Inviter bonus for code %v",
+        "user.log.inviter_quota_for_count": "Inviter bonus for payment %v",
         "user.error.no_such_user": "no such user %s",
         "user.error.cache_update": "failed to update user %s cache: %s",
         "user.error.quota_update": "failed to %s user quota: %s",

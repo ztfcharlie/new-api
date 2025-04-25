@@ -41,6 +41,8 @@ const (
 	LogTypeConsume
 	LogTypeManage
 	LogTypeSystem
+	LogTypeInviterQuotaForCode
+	LogTypeInviterQuotaForCount
 )
 
 func formatUserLogs(logs []*Log) {

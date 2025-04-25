@@ -3,10 +3,12 @@ package model
 import (
 	"errors"
 	"fmt"
+	"log"
 	"one-api/common"
 	"one-api/lang"
 	"strconv"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -117,6 +119,10 @@ func Redeem(key string, userId int) (quota int, err error) {
 	if userId == 0 {
 		return 0, errors.New(lang.T(nil, "redemption.error.invalid_user_id"))
 	}
+	currentUser, err := GetUserById(userId, false)
+	if err != nil {
+		return 0, errors.New(lang.T(nil, "redemption.error.invalid_user_id"))
+	}
 	redemption := &Redemption{}
 
 	keyCol := "`key`"
@@ -136,6 +142,24 @@ func Redeem(key string, userId int) (quota int, err error) {
 		if err != nil {
 			return err
 		}
+		// 推荐人奖励
+		if currentUser.InviterId > 0 {
+			quotaValue := decimal.NewFromFloat(float64(redemption.Quota))
+			quotaForCode := decimal.NewFromFloat(float64(common.QuotaForCode))
+			quotaForCodeFloat := quotaForCode.Div(decimal.NewFromFloat(100))
+			quotaForCodeResult := quotaValue.Mul(quotaForCodeFloat).IntPart()
+			if quotaForCodeResult > 0 {
+				err := UpdateUserAffQuota(tx, currentUser.InviterId, quotaForCodeResult)
+				if err != nil {
+					// return err
+					log.Printf("奖励推荐人：%v，额度：%v，失败原因: %v\n", currentUser.InviterId, quotaForCodeResult, err)
+				} else {
+					RecordLog(currentUser.InviterId, LogTypeInviterQuotaForCode, fmt.Sprintf(lang.T(nil, "user.log.inviter_quota_for_code"), quotaForCodeResult))
+				}
+			}
+
+		}
+
 		redemption.RedeemedTime = common.GetTimestamp()
 		redemption.Status = common.RedemptionCodeStatusUsed
 		redemption.UsedUserId = userId

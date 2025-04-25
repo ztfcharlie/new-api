@@ -831,3 +831,15 @@ func (user *User) FillUserByLinuxDOId() error {
 	err := DB.Where("linux_do_id = ?", user.LinuxDOId).First(user).Error
 	return err
 }
+
+// 更新用户奖励
+func UpdateUserAffQuota(db *gorm.DB, userId int, affQuota int64) error {
+	if db == nil {
+		db = DB
+	}
+	return db.Model(&User{}).Where("id = ?", userId).Updates(map[string]interface{}{
+		"aff_count":   gorm.Expr("aff_count + ?", 1),
+		"aff_quota":   gorm.Expr("aff_quota + ?", affQuota),
+		"aff_history": gorm.Expr("aff_history + ?", affQuota),
+	}).Error
+}

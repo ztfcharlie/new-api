@@ -406,6 +406,8 @@
     "user.log.new_user_quota": "新用户注册赠送 %s",
     "user.log.invitee_quota": "使用邀请码赠送 %s",
     "user.log.inviter_quota": "邀请用户赠送 %s",
+    "user.log.inviter_quota_for_code": "兑换码奖励 %v",
+    "user.log.inviter_quota_for_count": "充值奖励 %v",
     "user.error.no_such_user": "no such user %s",
     "user.error.cache_update": "failed to update user %s cache: %s",
     "user.error.quota_update": "failed to %s user quota: %s",

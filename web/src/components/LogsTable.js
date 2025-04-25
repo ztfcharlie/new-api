@@ -86,6 +86,10 @@ const LogsTable = () => {
         return <Tag color='orange' size='large'>{t('管理')}</Tag>;
       case 4:
         return <Tag color='purple' size='large'>{t('系统')}</Tag>;
+      case 5:
+        return <Tag color='light-blue' size='large'>{t('兑换码奖励')}</Tag>;
+      case 6:
+        return <Tag color='blue' size='large'>{t('充值奖励')}</Tag>;
       default:
         return <Tag color='black' size='large'>{t('未知')}</Tag>;
     }

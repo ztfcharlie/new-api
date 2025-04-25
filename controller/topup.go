@@ -386,6 +386,29 @@ func handleOrderSuccess(verifyInfo VerifyInfo) error {
 		}
 		log.Printf(lang.T(nil, "topup.log.epay_update_success"), topUp)
 		model.RecordLog(topUp.UserId, model.LogTypeTopup, fmt.Sprintf(lang.T(nil, "topup.record.success"), common.LogQuota(quotaToAdd), topUp.Money))
+
+		currentUser, err := model.GetUserById(topUp.UserId, false)
+		if err == nil {
+			// 推荐人奖励
+			if currentUser.InviterId > 0 {
+				quotaValue := decimal.NewFromFloat(float64(quotaToAdd))
+				QuotaForCount := decimal.NewFromFloat(float64(common.QuotaForCount))
+				QuotaForCountFloat := QuotaForCount.Div(decimal.NewFromFloat(100))
+
+				quotaForCountResult := quotaValue.Mul(QuotaForCountFloat).IntPart()
+				if quotaForCountResult > 0 {
+					err := model.UpdateUserAffQuota(nil, currentUser.InviterId, quotaForCountResult)
+					if err != nil {
+						log.Printf("奖励推荐人：%v，额度：%v，失败原因: %v\n", currentUser.InviterId, quotaForCountResult, err)
+					} else {
+						model.RecordLog(currentUser.InviterId, model.LogTypeInviterQuotaForCount, fmt.Sprintf(lang.T(nil, "user.log.inviter_quota_for_count"), quotaForCountResult))
+
+					}
+				}
+
+			}
+		}
+
 		return nil
 	}
 	return fmt.Errorf(lang.T(nil, "topup.error.failed"), topUp)
