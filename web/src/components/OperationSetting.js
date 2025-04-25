@@ -23,6 +23,8 @@ const OperationSetting = () => {
     QuotaForNewUser: 0,
     QuotaForInviter: 0,
     QuotaForInvitee: 0,
+    QuotaForCode: 0,
+    QuotaForCount: 0,
     QuotaRemindThreshold: 0,
     PreConsumedQuota: 0,
     StreamCacheQueueLength: 0,
