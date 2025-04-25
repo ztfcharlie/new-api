@@ -10,3 +10,4 @@ mysql_data
 data
 logs
 one-api.db
+public/uploads
