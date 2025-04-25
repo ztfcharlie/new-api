@@ -5,15 +5,14 @@ import (
 	"net/http"
 	"one-api/lang"
 	"one-api/model"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetDoc(cc *gin.Context) {
 	c := getWebContext(cc)
-	id, _ := strconv.Atoi(c.Param("id"))
-	tmpDoc := model.Doc{Id: id, Status: 1}
+	slug := c.Param("slug")
+	tmpDoc := model.Doc{Slug: slug, Status: 1}
 	doc, err := tmpDoc.GetDoc()
 	if err != nil {
 		c.abortError(http.StatusNotFound, lang.T(nil, "error.status.404"))

@@ -282,3 +282,10 @@ export function compareObjects(oldObject, newObject) {
 
   return changedProperties;
 }
+// 转换成seo标识
+export function slugify(str) {
+  str = str.replace(/^\s+|\s+$/g, '');
+  str = str.toLowerCase();
+  str = str.replace(/\s+/g, '-').replace(/-+/g, '-');
+  return str;
+}

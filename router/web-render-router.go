@@ -20,7 +20,7 @@ func SetWebRenderRouter(router *gin.Engine) {
 		webRouter.Static("/uploads", "./public/uploads")
 		// 模板目录
 		webRouter.GET("/docs", web.GetAllDocs)
-		webRouter.GET("/doc/:id", web.GetDoc)
+		webRouter.GET("/doc/:slug", web.GetDoc)
 
 	}
 

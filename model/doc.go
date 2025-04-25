@@ -11,9 +11,10 @@ type Doc struct {
 	Id          int       `json:"id"`
 	Title       string    `json:"title" gorm:"type:varchar(200);index;not null;comment:标题"`
 	Content     string    `json:"content" gorm:"type:longtext;default:null;comment:文章内容"`
+	Slug        string    `json:"slug" gorm:"type:varchar(200);index;not null;comment:标识"`
 	Keywords    string    `json:"keywords" gorm:"type:varchar(255);default:null;comment:SEO关键词"`
-	Description string    `json:"description" gorm:"type:varchar(255);default:null;comment:SEO描述"`
-	Summary     string    `json:"summary" gorm:"type:varchar(255);default:null;comment:内容摘要"`
+	Description string    `json:"description" gorm:"type:varchar(1000);default:null;comment:SEO描述"`
+	Summary     string    `json:"summary" gorm:"type:varchar(1000);default:null;comment:内容摘要"`
 	Views       int       `json:"views" gorm:"type:int(11);default:0;comment:浏览量"`
 	Weight      int       `json:"weight" gorm:"type:int(11);default:0;index;comment:权重"`
 	Type        int       `json:"type" gorm:"type:tinyint;default:0;index;comment:类型"`
@@ -55,7 +56,7 @@ func GetAllDocs(query DocQuery, startIdx int, num int) (docs []*Doc, total int64
 		tx.Rollback()
 		return nil, 0, err
 	}
-	tx = tx.Unscoped().Select("id", "title", "summary", "keywords", "description", "views", "weight", `type`, "created_at", "updated_at", "status")
+	tx = tx.Unscoped().Select("id", "title", "slug", "summary", "keywords", "description", "views", "weight", `type`, "created_at", "updated_at", "status")
 	if query.Id != 0 {
 		tx = tx.Where("id = ?", query.Id)
 	}
@@ -79,6 +80,15 @@ func GetAllDocs(query DocQuery, startIdx int, num int) (docs []*Doc, total int64
 	return docs, total, nil
 }
 
+func GetDocBySlug(slug string) (*Doc, error) {
+	if slug == "" {
+		return nil, errors.New("标识 为空！")
+	}
+	doc := Doc{}
+	var err error = nil
+	err = DB.First(&doc, "slug = ?", slug).Error
+	return &doc, err
+}
 func GetDocById(id int) (*Doc, error) {
 	if id == 0 {
 		return nil, errors.New("id 为空！")

@@ -35,7 +35,6 @@ export default forwardRef((props, ref) => {
   return (
     <Editor
       ref={editorRef}
-      initialEditType='wysiwyg'
       language='zh-CN'
       usageStatistics={false}
       initialValue=' '

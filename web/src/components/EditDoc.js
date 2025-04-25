@@ -2,17 +2,20 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Modal,
-    Form
+    Form,
+    Checkbox
 } from '@douyinfe/semi-ui';
 
 import { API, showError, showSuccess } from '../helpers';
 import Editor from '@/components/Editor'
+import {slugify} from '@/helpers/utils'
 export default function (props) {
     const { t } = useTranslation();
     const [isEdit, setIsEdit] = useState(false);
     const originInputs = {
         id: undefined,
         title: '',
+        slug: '',
         content: '',
         summary: '',
         keywords: '',
@@ -27,7 +30,8 @@ export default function (props) {
     const formApi = useRef();
     const [inputs, setInputs] = useState(originInputs);
     const [loading, setLoading] = useState(false);
-    const { title, content, summary, keywords, description, views, weight, created_at, status } = inputs
+    const [isSlugReadonly, setIsSlugReadonly] = useState(false);
+    const { title,slug, content, summary, keywords, description, views, weight, created_at, status } = inputs
     const handleInputChange = (name, value) => {
         setInputs((inputs) => ({ ...inputs, [name]: value }));
     };
@@ -52,6 +56,7 @@ export default function (props) {
             formApi.current.setValues(data);
             // 编辑器的值
             editorRef.current.setContent(data.content)
+            setIsSlugReadonly(true)
         } else {
             showError(message);
         }
@@ -111,7 +116,12 @@ export default function (props) {
                             { required: true, message: '请输入标题' },
                             { min: 3, message: '标题至少 3 个字符' },
                         ]}
-                        onChange={v => handleInputChange('title', v)}
+                        onChange={v => {
+                            handleInputChange('title', v)
+                            if(!isSlugReadonly){
+                                formApi.current.setValues({slug: slugify(v)})
+                            }
+                        }}
                     ></Form.Input>
                     <Form.Slot label="内容">
                         <Editor ref={editorRef} changeContent={changeContent}/>
@@ -122,6 +132,24 @@ export default function (props) {
                         ]}
                         onChange={v => handleInputChange('summary', v)}
                     ></Form.TextArea>
+
+                    <Form.Input field='slug' label='标识' initValue={slug}
+                    {...(isSlugReadonly?{readonly: true}:{})}
+                    rules={[
+                        { required: true, message: '请输入标识' },
+                        { min: 3, message: '标识至少 3 个字符' },
+                    ]}
+                    onChange={v => handleInputChange('slug', v)}
+
+                    suffix={
+                        isEdit?<div class="w-[60px]">
+                            <Checkbox checked={isSlugReadonly} onChange={()=>{
+                                setIsSlugReadonly(!isSlugReadonly)
+                            }}>只读</Checkbox>
+                        </div>:null
+                        }
+                    ></Form.Input>
+                                  
                     <Form.Input field='keywords' label='SEO关键词' initValue={keywords}></Form.Input>
                     <Form.TextArea field='description' label='SEO描述' initValue={description}></Form.TextArea>
                     <Form.InputNumber field='views' label='浏览量' initValue={views}></Form.InputNumber>
