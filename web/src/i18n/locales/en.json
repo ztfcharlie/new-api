@@ -1,4 +1,8 @@
 {
+  "兑换码奖励百分比": "Bonus quota for redeem code",
+  "在线充值奖励百分比": "Bonus quota for online recharge",
+  "例如：50": "For example: 50",
+  "不能是负数": "It can't be negative",
   "兑换码奖励": "Redeem Code rewards",
   "充值奖励": "Online recharge rewards",
   "标题": "Title",
