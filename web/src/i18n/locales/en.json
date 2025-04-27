@@ -18,6 +18,8 @@
   "推荐人":"Inviter",
   "邀请奖励":"Referral Bonus",
   "成功邀请通过电子邮件验证注册的用户将获得":"Successfully inviting a user who registers through email verification will earn you", 
+  "成功邀请的用户兑换余额将获得":"Successfully inviting a user who redeem code will earn you", 
+  "成功邀请的在线充值将获得":"Successfully inviting a user who payment amount will earn you", 
   "的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。":"token reward. This reward will be recorded in your rewards account and needs to be transferred manually for API use.",
   "请先填写服务器地址": "Please fill in the server address first",
   "充值分组倍率不是合法的 JSON 字符串": "The recharge group ratio is not a valid JSON string",
