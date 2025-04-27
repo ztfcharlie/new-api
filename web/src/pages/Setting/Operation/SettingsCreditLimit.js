@@ -149,7 +149,7 @@ export default function SettingsCreditLimit(props) {
               </Col>
               <Col xs={24} sm={12} md={8} lg={8} xl={8}>
                 <Form.InputNumber
-                  label={t('兑换码奖励百分比')}
+                  label={t('兑换码奖励百分比(给推广人员的)')}
                   field={'QuotaForCode'}
                   step={1}
                   min={0}
@@ -172,7 +172,7 @@ export default function SettingsCreditLimit(props) {
               </Col>
               <Col xs={24} sm={12} md={8} lg={8} xl={8}>
                 <Form.InputNumber
-                  label={t('在线充值奖励百分比')}
+                  label={t('在线充值奖励百分比(给推广人员的)')}
                   field={'QuotaForCount'}
                   step={1}
                   min={0}
