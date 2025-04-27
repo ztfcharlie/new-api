@@ -84,6 +84,8 @@ const PersonalSetting = () => {
     });
     const [showWebhookDocs, setShowWebhookDocs] = useState(false);
     const [quotaForInviter, setQuotaForInviter] = useState("");
+    const [quotaForCode, setQuotaForCode] = useState('');
+    const [quotaForCount, setQuotaForCount] = useState('');
     useEffect(() => {
         let status = localStorage.getItem('status');
         if (status) {
@@ -101,6 +103,8 @@ const PersonalSetting = () => {
         getAffLink().then();
         setTransferAmount(getQuotaPerUnit());
         setQuotaForInviter(status.quota_for_inviter)
+        setQuotaForCode(status.quota_for_code);
+        setQuotaForCount(status.quota_for_count);
     }, []);
 
     useEffect(() => {
@@ -526,17 +530,37 @@ const PersonalSetting = () => {
                             }
                         >
                             
-                            {quotaForInviter>0?
+                            {quotaForInviter>0 || quotaForCode>0 || quotaForCount>0?
                             <>
                                 <Typography.Title heading={6}>{t('邀请奖励')}</Typography.Title>
+                                {quotaForInviter>0?(
                                 <div style={{marginTop: 10,marginBottom: 10}}>
                                     {t('成功邀请通过电子邮件验证注册的用户将获得')}
                                     <span style={{color: 'rgba(var(--semi-red-5), 1)'}}> {renderQuota(quotaForInviter)} </span>
                                     {t('的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。')}
                                 </div>
+                                ):null}
+                                {quotaForCode>0?(
+                                <div style={{marginTop: 10,marginBottom: 10}}>
+                                    {t('成功邀请的用户兑换余额将获得')}
+                                    <span style={{color: 'rgba(var(--semi-red-5), 1)'}}> {(quotaForCode)}% </span>
+                                    {t('的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。')}
+                                </div>
+                                ):null}
+                                {quotaForCount>0?(
+                                <div style={{marginTop: 10,marginBottom: 10}}>
+                                    {t('成功邀请的在线充值将获得')}
+                                    <span style={{color: 'rgba(var(--semi-red-5), 1)'}}> {(quotaForCount)}% </span>
+                                    {t('的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。')}
+                                </div>
+                                ):null}
+
                             </>
                             :null}
 
+
+
+                            
                             <Typography.Title heading={6}>{t('邀请信息')}</Typography.Title>
                             <div style={{marginTop: 10}}>
                                 <Descriptions row>

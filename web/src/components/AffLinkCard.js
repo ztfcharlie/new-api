@@ -28,6 +28,8 @@ export default (props) => {
   const formRef = useRef();
   const [affCode, setAffCode] = useState('');
   const [quotaForInviter, setQuotaForInviter] = useState('');
+  const [quotaForCode, setQuotaForCode] = useState('');
+  const [quotaForCount, setQuotaForCount] = useState('');
   const [status, setStatus] = useState({});
   const [openTransfer, setOpenTransfer] = useState(false);
   const [transferAmount, setTransferAmount] = useState(0);
@@ -42,6 +44,8 @@ export default (props) => {
     }
     setTransferAmount(getQuotaPerUnit());
     setQuotaForInviter(status.quota_for_inviter);
+    setQuotaForCode(status.quota_for_code);
+    setQuotaForCount(status.quota_for_count);
   }, []);
   const getUserData = async () => {
     let res = await API.get(`/api/user/self`);
@@ -147,6 +151,26 @@ export default (props) => {
               {t('成功邀请通过电子邮件验证注册的用户将获得')}
               <span style={{ color: 'rgba(var(--semi-red-5), 1)' }}>
                 {renderQuota(quotaForInviter)}
+              </span>
+              {t('的代币奖励。')}
+            </p>
+          ) : null}
+
+          {quotaForCode > 0 ? (
+            <p className='my-2'>
+              {t('成功邀请的用户兑换余额将获得')}
+              <span style={{ color: 'rgba(var(--semi-red-5), 1)' }}>
+                {quotaForCode}%
+              </span>
+              {t('的代币奖励。')}
+            </p>
+          ) : null}
+
+          {quotaForCount > 0 ? (
+            <p className='my-2'>
+              {t('成功邀请的在线充值将获得')}
+              <span style={{ color: 'rgba(var(--semi-red-5), 1)' }}>
+                {quotaForCount}%
               </span>
               {t('的代币奖励。')}
             </p>
