@@ -141,10 +141,6 @@ export default (props) => {
             <Title level={3} style={{ textAlign: 'center' }}>
               {t('邀请返利')}
             </Title>
-            <div className='flex items-center'>
-              <IconCreditCard />
-              {t('返利比例')} {getQuotaRatio(quotaForInviter)}
-            </div>
           </div>
           {quotaForInviter > 0 ? (
             <p className='my-2'>
@@ -158,21 +154,21 @@ export default (props) => {
 
           {quotaForCode > 0 ? (
             <p className='my-2'>
-              {t('成功邀请的用户兑换余额将获得')}
+              {t('邀请的用户通过兑换码充值成功，您将获得兑换金额')}
               <span style={{ color: 'rgba(var(--semi-red-5), 1)' }}>
                 {quotaForCode}%
               </span>
-              {t('的代币奖励。')}
+              {t('对应的代币奖励。')}
             </p>
           ) : null}
 
           {quotaForCount > 0 ? (
             <p className='my-2'>
-              {t('成功邀请的在线充值将获得')}
+              {t('邀请的用户通过在线支付充值成功，您将获得充值金额')}
               <span style={{ color: 'rgba(var(--semi-red-5), 1)' }}>
                 {quotaForCount}%
               </span>
-              {t('的代币奖励。')}
+              {t('对应的代币奖励。')}
             </p>
           ) : null}
 
@@ -209,6 +205,11 @@ export default (props) => {
                 onClick={handleAffLinkClick}
               />
             </Form>
+          </div>
+          <div style={{ marginTop: 20 }}>
+              <a href={`/doc/Invitation_Reward_Explanation`} target='_blank'>
+                    {t('邀请奖励说明')}
+              </a>
           </div>
         </Card>
       ) : null}

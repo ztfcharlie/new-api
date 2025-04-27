@@ -542,25 +542,27 @@ const PersonalSetting = () => {
                                 ):null}
                                 {quotaForCode>0?(
                                 <div style={{marginTop: 10,marginBottom: 10}}>
-                                    {t('成功邀请的用户兑换余额将获得')}
+                                    {t('邀请的用户通过兑换码充值成功，您将获得兑换金额')}
                                     <span style={{color: 'rgba(var(--semi-red-5), 1)'}}> {(quotaForCode)}% </span>
-                                    {t('的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。')}
+                                    {t('对应的代币奖励。')}
                                 </div>
                                 ):null}
                                 {quotaForCount>0?(
                                 <div style={{marginTop: 10,marginBottom: 10}}>
-                                    {t('成功邀请的在线充值将获得')}
+                                    {t('邀请的用户通过在线支付充值成功，您将获得充值金额')}
                                     <span style={{color: 'rgba(var(--semi-red-5), 1)'}}> {(quotaForCount)}% </span>
-                                    {t('的代币奖励。此奖励将记录在您的奖励账户中，需要手动转移以供 API 使用。')}
+                                    {t('对应的代币奖励。')}
                                 </div>
                                 ):null}
 
                             </>
                             :null}
 
-
-
-                            
+                            <div style={{ marginTop: 10,marginBottom: 10}}>
+                                <a href={`/doc/Invitation_Reward_Explanation`} target='_blank' style={{ color: 'rgba(var(--semi-red-5), 1)'}}>
+                                        {t('邀请奖励说明')}
+                                </a>
+                            </div>
                             <Typography.Title heading={6}>{t('邀请信息')}</Typography.Title>
                             <div style={{marginTop: 10}}>
                                 <Descriptions row>
