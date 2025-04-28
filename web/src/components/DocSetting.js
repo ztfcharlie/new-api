@@ -71,7 +71,7 @@ const DocsTable = () => {
             render: (text, record, index) => {
                 return (
                     <div>
-                        <a href={`/doc/${record.id}`} target='_blank'>
+                        <a href={`/doc/${encodeURIComponent(record.slug)}`} target='_blank'>
                             <Button theme='light' type='tertiary' style={{ marginBottom: 1 }}>
                                 {t('查看')}
                             </Button>
