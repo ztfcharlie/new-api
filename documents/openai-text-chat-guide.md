@@ -1,7 +1,7 @@
 # OpenAI Text Chat Models Guide - GPT-4o & Others
 
 ## Introduction
-This guide shows how to call OpenAI's gpt-4o model through Burncloud's API and provides an overview of OpenAI's text chat models, including gpt-4o and other models. It covers the supported model list, a simple example of calling the gpt-4o model, and a detailed example of using the gpt-4o model for a chatbot application. It also includes information on the content filtering feature and how to use it in your applications.
+This guide shows how to call OpenAI's gpt-4o model through Burncloud's API and provides an overview of OpenAI's text chat models, including gpt-4o and other models. It covers the supported model list, a simple example of calling the gpt-4o model, and a detailed example of using the gpt-4o model for a chatbot application.
  
 ## Supported Model List
 - gpt-4.5-preview
