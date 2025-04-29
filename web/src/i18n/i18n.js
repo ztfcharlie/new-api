@@ -5,8 +5,13 @@ import cookie from 'js-cookie';
 import enTranslation from './locales/en.json';
 import zhTranslation from './locales/zh.json';
 
+const langs = ['en', 'zh'];
+let defaultLang = navigator?.language?navigator.language.split('-')[0]:'en';
+if (!langs.includes(defaultLang)) {
+  defaultLang = 'en';
+}
 // 获取保存的语言设置或默认使用浏览器语言
-const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
+const savedLanguage = localStorage.getItem('i18nextLng') || defaultLang;
 
 i18n
   .use(LanguageDetector)
