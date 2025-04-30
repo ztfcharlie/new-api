@@ -298,38 +298,21 @@ func EpayNotify(c *gin.Context) {
 		log.Println(lang.T(c, "topup.log.epay_verify_failed"))
 		return
 	}
-
 	if verifyInfo.TradeStatus == epay.StatusTradeSuccess {
-		log.Println(verifyInfo)
-		LockOrder(verifyInfo.ServiceTradeNo)
-		defer UnlockOrder(verifyInfo.ServiceTradeNo)
-		topUp := model.GetTopUpByTradeNo(verifyInfo.ServiceTradeNo)
-		if topUp == nil {
-			log.Printf(lang.T(c, "topup.log.epay_order_not_found"), verifyInfo)
+		info := VerifyInfo{
+			ServiceTradeNo: verifyInfo.ServiceTradeNo,
+		}
+		err = handleOrderSuccess(info)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		if topUp.Status == "pending" {
-			topUp.Status = "success"
-			err := topUp.Update()
-			if err != nil {
-				log.Printf(lang.T(c, "topup.log.epay_update_order_failed"), topUp)
-				return
-			}
-			//user, _ := model.GetUserById(topUp.UserId, false)
-			//user.Quota += topUp.Amount * 500000
-			// 另一种修复方式
-			quotaToAdd := int(float64(topUp.Amount) * common.QuotaPerUnit)
-			err = model.IncreaseUserQuota(topUp.UserId, quotaToAdd, true)
-			if err != nil {
-				log.Printf(lang.T(c, "topup.log.epay_update_user_failed"), topUp)
-				return
-			}
-			log.Printf(lang.T(c, "topup.log.epay_update_success"), topUp)
-			model.RecordLog(topUp.UserId, model.LogTypeTopup, fmt.Sprintf(lang.T(c, "topup.record.success"), common.LogQuota(quotaToAdd), topUp.Money))
-		}
+
 	} else {
 		log.Printf(lang.T(c, "topup.log.epay_callback_exception"), verifyInfo)
+
 	}
+
 }
 
 type VerifyInfo struct {
