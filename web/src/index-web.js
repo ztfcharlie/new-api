@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import 'semantic-ui-offline/semantic.min.css';
-import './index.css';
+// import 'semantic-ui-offline/semantic.min.css';
+// import './index.css';
 import { UserProvider } from './context/User';
-import 'react-toastify/dist/ReactToastify.css';
+// import 'react-toastify/dist/ReactToastify.css';
 import { StatusProvider } from './context/Status';
 import { Layout } from '@douyinfe/semi-ui';
 import { ThemeProvider } from './context/Theme';
