@@ -198,7 +198,7 @@ func GetSupportedLanguages() []string {
 
 	// 如果没有找到任何语言文件，返回默认支持的语言
 	//fmt.Printf("No language files found, using default languages\n")
-	return []string{"en", "zh"}
+	return []string{"en", "zh", "ja", "ru", "de", "pt", "es", "fr", "ko"}
 }
 
 // LanguageMiddleware 语言中间件

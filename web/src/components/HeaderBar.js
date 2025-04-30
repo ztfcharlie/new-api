@@ -632,14 +632,58 @@ const HeaderBar = (headerProps) => {
                           onClick={() => handleLanguageChange('en')}
                           type={currentLang === 'en' ? 'primary' : 'tertiary'}
                         >
-                          EN
+                          English
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('de')}
+                          type={currentLang === '' ? 'primary' : 'tertiary'}
+                        >
+                          Deutsch
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('pt')}
+                          type={currentLang === '' ? 'primary' : 'tertiary'}
+                        >
+                          Português
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('es')}
+                          type={currentLang === '' ? 'primary' : 'tertiary'}
+                        >
+                          Español
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('fr')}
+                          type={currentLang === '' ? 'primary' : 'tertiary'}
+                        >
+                          Français
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('ru')}
+                          type={currentLang === '' ? 'primary' : 'tertiary'}
+                        >
+                          Русский
+                        </Dropdown.Item>
+                        
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('ko')}
+                          type={currentLang === '' ? 'primary' : 'tertiary'}
+                        >
+                          한국어
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleLanguageChange('ja')}
+                          type={currentLang === '' ? 'primary' : 'tertiary'}
+                        >
+                          日本語
                         </Dropdown.Item>
                         <Dropdown.Item
                           onClick={() => handleLanguageChange('zh')}
                           type={currentLang === 'zh' ? 'primary' : 'tertiary'}
                         >
-                          ZH
+                          中文
                         </Dropdown.Item>
+                        
                       </Dropdown.Menu>
                     }
                   >

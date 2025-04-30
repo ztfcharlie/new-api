@@ -4,8 +4,15 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import cookie from 'js-cookie';
 import enTranslation from './locales/en.json';
 import zhTranslation from './locales/zh.json';
+import jaTranslation from './locales/ja.json';
+import ruTranslation from './locales/ru.json';
+import deTranslation from './locales/de.json';
+import ptTranslation from './locales/pt.json';
+import esTranslation from './locales/es.json';
+import frTranslation from './locales/fr.json';
+import koTranslation from './locales/ko.json';
 
-const langs = ['en', 'zh'];
+const langs = ['en', 'zh', 'ja', 'ru', 'de', 'pt', 'es', 'fr',"ko"];
 let defaultLang = navigator?.language?navigator.language.split('-')[0]:'en';
 if (!langs.includes(defaultLang)) {
   defaultLang = 'en';
@@ -23,6 +30,27 @@ i18n
       },
       zh: {
         translation: zhTranslation
+      },
+      ja: {
+        translation: jaTranslation
+      },
+      ru: {
+        translation: ruTranslation
+      },
+      de: {
+        translation: deTranslation
+      },
+      pt: {
+        translation: ptTranslation
+      },
+      es: {
+        translation: esTranslation
+      },
+      fr: {
+        translation: frTranslation
+      },
+      ko: {
+        translation: koTranslation
       }
     },
     lng: savedLanguage, // 使用保存的语言或浏览器语言
