@@ -20,12 +20,33 @@ OUTPUT_DIR = "responses"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 async def read_questions(file_path):
-    """从文件中读取问题列表"""
+    """从文件中读取问题列表，并统计重复问题"""
     try:
         async with aiofiles.open(file_path, 'r', encoding='utf-8') as f:
             questions = [line.strip() for line in await f.readlines()]
             # 过滤掉空行
             questions = [q for q in questions if q]
+            
+            # 统计重复问题
+            question_count = {}
+            for q in questions:
+                if q in question_count:
+                    question_count[q] += 1
+                else:
+                    question_count[q] = 1
+                    
+            duplicates = {q: count for q, count in question_count.items() if count > 1}
+            total_duplicates = sum(count - 1 for count in question_count.values() if count > 1)
+            
+            print(f"Total questions in file: {len(questions)}")
+            print(f"Unique questions: {len(question_count)}")
+            print(f"Duplicate questions: {total_duplicates}")
+            if duplicates:
+                print("Examples of duplicated questions:")
+                for i, (q, count) in enumerate(duplicates.items()):
+                    if i < 5:  # 只显示前5个重复问题示例
+                        print(f"  - '{q}' appears {count} times")
+            
             # 确保问题唯一
             unique_questions = list(dict.fromkeys(questions))
             return unique_questions
@@ -49,8 +70,7 @@ async def make_request(session, question_id, question):
             }
         ],
         "stream_options": {"include_usage": True},
-        "stream": False,
-        "max_tokens":10  # 限制回复最多150个令牌
+        "stream": False
     }
     
     start_time = time.time()
@@ -60,6 +80,16 @@ async def make_request(session, question_id, question):
             response_json = await response.json()
             elapsed_time = time.time() - start_time
             
+            # 提取回答文本
+            answer = ""
+            if response.status == 200 and "choices" in response_json and len(response_json["choices"]) > 0:
+                answer = response_json["choices"][0].get("message", {}).get("content", "No answer")
+            
+            # 输出问题和回答到终端
+            print(f"\nQuestion {question_id}: {question}")
+            print(f"Answer: {answer[:100]}..." if len(answer) > 100 else f"Answer: {answer}")
+            print(f"Response time: {elapsed_time:.2f}s")
+            
             # 将响应保存到文件
             filename = f"{OUTPUT_DIR}/response_{question_id}.json"
             async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
@@ -67,7 +97,8 @@ async def make_request(session, question_id, question):
                     "question": question,
                     "question_id": question_id,
                     "elapsed_time": elapsed_time,
-                    "response": response_json
+                    "response": response_json,
+                    "answer": answer
                 }
                 await f.write(json.dumps(result, ensure_ascii=False, indent=2))
             
@@ -77,10 +108,13 @@ async def make_request(session, question_id, question):
                 "status_code": response.status,
                 "elapsed_time": elapsed_time,
                 "success": response.status == 200,
-                "filename": filename
+                "filename": filename,
+                "answer": answer
             }
     except Exception as e:
         elapsed_time = time.time() - start_time
+        print(f"\nError processing question {question_id}: {question}")
+        print(f"Error: {str(e)}")
         return {
             "question_id": question_id,
             "question": question,
@@ -93,6 +127,7 @@ async def make_request(session, question_id, question):
 async def process_questions(questions):
     """处理所有问题，确保在时间限制内完成"""
     start_time = time.time()
+    time_limit_reached = False
     
     # 创建信号量来控制并发
     semaphore = asyncio.Semaphore(CONCURRENCY)
@@ -113,10 +148,16 @@ async def process_questions(questions):
         
         # 检查是否超时
         if time.time() - start_time > MAX_TIME:
+            time_limit_reached = True
             print(f"\nReached time limit of {MAX_TIME} seconds. Processed {len(results)} out of {len(tasks)} questions.")
+            # 不立即退出，让已经启动的请求完成
             break
-            
-    return results
+    
+    # 等待所有已经启动的请求完成
+    if time_limit_reached:
+        print("Waiting for in-progress requests to complete...")
+    
+    return results, time_limit_reached
 
 async def main():
     """主函数：读取问题、发送请求并收集结果"""
@@ -131,7 +172,7 @@ async def main():
     
     # 处理所有问题
     start_time = time.time()
-    all_results = await process_questions(questions)
+    all_results, time_limit_reached = await process_questions(questions)
     total_time = time.time() - start_time
     
     # 计算统计信息
@@ -148,6 +189,12 @@ async def main():
     print(f"Failed: {len(failed)}")
     print(f"Average response time: {avg_time:.2f} seconds")
     
+    # 分析停止原因
+    if time_limit_reached:
+        print(f"Script stopped due to time limit ({MAX_TIME} seconds)")
+    else:
+        print("Script completed processing all questions")
+    
     # 保存汇总结果
     summary = {
         "total_questions": len(questions),
@@ -156,6 +203,7 @@ async def main():
         "successful_requests": len(successful),
         "failed_requests": len(failed),
         "average_response_time": avg_time,
+        "time_limit_reached": time_limit_reached,
         "results": all_results
     }
     
