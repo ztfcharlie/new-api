@@ -1,0 +1,67 @@
+=== Failure Analysis Report ===
+Total failed requests: 8064
+
+=== Status Codes ===
+- Status 503: 8064 occurrences
+
+=== Detailed Failure Samples ===
+
+Failure Sample #1 (Question ID: 10696)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 20250510110437938269392iBbkt4J4)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 20250510110437938269392iBbkt4J4)
+
+Failure Sample #2 (Question ID: 120)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 2025051011043828044755AMMnkeKJ)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 2025051011043828044755AMMnkeKJ)
+
+Failure Sample #3 (Question ID: 7163)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 20250510110437886812981G9C8u154)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 20250510110437886812981G9C8u154)
+
+Failure Sample #4 (Question ID: 10695)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 20250510110437887239391DbRpPVNE)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 20250510110437887239391DbRpPVNE)
+
+Failure Sample #5 (Question ID: 7167)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 20250510110437946240374XMbBJseu)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 20250510110437946240374XMbBJseu)
+
+Failure Sample #6 (Question ID: 10692)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 20250510110437887277570srCckgEn)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 20250510110437887277570srCckgEn)
+
+Failure Sample #7 (Question ID: 10698)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 202505101104379473238135gAZaaim)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 202505101104379473238135gAZaaim)
+
+Failure Sample #8 (Question ID: 7168)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 202505101104379491502629DPb5Ga8)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 202505101104379491502629DPb5Ga8)
+
+Failure Sample #9 (Question ID: 10697)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 20250510110437939657330otx5rd0z)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 20250510110437939657330otx5rd0z)
+
+Failure Sample #10 (Question ID: 3641)
+Status Code: 503
+Raw Response: {"error":{"message":"No available channels for model test in current group gpt-4o-mini (request id: 20250510110437942934516a6VK0NpA)","type":"new_api_error"}}
+Error Type: new_api_error
+Error Message: No available channels for model test in current group gpt-4o-mini (request id: 20250510110437942934516a6VK0NpA)

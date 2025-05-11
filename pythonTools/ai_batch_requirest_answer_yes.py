@@ -7,12 +7,14 @@ import os
 from tqdm import tqdm
 
 # 配置参数
-API_URL = "https://ai.burncloud.com/v1/chat/completions"
-API_KEY = "sk-7wiO34EMbl9hvC8n9ev2Y0CPwO7e5H2tKMlzl8U253B9a342"  # 请替换为您的 API 密钥
+API_URL = "https://devopenai.burncloud.com/v1/chat/completions"
+#API_KEY = "sk-7wiO34EMbl9hvC8n9ev2Y0CPwO7e5H2tKMlzl8U253B9a342"  # 请替换为您的 API 密钥--default
+#API_KEY = "sk-x0EwwQLAz10Yvl4xRWj7YVnJ8gN7n31NlW7Ot3AiY4f8PGY3"  # 请替换为您的 API 密钥 gala-gpt-专用
+API_KEY = "sk-Cr3qXsuuruvuWxNc3VkVjnfNXWbyDJ0WpvNe2JnE3YF4PVcP"  # devopenai --test
 MODEL = "gpt-4o-mini"
-CONCURRENCY = 100  # 并发数量，调整以确保1分钟内完成1000个请求
-MAX_TIME = 60  # 最大运行时间（秒）
-QUESTION_COUNT = 1  # 要发送的请求数量
+CONCURRENCY = 200  # 并发数量，调整以确保1分钟内完成1000个请求
+MAX_TIME = 120  # 最大运行时间（秒）
+QUESTION_COUNT = 12000  # 要发送的请求数量
 
 # 确保输出目录存在
 OUTPUT_DIR = "responses"
@@ -66,17 +68,17 @@ async def make_request(session, question_id):
             
             # 将响应保存到文件
             filename = f"{OUTPUT_DIR}/response_{question_id}.json"
-            async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
-                result = {
-                    "question": question,
-                    "question_id": question_id,
-                    "elapsed_time": elapsed_time,
-                    "status_code": response.status,
-                    "response": response_json,
-                    "raw_response": response_text,
-                    "answer": answer
-                }
-                await f.write(json.dumps(result, ensure_ascii=False, indent=2))
+            #async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
+            #    result = {
+            #        "question": question,
+            #        "question_id": question_id,
+            #        "elapsed_time": elapsed_time,
+            #        "status_code": response.status,
+            #        "response": response_json,
+            #        "raw_response": response_text,
+            #        "answer": answer
+            #    }
+            #    await f.write(json.dumps(result, ensure_ascii=False, indent=2))
             
             return {
                 "question_id": question_id,
