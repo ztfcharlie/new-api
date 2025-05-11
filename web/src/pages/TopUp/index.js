@@ -129,6 +129,10 @@ const TopUp = () => {
           if (!isSafari) {
             form.target = '_blank';
           }
+          //在这里增加一个判断，如果是支付给epay的话，需要去掉参数里面个method参数
+          if (payWay === 'zfb' || payWay === 'wx') {
+            delete params.method;
+          }
           for (let key in params) {
             let input = document.createElement('input');
             input.type = 'hidden';
@@ -307,7 +311,7 @@ const TopUp = () => {
                                   }}
                                 />
                                 <Space>
-                                  {/* <Button
+                                  <Button
                                     type={'primary'}
                                     theme={'solid'}
                                     onClick={async () => {
@@ -327,7 +331,7 @@ const TopUp = () => {
                                     }}
                                   >
                                     {t('微信')}
-                                  </Button> */}
+                                  </Button>
                                   {enableStripe && (
                                     <Button
                                       style={{

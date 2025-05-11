@@ -249,8 +249,7 @@
     "topup.log.epay_update_success": "Le rappel Epay a mis à jour avec succès l'utilisateur %v",
     "topup.log.epay_callback_exception": "Exception de rappel Easy Pay : %v",
     "topup.error.failed": "Échec du paiement : %v",
-    "topup.record.success": "Recharge en ligne réussie, montant de recharge : %v, montant du paiement : %f"
-
+    "topup.record.success": "Recharge en ligne réussie, montant de recharge : %v, montant du paiement : %f",
     "topup.log.paypal_read_body_failed": "PayPal IPN : Échec de lecture du corps de la requête : %v",
         "topup.log.paypal_received_notification": "Notification PayPal IPN reçue : %s",
         "topup.log.paypal_parse_form_failed": "PayPal IPN : Échec d'analyse des données du formulaire : %v",
