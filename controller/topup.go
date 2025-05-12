@@ -153,7 +153,7 @@ func RequestEpay(c *gin.Context) {
 		uri, params, err = client.Purchase(&service.PurchaseArgs{
 			Type:           payType,
 			ServiceTradeNo: tradeNo,
-			Name:           fmt.Sprintf("TUC%d", req.Amount),
+			Name:           fmt.Sprintf("Bruncloud Credit Top-up %d", req.Amount),
 			Money:          strconv.FormatFloat(payMoney, 'f', 2, 64),
 			Device:         service.PC,
 			NotifyUrl:      notifyUrl,
@@ -169,7 +169,7 @@ func RequestEpay(c *gin.Context) {
 		uri, params, err = client.Purchase(&service.PurchaseArgs{
 			Type:           payType,
 			ServiceTradeNo: tradeNo,
-			Name:           fmt.Sprintf("TUC%d", req.Amount),
+			Name:           fmt.Sprintf("Bruncloud Credit Top-up %d", req.Amount),
 			Money:          strconv.FormatFloat(payMoney, 'f', 2, 64),
 			Device:         service.PC,
 			NotifyUrl:      notifyUrl,
@@ -185,7 +185,7 @@ func RequestEpay(c *gin.Context) {
 		uri, params, err = client.Purchase(&service.PurchaseArgs{
 			Type:           payType,
 			ServiceTradeNo: tradeNo,
-			Name:           fmt.Sprintf("TUC%d", req.Amount),
+			Name:           fmt.Sprintf("Bruncloud Credit Top-up %d", req.Amount),
 			Money:          strconv.FormatFloat(payMoney, 'f', 2, 64),
 			Device:         service.PC,
 			NotifyUrl:      notifyUrl,
@@ -214,7 +214,7 @@ func RequestEpay(c *gin.Context) {
 		uri, params, err = client.Purchase(&epay.PurchaseArgs{
 			Type:           payType,
 			ServiceTradeNo: tradeNo,
-			Name:           fmt.Sprintf("TUC%d", req.Amount),
+			Name:           fmt.Sprintf("Bruncloud Credit Top-up %d", req.Amount),
 			Money:          strconv.FormatFloat(payMoney_RMB, 'f', 2, 64),
 			Device:         epay.PC,
 			NotifyUrl:      notifyUrl,
