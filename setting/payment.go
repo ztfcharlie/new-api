@@ -5,6 +5,7 @@ var CustomCallbackAddress = ""
 var EpayId = ""
 var EpayKey = ""
 var Price = 7.3
+var RmbPrice = 7.3
 var MinTopUp = 1
 var StripeKey = ""
 var StripeWebHookKey = ""

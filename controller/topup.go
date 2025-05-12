@@ -205,11 +205,17 @@ func RequestEpay(c *gin.Context) {
 			c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.no_payment_config")})
 			return
 		}
+		//修改给前端显示的人民币价格
+		RmbPriceRatio := 7.3 // 默认值
+		if setting.RmbPrice > 0 {
+			RmbPriceRatio = setting.RmbPrice
+		}
+		payMoney_RMB := payMoney * RmbPriceRatio
 		uri, params, err = client.Purchase(&epay.PurchaseArgs{
 			Type:           payType,
 			ServiceTradeNo: tradeNo,
 			Name:           fmt.Sprintf("TUC%d", req.Amount),
-			Money:          strconv.FormatFloat(payMoney, 'f', 2, 64),
+			Money:          strconv.FormatFloat(payMoney_RMB, 'f', 2, 64),
 			Device:         epay.PC,
 			NotifyUrl:      notifyUrl,
 			ReturnUrl:      returnUrl,

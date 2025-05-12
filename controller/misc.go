@@ -52,6 +52,7 @@ func GetStatus(c *gin.Context) {
 			"wechat_login":                common.WeChatAuthEnabled,
 			"server_address":              setting.ServerAddress,
 			"price":                       setting.Price,
+			"rmb_price":                   setting.RmbPrice,
 			"min_topup":                   setting.MinTopUp,
 			"turnstile_check":             common.TurnstileCheckEnabled,
 			"turnstile_site_key":          common.TurnstileSiteKey,

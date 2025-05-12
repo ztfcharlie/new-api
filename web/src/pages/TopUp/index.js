@@ -193,6 +193,18 @@ const TopUp = () => {
     return amount + ' ' + t('美元');
   };
 
+  const showExchangeRate = () => {
+    let status = localStorage.getItem('status');
+    if (payWay === 'zfb' || payWay === 'wx') { 
+      return (
+        <div>
+          <p>{t('当前汇率')}：1 {t('美元')} = {status.rmb_price} {t('人民币')} {t(' 本订单需支付')} {amount * status.rmb_price} {t('元人民币')} </p>
+        </div>
+      );
+    }
+    return null; // 添加默认返回值
+  };  
+
   const getAmount = async (value) => {
     if (value === undefined) {
       value = topUpCount;
@@ -243,7 +255,7 @@ const TopUp = () => {
                   centered={true}
                 >
                   <p>{t('充值数量')}：{topUpCount}</p>
-                  <p>{t('实付金额')}：{renderAmount()}</p>
+                  <p>{t('实付金额')}：{renderAmount()} {showExchangeRate()}</p>
                   <p>{t('是否确认充值？')}</p>
                 </Modal>
               <div className="relative">

@@ -48,6 +48,7 @@ const SystemSetting = () => {
     EpayId: '',
     EpayKey: '',
     Price: 7.3,
+    RmbPrice:7.3,
     MinTopUp: 1,
     TopupGroupRatio: '',
     PayAddress: '',
@@ -120,6 +121,7 @@ const SystemSetting = () => {
             item.value = item.value === 'true';
             break;
           case 'Price':
+          case 'RmbPrice':
           case 'MinTopUp':
             item.value = parseFloat(item.value);
             break;
@@ -268,6 +270,9 @@ const SystemSetting = () => {
     }
     if (inputs.Price !== undefined && inputs.Price !== '') {
       options.push({ key: 'Price', value: inputs.Price.toString() });
+    }
+    if (inputs.RmbPrice !== undefined && inputs.RmbPrice !== '') {
+      options.push({ key: 'RmbPrice', value: inputs.RmbPrice.toString() });
     }
     if (inputs.MinTopUp !== undefined && inputs.MinTopUp !== '') {
       options.push({ key: 'MinTopUp', value: inputs.MinTopUp.toString() });
@@ -564,7 +569,7 @@ const SystemSetting = () => {
                     <Form.Input
                       field='StripeWebHookKey'
                       label='StripeWebHookKey'
-                      placeholder=''
+                      placeholder='敏感信息不会发送到前端显示'
                       type='password'
                     />
                   </Col>
@@ -581,7 +586,7 @@ const SystemSetting = () => {
                     <Form.Input
                       field='CoinbaseWebHookKey'
                       label='CoinbaseWebHookKey'
-                      placeholder=''
+                      placeholder='敏感信息不会发送到前端显示'
                       type='password'
                     />
                   </Col>
@@ -598,7 +603,7 @@ const SystemSetting = () => {
                     <Form.Input
                       field='PaypalWebHookKey'
                       label='PaypalWebScriptKey'
-                      placeholder=''
+                      placeholder='敏感信息不会发送到前端显示'
                       type='password'
                     />
                   </Col>
@@ -616,6 +621,19 @@ const SystemSetting = () => {
                       placeholder='例如：1，就是1美元/美金'
                     />
                   </Col>
+                  <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                    <Form.InputNumber
+                      field='RmbPrice'
+                      precision={2}
+                      label='充值价格（x人民币/美金）'
+                      placeholder='例如：1，就是1人民币/美金'
+                    />
+                  </Col>
+                </Row>
+                <Row
+                  gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+                  style={{ marginTop: 16 }}
+                >
                   <Col xs={24} sm={24} md={8} lg={8} xl={8}>
                     <Form.InputNumber
                       field='MinTopUp'
