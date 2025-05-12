@@ -1442,5 +1442,8 @@
   "音频补全": "Audio Completion",
   "总价": "Total Price",
   "文字价格": "Text Price",
-  "音频价格": "Audio Price"
+  "音频价格": "Audio Price",
+  "当前汇率": "Current exchange rate",
+  "元人民币": "RMB",
+  " 本订单需支付":" This order needs to be paid"
 }

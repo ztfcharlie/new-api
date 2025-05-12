@@ -25,7 +25,7 @@ import { useTranslation } from 'react-i18next';
 import AffLinkCard from '@/components/AffLinkCard'
 
 const TopUp = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [redemptionCode, setRedemptionCode] = useState('');
   const [topUpCode, setTopUpCode] = useState('');
   const [topUpCount, setTopUpCount] = useState(0);
@@ -41,6 +41,11 @@ const TopUp = () => {
   const [enableStripe, setEnableStripe] = useState(false);
   const [enableCoinbase, setEnableCoinbase] = useState(false);
   const [enablePaypal, setEnablePaypal] = useState(false);
+
+  // 检查当前是否为中文环境
+  const isChineseLanguage = () => {
+    return i18n.language === 'zh' || i18n.language === 'zh-CN';
+  };
 
   const topUp = async () => {
     if (redemptionCode === '') {
@@ -194,12 +199,11 @@ const TopUp = () => {
   };
 
   const showExchangeRate = () => {
-    let status = localStorage.getItem('status');
     if (payWay === 'zfb' || payWay === 'wx') { 
+      let statusData  = localStorage.getItem('status');
+      statusData  = JSON.parse(statusData );
       return (
-        <div>
-          <p>{t('当前汇率')}：1 {t('美元')} = {status.rmb_price} {t('人民币')} {t(' 本订单需支付')} {amount * status.rmb_price} {t('元人民币')} </p>
-        </div>
+          <p>{t('当前汇率')}：1 {t('美元')} = {statusData .rmb_price} {t('元人民币')} {t(' 本订单需支付')} {amount * statusData .rmb_price} {t('元人民币')} </p>
       );
     }
     return null; // 添加默认返回值
@@ -255,7 +259,8 @@ const TopUp = () => {
                   centered={true}
                 >
                   <p>{t('充值数量')}：{topUpCount}</p>
-                  <p>{t('实付金额')}：{renderAmount()} {showExchangeRate()}</p>
+                  <p>{t('实付金额')}：{renderAmount()} </p>
+                  {showExchangeRate()}
                   <p>{t('是否确认充值？')}</p>
                 </Modal>
               <div className="relative">
@@ -269,40 +274,7 @@ const TopUp = () => {
                             <Title level={3} style={{ textAlign: 'center' }}>
                               {t('余额')} {renderQuota(userQuota)}
                             </Title>
-                            <div style={{ marginTop: 20 }}>
-                              <Divider>{t('兑换余额')}</Divider>
-                              <Form>
-                                <Form.Input
-                                  field={'redemptionCode'}
-                                  label={t('兑换码')}
-                                  placeholder={t('兑换码')}
-                                  name='redemptionCode'
-                                  value={redemptionCode}
-                                  onChange={(value) => {
-                                    setRedemptionCode(value);
-                                  }}
-                                />
-                                <Space>
-                                  {topUpLink ? (
-                                    <Button
-                                      type={'primary'}
-                                      theme={'solid'}
-                                      onClick={openTopUpLink}
-                                    >
-                                      {t('获取兑换码')}
-                                    </Button>
-                                  ) : null}
-                                  <Button
-                                    type={'warning'}
-                                    theme={'solid'}
-                                    onClick={topUp}
-                                    disabled={isSubmitting}
-                                  >
-                                    {isSubmitting ? t('兑换中...') : t('兑换')}
-                                  </Button>
-                                </Space>
-                              </Form>
-                            </div>
+                            
                             <div style={{ marginTop: 20 }}>
                               <Divider>{t('在线充值')}</Divider>
                               <Form>
@@ -323,6 +295,8 @@ const TopUp = () => {
                                   }}
                                 />
                                 <Space>
+                                {isChineseLanguage() && (
+                                    <>
                                   <Button
                                     type={'primary'}
                                     theme={'solid'}
@@ -344,6 +318,8 @@ const TopUp = () => {
                                   >
                                     {t('微信')}
                                   </Button>
+                                  </>
+                                  )}
                                   {enableStripe && (
                                     <Button
                                       style={{
@@ -388,6 +364,40 @@ const TopUp = () => {
                                       {t('PayPal')}
                                     </Button>
                                   )}
+                                </Space>
+                              </Form>
+                            </div>
+                            <div style={{ marginTop: 20 }}>
+                              <Divider>{t('兑换余额')}</Divider>
+                              <Form>
+                                <Form.Input
+                                  field={'redemptionCode'}
+                                  label={t('兑换码')}
+                                  placeholder={t('兑换码')}
+                                  name='redemptionCode'
+                                  value={redemptionCode}
+                                  onChange={(value) => {
+                                    setRedemptionCode(value);
+                                  }}
+                                />
+                                <Space>
+                                  {topUpLink ? (
+                                    <Button
+                                      type={'primary'}
+                                      theme={'solid'}
+                                      onClick={openTopUpLink}
+                                    >
+                                      {t('获取兑换码')}
+                                    </Button>
+                                  ) : null}
+                                  <Button
+                                    type={'warning'}
+                                    theme={'solid'}
+                                    onClick={topUp}
+                                    disabled={isSubmitting}
+                                  >
+                                    {isSubmitting ? t('兑换中...') : t('兑换')}
+                                  </Button>
                                 </Space>
                               </Form>
                             </div>
