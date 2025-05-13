@@ -94,8 +94,9 @@ func RecordLog(userId int, logType int, content string) {
 func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens int, completionTokens int,
 	modelName string, tokenName string, quota int, content string, tokenId int, userQuota int, useTimeSeconds int,
 	isStream bool, group string, other map[string]interface{}) {
-	common.LogInfo(c, fmt.Sprintf(lang.T(c, "log.error.record_consume"),
-		userId, userQuota, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
+	//2025-05-13 暂时屏蔽了日志记录的输出到docker log，应该记录太多，影响性能
+	//common.LogInfo(c, fmt.Sprintf(lang.T(c, "log.error.record_consume"),
+	//	userId, userQuota, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
 	if !common.LogConsumeEnabled {
 		return
 	}

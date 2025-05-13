@@ -227,13 +227,14 @@ const SiderBar = () => {
         itemKey: 'playground',
         to: '/playground',
         icon: <IconCommentStroked />,
-      },
-      {
-        text: t('聊天'),
-        itemKey: 'chat',
-        items: chatItems,
-        icon: <IconComment />,
-      },
+      }
+      //,
+      //{
+      //  text: t('聊天'),
+      //  itemKey: 'chat',
+      //  items: chatItems,
+      //  icon: <IconComment />,
+      //},
     ],
     [chatItems, t],
   );
