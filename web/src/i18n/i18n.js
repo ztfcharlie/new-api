@@ -12,7 +12,7 @@ import esTranslation from './locales/es.json';
 import frTranslation from './locales/fr.json';
 import koTranslation from './locales/ko.json';
 
-const langs = ['en', 'zh', 'ja', 'ru', 'de', 'pt', 'es', 'fr',"ko"];
+export const langs = ['en', 'zh', 'ru', 'de', 'pt', 'es', 'fr','ja', "ko"];
 let defaultLang = navigator?.language?navigator.language.split('-')[0]:'en';
 if (!langs.includes(defaultLang)) {
   defaultLang = 'en';

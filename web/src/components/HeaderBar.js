@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { useSetTheme, useTheme } from '../context/Theme';
 import { useTranslation } from 'react-i18next';
+import { langs } from '../i18n/i18n'; // 导入语言数组
 
 import { API, getLogo, getSystemName, isMobile, showSuccess } from '../helpers';
 import '../index.css';
@@ -482,8 +483,12 @@ const HeaderBar = (headerProps) => {
                     location.href = props.to
                     return
                   }
+                  // 检查是否是语言选项，如果是则跳过内边距设置
+                  if (langs.includes(props.itemKey?.toLowerCase()) || props.itemKey === 'language') {
+                    return;
+                  }
                   // 添加 FAQ 到不需要设置内边距的页面列表中
-                  if (props.itemKey === 'home' || props.itemKey === 'about' || props.itemKey === 'faq' || props.itemKey === 'language') {
+                  if (props.itemKey === 'home' || props.itemKey === 'about' || props.itemKey === 'faq') {
                     styleDispatch({ type: 'SET_INNER_PADDING', payload: false });
                     styleDispatch({ type: 'SET_SIDER', payload: false });
                   } else {
@@ -628,62 +633,24 @@ const HeaderBar = (headerProps) => {
                     position='bottomRight'
                     render={
                       <Dropdown.Menu style={dropdownStyle}>
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('en')}
-                          type={currentLang === 'en' ? 'primary' : 'tertiary'}
-                        >
-                          English
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('de')}
-                          type={currentLang === '' ? 'primary' : 'tertiary'}
-                        >
-                          Deutsch
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('pt')}
-                          type={currentLang === '' ? 'primary' : 'tertiary'}
-                        >
-                          Português
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('es')}
-                          type={currentLang === '' ? 'primary' : 'tertiary'}
-                        >
-                          Español
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('fr')}
-                          type={currentLang === '' ? 'primary' : 'tertiary'}
-                        >
-                          Français
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('ru')}
-                          type={currentLang === '' ? 'primary' : 'tertiary'}
-                        >
-                          Русский
-                        </Dropdown.Item>
-                        
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('ko')}
-                          type={currentLang === '' ? 'primary' : 'tertiary'}
-                        >
-                          한국어
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('ja')}
-                          type={currentLang === '' ? 'primary' : 'tertiary'}
-                        >
-                          日本語
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          onClick={() => handleLanguageChange('zh')}
-                          type={currentLang === 'zh' ? 'primary' : 'tertiary'}
-                        >
-                          中文
-                        </Dropdown.Item>
-                        
+                        {langs.map(lang => (
+                          <Dropdown.Item
+                            key={lang}
+                            itemKey={lang}
+                            onClick={() => handleLanguageChange(lang)}
+                            type={currentLang === lang ? 'primary' : 'tertiary'}
+                          >
+                            {lang === 'en' && 'English'}
+                            {lang === 'de' && 'Deutsch'}
+                            {lang === 'pt' && 'Português'}
+                            {lang === 'es' && 'Español'}
+                            {lang === 'fr' && 'Français'}
+                            {lang === 'ru' && 'Русский'}
+                            {lang === 'ko' && '한국어'}
+                            {lang === 'ja' && '日本語'}
+                            {lang === 'zh' && '中文'}
+                          </Dropdown.Item>
+                        ))}
                       </Dropdown.Menu>
                     }
                   >
@@ -698,7 +665,7 @@ const HeaderBar = (headerProps) => {
                       position='bottomRight'
                       render={
                         <Dropdown.Menu style={dropdownStyle}>
-                          <Dropdown.Item onClick={logout}>{t('退出')}</Dropdown.Item>
+                          <Dropdown.Item itemKey="logout" onClick={logout}>{t('退出')}</Dropdown.Item>
                         </Dropdown.Menu>
                       }
                     >
