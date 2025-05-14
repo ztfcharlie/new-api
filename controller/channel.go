@@ -114,6 +114,9 @@ func FetchUpstreamModels(c *gin.Context) {
 		baseURL = channel.GetBaseURL()
 	}
 	url := fmt.Sprintf("%s/v1/models", baseURL)
+	if channel.Type == common.ChannelTypeGemini {
+		url = fmt.Sprintf("%s/v1beta/openai/models", baseURL)
+	}
 	body, err := GetResponseBody("GET", url, channel, GetAuthHeader(channel.Key))
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -134,7 +137,11 @@ func FetchUpstreamModels(c *gin.Context) {
 
 	var ids []string
 	for _, model := range result.Data {
-		ids = append(ids, model.ID)
+		id := model.ID
+		if channel.Type == common.ChannelTypeGemini {
+			id = strings.TrimPrefix(id, "models/")
+		}
+		ids = append(ids, id)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

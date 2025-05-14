@@ -75,7 +75,6 @@ const LoginForm = () => {
     }
   }, []);
 
-
   const onWeChatLoginClicked = () => {
     setShowWeChatLoginModal(true);
   };
@@ -230,7 +229,8 @@ const LoginForm = () => {
                   }}
                 >
                   <Text>
-                    {t('没有账户？')} <Link to='/register'>{t('点击注册')}</Link>
+                    {t('没有账户？')}{' '}
+                    <Link to='/register'>{t('点击注册')}</Link>
                   </Text>
                   <Text>
                     {t('忘记密码？')} <Link to='/reset'>{t('点击重置')}</Link>
@@ -277,15 +277,18 @@ const LoginForm = () => {
                         <></>
                       )}
                       {status.oidc_enabled ? (
-                          <Button
-                              type='primary'
-                              icon={<OIDCIcon />}
-                              onClick={() =>
-                                  onOIDCClicked(status.oidc_authorization_endpoint, status.oidc_client_id)
-                              }
-                          />
+                        <Button
+                          type='primary'
+                          icon={<OIDCIcon />}
+                          onClick={() =>
+                            onOIDCClicked(
+                              status.oidc_authorization_endpoint,
+                              status.oidc_client_id,
+                            )
+                          }
+                        />
                       ) : (
-                          <></>
+                        <></>
                       )}
                       {status.linuxdo_oauth ? (
                         <Button
@@ -351,7 +354,9 @@ const LoginForm = () => {
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <p>
-                      {t('微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）')}
+                      {t(
+                        '微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）',
+                      )}
                     </p>
                   </div>
                   <Form size='large'>

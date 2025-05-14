@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/constant"
 	"one-api/lang"
 	"one-api/model"
 	"one-api/setting"
@@ -81,6 +82,7 @@ func GetStatus(c *gin.Context) {
 			"stripe_key":   setting.StripeKey != "",
 			"coinbase_key": setting.CoinbaseKey != "",
 			"paypal_key":   setting.PaypalKey != "",
+			"setup":        constant.Setup,
 		},
 	})
 	return

@@ -24,6 +24,8 @@ func stopReasonClaude2OpenAI(reason string) string {
 		return "stop"
 	case "max_tokens":
 		return "max_tokens"
+	case "tool_use":
+		return "tool_calls"
 	default:
 		return reason
 	}
@@ -302,7 +304,13 @@ func StreamResponseClaude2OpenAI(reqMode int, claudeResponse *dto.ClaudeResponse
 	response.Choices = make([]dto.ChatCompletionsStreamResponseChoice, 0)
 	// 初始化工具调用列表
 	tools := make([]dto.ToolCallResponse, 0)
-	// 创建一个新的 ChatCompletionsStreamResponseChoice 结构体实例
+	fcIdx := 0
+	if claudeResponse.Index != nil {
+		fcIdx = *claudeResponse.Index - 1
+		if fcIdx < 0 {
+			fcIdx = 0
+		}
+	}
 	var choice dto.ChatCompletionsStreamResponseChoice
 
 	// 如果请求模式是完成模式
@@ -330,8 +338,9 @@ func StreamResponseClaude2OpenAI(reqMode int, claudeResponse *dto.ClaudeResponse
 				// 如果 ContentBlock 类型是 "tool_use"，则添加到工具调用列表
 				if claudeResponse.ContentBlock.Type == "tool_use" {
 					tools = append(tools, dto.ToolCallResponse{
-						ID:   claudeResponse.ContentBlock.Id,
-						Type: "function",
+						Index: common.GetPointer(fcIdx),
+						ID:    claudeResponse.ContentBlock.Id,
+						Type:  "function",
 						Function: dto.FunctionResponse{
 							Name:      claudeResponse.ContentBlock.Name,
 							Arguments: "",
@@ -354,6 +363,8 @@ func StreamResponseClaude2OpenAI(reqMode int, claudeResponse *dto.ClaudeResponse
 				case "input_json_delta":
 					// 添加工具调用响应
 					tools = append(tools, dto.ToolCallResponse{
+						Type:  "function",
+						Index: common.GetPointer(fcIdx),
 						Function: dto.FunctionResponse{
 							Arguments: *claudeResponse.Delta.PartialJson,
 						},

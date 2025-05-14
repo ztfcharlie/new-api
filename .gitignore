@@ -17,3 +17,4 @@ logs
 temp/build-errors.log
 public/webHtml
 pythonTools/responses
+tiktoken_cache

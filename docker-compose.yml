@@ -26,6 +26,7 @@ services:
       - CONSOLE_JWT_SECRET=${CONSOLE_JWT_SECRET}
       - CONSOLE_API_DOMAIN=${CONSOLE_API_DOMAIN}
       - REDIS_CONN_STRING=redis://burncloud-aiapi-redis
+      - ERROR_LOG_ENABLED=true # 是否启用错误日志记录
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
     depends_on:

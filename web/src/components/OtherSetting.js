@@ -1,5 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Banner, Button, Col, Form, Row, Modal, Space } from '@douyinfe/semi-ui';
+import {
+  Banner,
+  Button,
+  Col,
+  Form,
+  Row,
+  Modal,
+  Space,
+  Card,
+} from '@douyinfe/semi-ui';
 import { API, showError, showSuccess, timestamp2string } from '../helpers';
 import { marked } from 'marked';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +57,7 @@ const OtherSetting = () => {
     About: false,
     Faq: false,
     Footer: false,
-    CheckUpdate: false
+    CheckUpdate: false,
   });
   const handleInputChange = async (value, e) => {
     const name = e.target.id;
@@ -166,27 +175,30 @@ const OtherSetting = () => {
 
   const checkUpdate = async () => {
     try {
-      setLoadingInput((loadingInput) => ({ ...loadingInput, CheckUpdate: true }));
+      setLoadingInput((loadingInput) => ({
+        ...loadingInput,
+        CheckUpdate: true,
+      }));
       // Use a CORS proxy to avoid direct cross-origin requests to GitHub API
       // Option 1: Use a public CORS proxy service
       // const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
       // const res = await API.get(
       //   `${proxyUrl}https://api.github.com/repos/Calcium-Ion/new-api/releases/latest`,
       // );
-      
+
       // Option 2: Use the JSON proxy approach which often works better with GitHub API
       const res = await fetch(
         'https://api.github.com/repos/Calcium-Ion/new-api/releases/latest',
         {
           headers: {
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'Content-Type': 'application/json',
             // Adding User-Agent which is often required by GitHub API
-            'User-Agent': 'new-api-update-checker'
-          }
-        }
-      ).then(response => response.json());
-      
+            'User-Agent': 'new-api-update-checker',
+          },
+        },
+      ).then((response) => response.json());
+
       // Option 3: Use a local proxy endpoint
       // Create a cached version of the response to avoid frequent GitHub API calls
       // const res = await API.get('/api/status/github-latest-release');
@@ -205,7 +217,10 @@ const OtherSetting = () => {
       console.error(t('Failed to check for updates:'), error);
       showError(t('检查更新失败，请稍后再试'));
     } finally {
-      setLoadingInput((loadingInput) => ({ ...loadingInput, CheckUpdate: false }));
+      setLoadingInput((loadingInput) => ({
+        ...loadingInput,
+        CheckUpdate: false,
+      }));
     }
   };
   const getOptions = async () => {
@@ -232,7 +247,10 @@ const OtherSetting = () => {
 
   // Function to open GitHub release page
   const openGitHubRelease = () => {
-    window.open(`https://github.com/Calcium-Ion/new-api/releases/tag/${updateData.tag_name}`, '_blank');
+    window.open(
+      `https://github.com/Calcium-Ion/new-api/releases/tag/${updateData.tag_name}`,
+      '_blank',
+    );
   };
 
   const getStartTimeString = () => {
@@ -242,7 +260,15 @@ const OtherSetting = () => {
 
   return (
     <Row>
-      <Col span={24}>
+      <Col
+        span={24}
+        style={{
+          marginTop: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+        }}
+      >
         {/* 版本信息 */}
         <Form style={{ marginBottom: 15 }}>
           <Form.Section text={t('系统信息')}>
@@ -257,27 +283,29 @@ const OtherSetting = () => {
         <Form
           values={inputs}
           getFormApi={(formAPI) => (formAPISettingGeneral.current = formAPI)}
-          style={{ marginBottom: 15 }}
         >
-          <Form.Section text={t('通用设置')}>
-            <Form.TextArea
-              label={t('公告')}
-              placeholder={t('在此输入新的公告内容，支持 Markdown & HTML 代码')}
-              field={'Notice'}
-              onChange={handleInputChange}
-              style={{ fontFamily: 'JetBrains Mono, Consolas' }}
-              autosize={{ minRows: 6, maxRows: 12 }}
-            />
-            <Button onClick={submitNotice} loading={loadingInput['Notice']}>
-              {t('设置公告')}
-            </Button>
-          </Form.Section>
+          <Card>
+            <Form.Section text={t('通用设置')}>
+              <Form.TextArea
+                label={t('公告')}
+                placeholder={t(
+                  '在此输入新的公告内容，支持 Markdown & HTML 代码',
+                )}
+                field={'Notice'}
+                onChange={handleInputChange}
+                style={{ fontFamily: 'JetBrains Mono, Consolas' }}
+                autosize={{ minRows: 6, maxRows: 12 }}
+              />
+              <Button onClick={submitNotice} loading={loadingInput['Notice']}>
+                {t('设置公告')}
+              </Button>
+            </Form.Section>
+          </Card>
         </Form>
         {/* 个性化设置 */}
         <Form
           values={inputs}
           getFormApi={(formAPI) => (formAPIPersonalization.current = formAPI)}
-          style={{ marginBottom: 15 }}
         >
           <Form.Section text={t('个性化设置')}>
             <Form.Input
@@ -362,16 +390,16 @@ const OtherSetting = () => {
         visible={showUpdateModal}
         onCancel={() => setShowUpdateModal(false)}
         footer={[
-          <Button 
-            key="details" 
-            type="primary" 
+          <Button
+            key='details'
+            type='primary'
             onClick={() => {
               setShowUpdateModal(false);
               openGitHubRelease();
             }}
           >
             {t('详情')}
-          </Button>
+          </Button>,
         ]}
       >
         <div dangerouslySetInnerHTML={{ __html: updateData.content }}></div>

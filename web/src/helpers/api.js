@@ -7,8 +7,8 @@ export let API = axios.create({
     : '',
   headers: {
     'New-API-User': getUserIdFromLocalStorage(),
-    'Cache-Control': 'no-store'
-  }
+    'Cache-Control': 'no-store',
+  },
 });
 
 // 添加请求拦截器
@@ -46,8 +46,8 @@ export function updateAPI() {
       : '',
     headers: {
       'New-API-User': getUserIdFromLocalStorage(),
-      'Cache-Control': 'no-store'
-    }
+      'Cache-Control': 'no-store',
+    },
   });
   
   // 重新添加拦截器到新的 API 实例

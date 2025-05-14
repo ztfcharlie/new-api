@@ -26,7 +26,7 @@ i18n
   .init({
     resources: {
       en: {
-        translation: enTranslation
+        translation: enTranslation,
       },
       zh: {
         translation: zhTranslation
@@ -61,8 +61,8 @@ i18n
       lookupLocalStorage: 'i18nextLng',
     },
     interpolation: {
-      escapeValue: false
-    }
+      escapeValue: false,
+    },
   });
 
 // 确保语言变更时保存到 localStorage

@@ -14,7 +14,7 @@ async function fetchTokenKeys() {
       throw new Error('Failed to fetch token keys');
     }
   } catch (error) {
-    console.error("Error fetching token keys:", error);
+    console.error('Error fetching token keys:', error);
     return [];
   }
 }
@@ -28,7 +28,7 @@ function getServerAddress() {
       status = JSON.parse(status);
       serverAddress = status.server_address || '';
     } catch (error) {
-      console.error("Failed to parse status from localStorage:", error);
+      console.error('Failed to parse status from localStorage:', error);
     }
   }
 

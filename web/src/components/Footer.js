@@ -43,7 +43,7 @@ const FooterBar = () => {
   }, []);
 
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div style={{ textAlign: 'center',paddingBottom: '5px'}}>
       {footer ? (
         <div
           className='custom-footer'
