@@ -467,7 +467,7 @@
         "error.upstream_request": "Failed to request upstream address",
         "error.bad_status_code": "bad response status code %d",
         "error.type.upstream": "upstream_error",
-        "error.type.new_api": "new_api_error",
+        "error.type.new_api": "ai_api_error",
         "error.code.bad_response": "bad_response_status_code",
         "error.log.message": "error: %s",
     

@@ -159,7 +159,7 @@ func ClaudeToOpenAIRequest(claudeRequest dto.ClaudeRequest, info *relaycommon.Re
 
 func OpenAIErrorToClaudeError(openAIError *dto.OpenAIErrorWithStatusCode) *dto.ClaudeErrorWithStatusCode {
 	claudeError := dto.ClaudeError{
-		Type:    "new_api_error",
+		Type:    "ai_api_error",
 		Message: openAIError.Error.Message,
 	}
 	return &dto.ClaudeErrorWithStatusCode{
@@ -171,7 +171,7 @@ func OpenAIErrorToClaudeError(openAIError *dto.OpenAIErrorWithStatusCode) *dto.C
 func ClaudeErrorToOpenAIError(claudeError *dto.ClaudeErrorWithStatusCode) *dto.OpenAIErrorWithStatusCode {
 	openAIError := dto.OpenAIError{
 		Message: claudeError.Error.Message,
-		Type:    "new_api_error",
+		Type:    "ai_api_error",
 	}
 	return &dto.OpenAIErrorWithStatusCode{
 		Error:      openAIError,

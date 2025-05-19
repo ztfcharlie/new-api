@@ -467,7 +467,7 @@
         "error.upstream_request": "업스트림 주소 요청 실패",
         "error.bad_status_code": "잘못된 응답 상태 코드 %d",
         "error.type.upstream": "upstream_error",
-        "error.type.new_api": "new_api_error",
+        "error.type.new_api": "ai_api_error",
         "error.code.bad_response": "bad_response_status_code",
         "error.log.message": "오류: %s",
     

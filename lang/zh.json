@@ -467,7 +467,7 @@
         "error.upstream_request": "请求上游地址失败",
         "error.bad_status_code": "响应状态码错误 %d",
         "error.type.upstream": "upstream_error",
-        "error.type.new_api": "new_api_error",
+        "error.type.new_api": "ai_api_error",
         "error.code.bad_response": "bad_response_status_code",
         "error.log.message": "错误: %s",
 

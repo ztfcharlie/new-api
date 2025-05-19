@@ -467,7 +467,7 @@
         "error.upstream_request": "アップストリームアドレスへのリクエストに失敗しました",
         "error.bad_status_code": "不正な応答ステータスコード %d",
         "error.type.upstream": "upstream_error",
-        "error.type.new_api": "new_api_error",
+        "error.type.new_api": "ai_api_error",
         "error.code.bad_response": "bad_response_status_code",
         "error.log.message": "エラー: %s",
     
