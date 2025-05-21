@@ -1,6 +1,7 @@
 package controller
 
 import (
+	crypto_rand "crypto/rand" // 添加这一行
 	"fmt"
 	"net/http"
 	"one-api/common"
@@ -8,6 +9,7 @@ import (
 	"one-api/model"
 	"strconv"
 
+	// 添加这一行
 	"github.com/gin-gonic/gin"
 )
 
@@ -153,6 +155,33 @@ func AddToken(c *gin.Context) {
 		})
 		return
 	}
+
+	// 处理名称为空的情况
+	if token.Name == "" {
+		// 直接在函数内实现生成6位随机字符串的逻辑
+		const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		randomStr := make([]byte, 6)
+
+		// 使用crypto/rand包生成安全的随机数
+		randomData := make([]byte, 6)
+		_, err := crypto_rand.Read(randomData)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "Failed to generate random string: " + err.Error(),
+			})
+			return
+		}
+
+		// 使用随机数据从字符集中选择字符
+		for i := range randomData {
+			randomStr[i] = charset[randomData[i]%byte(len(charset))]
+		}
+
+		// 组合生成新的token名称
+		token.Name = fmt.Sprintf("default_%s", string(randomStr))
+	}
+
 	if len(token.Name) > 30 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

@@ -178,8 +178,21 @@ const EditToken = (props) => {
   };
 
   const submit = async () => {
+    // 添加名称验证
+    if (!isEdit && !name.trim()) {
+      showError(t('令牌名称不能为空，请输入有效的名称！'));
+      return;
+    }
+    
     setLoading(true);
     if (isEdit) {
+      // 编辑令牌时也需要验证名称
+      if (!name.trim()) {
+        showError(t('令牌名称不能为空，请输入有效的名称！'));
+        setLoading(false);
+        return;
+      }
+      
       // 编辑令牌的逻辑保持不变
       let localInputs = { ...inputs };
       localInputs.remain_quota = parseInt(localInputs.remain_quota);
@@ -369,8 +382,15 @@ const EditToken = (props) => {
             onChange={(value) => handleInputChange('name', value)}
             value={name}
             autoComplete='new-password'
-            required={!isEdit}
+            required={true} // 始终设置为必填
+            validateStatus={name.trim() ? 'success' : 'error'} // 添加验证状态
+            showClear // 便于清除内容
           />
+          {!name.trim() && (
+            <Typography.Text type="danger" style={{ marginLeft: 10 }}>
+              {t('名称不能为空')}
+            </Typography.Text>
+          )}
           <Divider />
           <DatePicker
             label={t('过期时间')}
