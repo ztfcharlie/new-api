@@ -876,7 +876,16 @@ const ChannelsTable = () => {
   };
 
   const refresh = async () => {
-    await loadChannels(activePage - 1, pageSize, idSort, enableTagMode);
+    if (searchKeyword === '' && searchGroup === '' && searchModel === '') {
+      await loadChannels(activePage - 1, pageSize, idSort, enableTagMode);
+    } else {
+      await searchChannels(
+        searchKeyword,
+        searchGroup,
+        searchModel,
+        enableTagMode,
+      );
+    }
   };
 
   useEffect(() => {

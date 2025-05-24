@@ -262,31 +262,56 @@ func FixAbility() (int, error) {
 		common.SysError(fmt.Sprintf(lang.T(nil, "ability.error.get_channel_ids"), err.Error()))
 		return 0, err
 	}
-	// Delete abilities of channels that are not in channel table
-	err = DB.Where("channel_id NOT IN (?)", channelIds).Delete(&Ability{}).Error
-	if err != nil {
-		common.SysError(fmt.Sprintf(lang.T(nil, "ability.error.delete_abilities"), err.Error()))
-		return 0, err
+
+	// Delete abilities of channels that are not in channel table - in batches to avoid too many placeholders
+	if len(channelIds) > 0 {
+		// Process deletion in chunks to avoid "too many placeholders" error
+		for _, chunk := range lo.Chunk(channelIds, 100) {
+			err = DB.Where("channel_id NOT IN (?)", chunk).Delete(&Ability{}).Error
+			if err != nil {
+				common.SysError(fmt.Sprintf("Delete abilities of channels (batch) that are not in channel table failed: %s", err.Error()))
+				return 0, err
+			}
+		}
+	} else {
+		// If no channels exist, delete all abilities
+		err = DB.Delete(&Ability{}).Error
+		if err != nil {
+			common.SysError(fmt.Sprintf("Delete all abilities failed: %s", err.Error()))
+			return 0, err
+		}
+		common.SysLog("Delete all abilities successfully")
+		return 0, nil
 	}
-	common.SysLog(fmt.Sprintf(lang.T(nil, "ability.log.delete_abilities"), channelIds))
+
+	common.SysLog(fmt.Sprintf("Delete abilities of channels that are not in channel table successfully, ids: %v", channelIds))
 	count += len(channelIds)
 
 	// Use channelIds to find channel not in abilities table
 	var abilityChannelIds []int
 	err = DB.Table("abilities").Distinct("channel_id").Pluck("channel_id", &abilityChannelIds).Error
 	if err != nil {
-		common.SysError(fmt.Sprintf(lang.T(nil, "ability.error.get_ability_channel_ids"), err.Error()))
-		return 0, err
+		common.SysError(fmt.Sprintf("Get channel ids from abilities table failed: %s", err.Error()))
+		return count, err
 	}
+
 	var channels []Channel
 	if len(abilityChannelIds) == 0 {
 		err = DB.Find(&channels).Error
 	} else {
-		err = DB.Where("id NOT IN (?)", abilityChannelIds).Find(&channels).Error
+		// Process query in chunks to avoid "too many placeholders" error
+		err = nil
+		for _, chunk := range lo.Chunk(abilityChannelIds, 100) {
+			var channelsChunk []Channel
+			err = DB.Where("id NOT IN (?)", chunk).Find(&channelsChunk).Error
+			if err != nil {
+				common.SysError(fmt.Sprintf("Find channels not in abilities table failed: %s", err.Error()))
+				return count, err
+			}
+			channels = append(channels, channelsChunk...)
+		}
 	}
-	if err != nil {
-		return 0, err
-	}
+
 	for _, channel := range channels {
 		err := channel.UpdateAbilities(nil)
 		if err != nil {
