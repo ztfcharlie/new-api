@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"one-api/common"
 	"one-api/lang"
 	"os"
@@ -93,7 +94,6 @@ func RecordLog(userId int, logType int, content string) {
 		common.SysError(fmt.Sprintf(lang.T(nil, "log.error.record_failed"), err.Error()))
 	}
 }
-
 func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string, tokenName string, content string, tokenId int, useTimeSeconds int,
 	isStream bool, group string, other map[string]interface{}) {
 
@@ -116,21 +116,40 @@ func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string,
 			}
 		}
 
-		// Try to read and capture request body
-		var requestBodyStr string
-		if c.Request.Body != nil {
-			// Save the request body
-			bodyBytes, err := io.ReadAll(c.Request.Body)
-			if err == nil {
-				requestBodyStr = string(bodyBytes)
-				// Restore the request body for further processing
-				c.Request.Body = io.NopCloser(strings.NewReader(requestBodyStr))
+		// 尝试获取表单数据而不是直接读取请求体
+		formInfo := ""
+		contentType := c.GetHeader("Content-Type")
+		if strings.Contains(contentType, "multipart/form-data") {
+			// 对于 multipart/form-data，尝试解析表单但不读取文件内容
+			err := c.Request.ParseMultipartForm(32 << 20) // 32MB 最大内存
+			if err == nil && c.Request.MultipartForm != nil {
+				// 记录表单字段（不包括文件内容）
+				formInfo = fmt.Sprintf("Form fields: %v, File headers: %v",
+					c.Request.MultipartForm.Value,
+					getFileNames(c.Request.MultipartForm.File))
+			} else {
+				formInfo = "Failed to parse multipart form: " + err.Error()
 			}
+		} else {
+			// 对于其他类型的请求，尝试读取请求体
+			var requestBodyStr string
+			if c.Request.Body != nil {
+				// Save the request body
+				bodyBytes, err := io.ReadAll(c.Request.Body)
+				if err == nil {
+					requestBodyStr = string(bodyBytes)
+					// Restore the request body for further processing
+					c.Request.Body = io.NopCloser(strings.NewReader(requestBodyStr))
+				}
+			}
+			formInfo = "Request body: " + requestBodyStr
 		}
 
 		// Add these details to the log message
-		logMessage = fmt.Sprintf("%s\npath: %s\nmethod: %s\nheaders: %v\nrequest_body: %s",
-			logMessage, requestPath, requestMethod, headerMap, requestBodyStr)
+		logMessage = fmt.Sprintf("%s\npath: %s\nmethod: %s\nheaders: %v\n%s",
+			logMessage, requestPath, requestMethod, headerMap, formInfo)
+
+		// 根据您的要求，不修改 other 映射
 	}
 
 	common.LogInfo(c, logMessage)
@@ -159,6 +178,19 @@ func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string,
 	if err != nil {
 		common.LogError(c, "failed to record log: "+err.Error())
 	}
+}
+
+// 辅助函数，获取上传文件的名称而不读取内容
+func getFileNames(files map[string][]*multipart.FileHeader) map[string][]string {
+	result := make(map[string][]string)
+	for field, headers := range files {
+		names := make([]string, len(headers))
+		for i, header := range headers {
+			names[i] = header.Filename
+		}
+		result[field] = names
+	}
+	return result
 }
 
 func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens int, completionTokens int,
