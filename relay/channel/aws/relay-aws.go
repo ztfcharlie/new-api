@@ -194,17 +194,17 @@ func awsStreamHandler(c *gin.Context, resp *http.Response, info *relaycommon.Rel
 				return respErr, nil
 			}
 			// 记录每个数据块
-			fmt.Printf("Received chunk #%d: %s\n", chunkCount, string(v.Value.Bytes))
+			//fmt.Printf("Received chunk #%d: %s\n", chunkCount, string(v.Value.Bytes))
 		case *types.UnknownUnionMember:
-			fmt.Println("unknown tag:", v.Tag)
+			//fmt.Println("unknown tag:", v.Tag)
 			return wrapErr(errors.New("unknown response type")), nil
 		default:
-			fmt.Println("union is nil or unknown type")
+			//fmt.Println("union is nil or unknown type")
 			return wrapErr(errors.New("nil or unknown response type")), nil
 		}
 	}
 
-	fmt.Printf("Total chunks received: %d\n", chunkCount)
+	//fmt.Printf("Total chunks received: %d\n", chunkCount)
 
 	claude.HandleStreamFinalResponse(c, info, claudeInfo, RequestModeMessage)
 	return nil, claudeInfo.Usage

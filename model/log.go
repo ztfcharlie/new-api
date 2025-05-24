@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"io"
 	"mime/multipart"
 	"one-api/common"
 	"one-api/lang"
@@ -98,59 +97,6 @@ func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string,
 	isStream bool, group string, other map[string]interface{}) {
 
 	logMessage := fmt.Sprintf("record error log: userId=%d, channelId=%d, modelName=%s, tokenName=%s, content=%s", userId, channelId, modelName, tokenName, content)
-
-	// For gpt-image-1 model, capture and log additional request details
-	if modelName == "gpt-image-1" {
-		// Capture request path and method
-		requestPath := c.Request.URL.Path
-		requestMethod := c.Request.Method
-
-		// 处理请求头，创建一个干净的映射来存储
-		headerMap := make(map[string]string)
-		for k, v := range c.Request.Header {
-			// 可以选择过滤掉某些敏感头
-			if k != "Authorization" && k != "Cookie" { // 排除敏感头
-				if len(v) > 0 {
-					headerMap[k] = v[0] // 只取第一个值，通常足够
-				}
-			}
-		}
-
-		// 尝试获取表单数据而不是直接读取请求体
-		formInfo := ""
-		contentType := c.GetHeader("Content-Type")
-		if strings.Contains(contentType, "multipart/form-data") {
-			// 对于 multipart/form-data，尝试解析表单但不读取文件内容
-			err := c.Request.ParseMultipartForm(32 << 20) // 32MB 最大内存
-			if err == nil && c.Request.MultipartForm != nil {
-				// 记录表单字段（不包括文件内容）
-				formInfo = fmt.Sprintf("Form fields: %v, File headers: %v",
-					c.Request.MultipartForm.Value,
-					getFileNames(c.Request.MultipartForm.File))
-			} else {
-				formInfo = "Failed to parse multipart form: " + err.Error()
-			}
-		} else {
-			// 对于其他类型的请求，尝试读取请求体
-			var requestBodyStr string
-			if c.Request.Body != nil {
-				// Save the request body
-				bodyBytes, err := io.ReadAll(c.Request.Body)
-				if err == nil {
-					requestBodyStr = string(bodyBytes)
-					// Restore the request body for further processing
-					c.Request.Body = io.NopCloser(strings.NewReader(requestBodyStr))
-				}
-			}
-			formInfo = "Request body: " + requestBodyStr
-		}
-
-		// Add these details to the log message
-		logMessage = fmt.Sprintf("%s\npath: %s\nmethod: %s\nheaders: %v\n%s",
-			logMessage, requestPath, requestMethod, headerMap, formInfo)
-
-		// 根据您的要求，不修改 other 映射
-	}
 
 	common.LogInfo(c, logMessage)
 
