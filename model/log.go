@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"io"
 	"one-api/common"
 	"one-api/lang"
 	"os"
@@ -95,7 +96,34 @@ func RecordLog(userId int, logType int, content string) {
 
 func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string, tokenName string, content string, tokenId int, useTimeSeconds int,
 	isStream bool, group string, other map[string]interface{}) {
-	common.LogInfo(c, fmt.Sprintf("record error log: userId=%d, channelId=%d, modelName=%s, tokenName=%s, content=%s", userId, channelId, modelName, tokenName, content))
+
+	logMessage := fmt.Sprintf("record error log: userId=%d, channelId=%d, modelName=%s, tokenName=%s, content=%s", userId, channelId, modelName, tokenName, content)
+
+	// For gpt-image-1 model, capture and log additional request details
+	if modelName == "gpt-image-1" {
+		// Capture request path and method
+		requestPath := c.Request.URL.Path
+		requestMethod := c.Request.Method
+
+		// Try to read and capture request body
+		var requestBodyStr string
+		if c.Request.Body != nil {
+			// Save the request body
+			bodyBytes, err := io.ReadAll(c.Request.Body)
+			if err == nil {
+				requestBodyStr = string(bodyBytes)
+				// Restore the request body for further processing
+				c.Request.Body = io.NopCloser(strings.NewReader(requestBodyStr))
+			}
+		}
+
+		// Add these details to the log message
+		logMessage = fmt.Sprintf("%s\npath: %s\nmethod: %s\nrequest_body: %s",
+			logMessage, requestPath, requestMethod, requestBodyStr)
+	}
+
+	common.LogInfo(c, logMessage)
+
 	username := c.GetString("username")
 	otherStr := common.MapToJsonStr(other)
 	log := &Log{
