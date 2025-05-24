@@ -222,8 +222,17 @@
                   <span>@BurncloudCharlie</span>
                   <div class="arrow">›</div>
               </a>
+              
+              <!-- QQ联系方式，仅在中文环境下显示 -->
+              <div id="qq-contact" style="display: none;">
+                <div class="divider"></div>
+                <a href="https://wpa.qq.com/msgrd?v=3&uin=858377817&site=qq&menu=yes" class="contact-option" target="_blank">
+                    <img src="/contact/qe.png" alt="QQ"><span>858377817</span>
+                    <div class="arrow">›</div>
+                </a>
+              </div>
+              
               <div class="divider"></div>
-
               <a href="mailto:Contact@burncloud.com" class="contact-option">
                   <img src="/contact/Gmail_icon_%282020%29.svg" alt="Email">
                   <span>Contact@burncloud.com</span>
@@ -256,6 +265,22 @@
 
           // 初始化时隐藏弹窗
           document.getElementById('contactPopup').style.display = 'none';
+          
+          // 检查当前语言设置并显示/隐藏QQ联系方式
+          checkLanguageForQQ();
+      }
+      
+      function checkLanguageForQQ() {
+          // 从localStorage获取当前i18n语言设置
+          const currentLang = localStorage.getItem('i18nextLng');
+          const qqContact = document.getElementById('qq-contact');
+          
+          // 如果当前语言是中文，显示QQ联系方式
+          if (currentLang === 'zh') {
+              qqContact.style.display = 'block';
+          } else {
+              qqContact.style.display = 'none';
+          }
       }
 
       function togglePopup() {
@@ -263,8 +288,18 @@
           popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
       }
 
+      // 监听localStorage的变化，以便在语言切换时更新QQ联系方式的显示状态
+      window.addEventListener('storage', function(e) {
+          if (e.key === 'i18nextLng') {
+              checkLanguageForQQ();
+          }
+      });
+
       // 页面加载完成后初始化
       document.addEventListener('DOMContentLoaded', initializeWidget);
+      
+      // 由于React应用可能会在页面加载后更改语言，我们需要定期检查语言设置
+      setInterval(checkLanguageForQQ, 2000);
   </script>
   </div>
 </body>

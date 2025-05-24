@@ -1518,5 +1518,7 @@
   "示例：{\"default\": [200, 100], \"vip\": [0, 1000]}。":"Exemplo: {\"default\": [200, 100], \"vip\": [0, 1000]}.",
   "[最多请求次数]必须大于等于0，[最多请求完成次数]必须大于等于1。":"[contagem máxima de solicitações] deve ser maior ou igual a 0, [contagem máxima de conclusões] deve ser maior ou igual a 1.",
   "分组速率配置优先级高于全局速率限制。":"A configuração de taxa por grupo tem prioridade mais alta que os limites de taxa globais.",
-  "限制周期统一使用上方配置的“限制周期”值。":"O ciclo de limitação usa uniformemente o valor de \"Período de Limitação\" configurado acima."
+  "限制周期统一使用上方配置的“限制周期”值。":"O ciclo de limitação usa uniformemente o valor de \"Período de Limitação\" configurado acima.",
+  "请输入智能体ID，例如：7342866812345": "Por favor, insira o ID do agente, ex.: 7342866812345",
+  "智能体ID：": "ID do agente:"
 }

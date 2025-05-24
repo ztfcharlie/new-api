@@ -19,7 +19,7 @@ func RelayPanicRecover() gin.HandlerFunc {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": gin.H{
 						"message": fmt.Sprintf(lang.T(c, "recover.error.panic_detected"), err),
-						"type":    "new_api_panic",
+						"type":    "ai_api_panic",
 					},
 				})
 				c.Abort()

@@ -17,6 +17,9 @@ var channelsIDM map[int]*Channel
 var channelSyncLock sync.RWMutex
 
 func InitChannelCache() {
+	if !common.MemoryCacheEnabled {
+		return
+	}
 	newChannelId2channel := make(map[int]*Channel)
 	var channels []*Channel
 	DB.Where("status = ?", common.ChannelStatusEnabled).Find(&channels)
@@ -85,11 +88,11 @@ func CacheGetRandomSatisfiedChannel(group string, model string, retry int) (*Cha
 	if !common.MemoryCacheEnabled {
 		return GetRandomSatisfiedChannel(group, model, retry)
 	}
-	
+
 	channelSyncLock.RLock()
 	channels := group2model2channels[group][model]
 	channelSyncLock.RUnlock()
-	
+
 	if len(channels) == 0 {
 		return nil, errors.New(lang.T(nil, "cache.error.channel_not_found"))
 	}
