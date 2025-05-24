@@ -7,12 +7,16 @@ import os
 from tqdm import tqdm
 
 # 配置参数
+#API_URL = "https://ai.burncloud.com/v1/chat/completions"
+#API_KEY = "sk-x0EwwQLAz10Yvl4xRWj7YVnJ8gN7n31NlWt3AiY4f8PGY3"  # 请替换为您的 API 密钥
+#API_URL = "https://ent.zetatechs.com/v1/chat/completions"
+#API_KEY = "sk-1WmDLPI6Nn8JDJc2K7BMRYOTUPkaZ0IDJSNBrxjWVCR2TVLx" # https://ent.zetatechs.com/  - GPT
 API_URL = "https://ai.burncloud.com/v1/chat/completions"
-API_KEY = "sk-x0EwwQLAz10Yvl4xRWj7YVnJ8gN7n31NlWt3AiY4f8PGY3"  # 请替换为您的 API 密钥
+API_KEY = "sk-9DufUZISqD4FrlVzvO8nkioqEwxqjPkJ2OwSAibs7d9OKJLe" #burncloud test token
 MODEL = "gpt-4o-mini"
-CONCURRENCY = 150  # 并发数量，调整以确保1分钟内完成1000个请求
-MAX_TIME = 60  # 最大运行时间（秒）
-QUESTION_COUNT = 5000  # 要发送的请求数量
+CONCURRENCY = 400  # 1秒并发数量，调整以确保1分钟内完成1000个请求
+MAX_TIME = 180  # 最大运行时间（秒）
+QUESTION_COUNT = 12000  # 要发送的请求数量
 
 # 确保输出目录存在
 OUTPUT_DIR = "responses"
