@@ -105,6 +105,17 @@ func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string,
 		requestPath := c.Request.URL.Path
 		requestMethod := c.Request.Method
 
+		// 处理请求头，创建一个干净的映射来存储
+		headerMap := make(map[string]string)
+		for k, v := range c.Request.Header {
+			// 可以选择过滤掉某些敏感头
+			if k != "Authorization" && k != "Cookie" { // 排除敏感头
+				if len(v) > 0 {
+					headerMap[k] = v[0] // 只取第一个值，通常足够
+				}
+			}
+		}
+
 		// Try to read and capture request body
 		var requestBodyStr string
 		if c.Request.Body != nil {
@@ -118,8 +129,8 @@ func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string,
 		}
 
 		// Add these details to the log message
-		logMessage = fmt.Sprintf("%s\npath: %s\nmethod: %s\nrequest_body: %s",
-			logMessage, requestPath, requestMethod, requestBodyStr)
+		logMessage = fmt.Sprintf("%s\npath: %s\nmethod: %s\nheaders: %v\nrequest_body: %s",
+			logMessage, requestPath, requestMethod, headerMap, requestBodyStr)
 	}
 
 	common.LogInfo(c, logMessage)
