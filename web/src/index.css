@@ -49,6 +49,18 @@ code {
   color: rgb(249 115 22) !important;
 }
 
+.seo-nav {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* 导航项图标颜色 */
 .topnav .semi-navigation-item-icon,
 .topnav .semi-icon,
