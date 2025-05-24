@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"mime/multipart"
 	"one-api/common"
 	"one-api/lang"
 	"os"
@@ -124,19 +123,6 @@ func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string,
 	if err != nil {
 		common.LogError(c, "failed to record log: "+err.Error())
 	}
-}
-
-// 辅助函数，获取上传文件的名称而不读取内容
-func getFileNames(files map[string][]*multipart.FileHeader) map[string][]string {
-	result := make(map[string][]string)
-	for field, headers := range files {
-		names := make([]string, len(headers))
-		for i, header := range headers {
-			names[i] = header.Filename
-		}
-		result[field] = names
-	}
-	return result
 }
 
 func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens int, completionTokens int,
