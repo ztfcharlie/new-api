@@ -21,7 +21,12 @@ func SetWebRenderRouter(router *gin.Engine) {
 		// 模板目录
 		webRouter.GET("/docs", web.GetAllDocs)
 		webRouter.GET("/doc/:slug", web.GetDoc)
-
+	}
+	ssrRouter := router.Group("/ssr")
+	{
+		ssrRouter.GET("/", web.WebIndex)
+		ssrRouter.GET("/faq", web.WebFaq)
+		ssrRouter.GET("/about", web.WebAbout)
 	}
 
 }
