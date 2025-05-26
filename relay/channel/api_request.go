@@ -8,10 +8,12 @@ import (
 	"net/http"
 	common2 "one-api/common"
 	"one-api/relay/common"
+	relaycommon "one-api/relay/common"
 	"one-api/relay/constant"
 	"one-api/relay/helper"
 	"one-api/service"
 	"one-api/setting/operation_setting"
+	"strings"
 	"sync"
 	"time"
 
@@ -57,7 +59,7 @@ func DoApiRequest(a Adaptor, c *gin.Context, info *common.RelayInfo, requestBody
 	return resp, nil
 }
 
-func DoFormRequest(a Adaptor, c *gin.Context, info *common.RelayInfo, requestBody io.Reader) (*http.Response, error) {
+func DoFormRequest(a Adaptor, c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (*http.Response, error) {
 	fullRequestURL, err := a.GetRequestURL(info)
 	if err != nil {
 		return nil, fmt.Errorf("get request url failed: %w", err)
@@ -69,8 +71,24 @@ func DoFormRequest(a Adaptor, c *gin.Context, info *common.RelayInfo, requestBod
 	if err != nil {
 		return nil, fmt.Errorf("new request failed: %w", err)
 	}
-	// set form data
-	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
+
+	// 获取原始Content-Type
+	contentType := c.Request.Header.Get("Content-Type")
+
+	// 检查参数是否存在并且符合条件----临时为适应袁总的某个客户特殊需求，以后可以撤销 2025/05/27
+	if info != nil && // 确保info不为nil
+		info.RelayMode == constant.RelayModeImagesEdits && // 确保是图像编辑请求
+		info.UpstreamModelName != "" && // 确保模型名称不为空
+		info.UpstreamModelName == "gpt-image-1" && // 确保是gpt-image-1模型
+		contentType != "" && // 确保Content-Type不为空
+		strings.Contains(strings.ToLower(contentType), "application/json") { // 不区分大小写地检查Content-Type
+		// 强制设置为multipart/form-data
+		contentType = "multipart/form-data"
+		common2.SysLog("Forcing Content-Type to multipart/form-data for gpt-image-1 images/edits request")
+	}
+
+	// 设置Content-Type
+	req.Header.Set("Content-Type", contentType)
 
 	err = a.SetupRequestHeader(c, &req.Header, info)
 	if err != nil {
@@ -107,17 +125,19 @@ func DoWssRequest(a Adaptor, c *gin.Context, info *common.RelayInfo, requestBody
 func doRequest(c *gin.Context, req *http.Request, info *common.RelayInfo) (*http.Response, error) {
 	var client *http.Client
 	var err error
+	/*
+		// 检查是否是图像请求，特别是gpt-image-1模型
+		isImageRequest := info.RelayMode == constant.RelayModeImagesGenerations ||
+			info.RelayMode == constant.RelayModeImagesEdits
+		isGptImage1 := info.UpstreamModelName == "gpt-image-1"
 
-	// 检查是否是图像请求，特别是gpt-image-1模型
-	isImageRequest := info.RelayMode == constant.RelayModeImagesGenerations ||
-		info.RelayMode == constant.RelayModeImagesEdits
-	isGptImage1 := info.UpstreamModelName == "gpt-image-1"
+		// 使用修复的HTTP客户端处理gpt-image-1模型的非流式请求
 
-	// 使用修复的HTTP客户端处理gpt-image-1模型的非流式请求
-	if isImageRequest && isGptImage1 && !info.IsStream {
-		client = service.GetHTTPClientWithFixedContentLength()
-		common2.SysLog(fmt.Sprintf("Using fixed content length client for gpt-image-1 model"))
-	} else if proxyURL, ok := info.ChannelSetting["proxy"]; ok {
+			if isImageRequest && isGptImage1 && !info.IsStream {
+				client = service.GetHTTPClientWithFixedContentLength()
+				common2.SysLog(fmt.Sprintf("Using fixed content length client for gpt-image-1 model"))
+			} else*/
+	if proxyURL, ok := info.ChannelSetting["proxy"]; ok {
 		client, err = service.NewProxyHttpClient(proxyURL.(string))
 		if err != nil {
 			return nil, fmt.Errorf("new proxy http client failed: %w", err)
