@@ -1,8 +1,10 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -14,6 +16,58 @@ import (
 
 var httpClient *http.Client
 var impatientHTTPClient *http.Client
+
+// ContentLengthFixer 是一个http.RoundTripper包装器，用于处理Content-Length不匹配问题
+type ContentLengthFixer struct {
+	Transport http.RoundTripper
+}
+
+// RoundTrip 实现http.RoundTripper接口
+func (f *ContentLengthFixer) RoundTrip(req *http.Request) (*http.Response, error) {
+	// 使用底层Transport执行请求
+	resp, err := f.Transport.RoundTrip(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// 如果响应有Content-Length头，但我们不确定它是否准确，
+	// 我们可以通过读取整个响应体并重新设置它来解决这个问题
+	if resp.Header.Get("Content-Length") != "" && resp.ContentLength > 0 && !resp.Close {
+		// 读取整个响应体
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			resp.Body.Close()
+			return nil, err
+		}
+		resp.Body.Close()
+
+		// 重置响应体，使用正确的长度
+		resp.Body = io.NopCloser(bytes.NewReader(body))
+		resp.ContentLength = int64(len(body))
+		resp.Header.Set("Content-Length", string(len(body)))
+
+		// 确保不使用分块传输，因为我们现在有了准确的Content-Length
+		resp.TransferEncoding = nil
+	}
+
+	return resp, nil
+}
+
+// 在发送非流式请求的地方使用修复后的HTTP客户端
+// GetHTTPClientWithFixedContentLength 返回一个配置了ContentLengthFixer的HTTP客户端
+func GetHTTPClientWithFixedContentLength() *http.Client {
+	// 获取默认的HTTP客户端或您现有的客户端
+	client := &http.Client{}
+
+	// 应用我们的ContentLengthFixer
+	if client.Transport == nil {
+		client.Transport = &ContentLengthFixer{Transport: http.DefaultTransport}
+	} else {
+		client.Transport = &ContentLengthFixer{Transport: client.Transport}
+	}
+
+	return client
+}
 
 func init() {
 	if common.RelayTimeout == 0 {

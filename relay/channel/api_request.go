@@ -107,7 +107,17 @@ func DoWssRequest(a Adaptor, c *gin.Context, info *common.RelayInfo, requestBody
 func doRequest(c *gin.Context, req *http.Request, info *common.RelayInfo) (*http.Response, error) {
 	var client *http.Client
 	var err error
-	if proxyURL, ok := info.ChannelSetting["proxy"]; ok {
+
+	// 检查是否是图像请求，特别是gpt-image-1模型
+	isImageRequest := info.RelayMode == constant.RelayModeImagesGenerations ||
+		info.RelayMode == constant.RelayModeImagesEdits
+	isGptImage1 := info.UpstreamModelName == "gpt-image-1"
+
+	// 使用修复的HTTP客户端处理gpt-image-1模型的非流式请求
+	if isImageRequest && isGptImage1 && !info.IsStream {
+		client = service.GetHTTPClientWithFixedContentLength()
+		common2.SysLog(fmt.Sprintf("Using fixed content length client for gpt-image-1 model"))
+	} else if proxyURL, ok := info.ChannelSetting["proxy"]; ok {
 		client, err = service.NewProxyHttpClient(proxyURL.(string))
 		if err != nil {
 			return nil, fmt.Errorf("new proxy http client failed: %w", err)
@@ -115,6 +125,7 @@ func doRequest(c *gin.Context, req *http.Request, info *common.RelayInfo) (*http
 	} else {
 		client = service.GetHttpClient()
 	}
+
 	// 流式请求 ping 保活
 	var stopPinger func()
 	generalSettings := operation_setting.GetGeneralSetting()
