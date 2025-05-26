@@ -1,69 +1,96 @@
-<!doctype html>
-<html lang="en">
-
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
 <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="/logo.png" />
+    <link rel="canonical" href="https://ai.burncloud.com">
+    
+    <!-- Core SEO Elements -->
+    <title>Bruncloud AI API Hub | GPT-4/Claude 3/Gemini & 20+ Models | Developer Platform</title>
+    <meta name="description" 
+          content="Unified API access to GPT-4, Claude 3, Gemini, DeepSeek and 20+ AI models. Enterprise-grade integration with OpenAI-compatible endpoints, real-time switching, and 20% cost savings. Start building with our developer-first platform.">
+    <meta name="keywords" 
+          content="GPT-4 API integration, Claude 3 enterprise solutions, Multi-AI model platform, OpenAI alternative API, Cost-effective AI deployment, Cross-model development">
 
-    <!-- Core SEO Tags -->
-    <title>Low-Cost AI API Service Platform | OpenAI-Compatible Interface | BurnCloud</title>
-    <meta name="description"
-        content="BurnCloud provides cost-effective AI large model API services, fully compatible with OpenAI interfaces, with prices as low as $0.03 per 1k tokens. Supports mainstream models like GPT-4, Claude, Gemini, DeepSeek, and more, ensuring stable and efficient API services to help developers and enterprises reduce AI application costs.">
-    <meta name="keywords"
-        content="AI API service, OpenAI alternative, low-cost API interface, GPT-4 API, Claude API, Gemini API, DeepSeek API, stable AI model calls">
-
-    <!-- Optional Tags for Enhanced SEO -->
-    <meta property="og:title" content="Low-Cost AI API Service Platform | OpenAI-Compatible Interface | BurnCloud">
-    <meta property="og:description"
-        content="Fully compatible with OpenAI's AI interface services, supporting GPT-4, Claude, Gemini, DeepSeek, and more, priced at 50% below market rates.">
-
-
+    <!-- Open Graph Protocol -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ai.burncloud.com">
+    <meta property="og:title" content="Bruncloud AI API Hub | Multi-Model Developer Platform">
+    <meta property="og:description" 
+          content="Single API access to GPT-4, Claude 3, Gemini and 20+ leading AI models. Enterprise solutions with real-time model switching and cost optimization.">
     <meta property="og:image" content="https://api.burncloud.com/logo.png">
-    <meta name="robots" content="index,follow">
-    <script>
-        (function (h, o, t, j, a, r) {
-            h.hj = h.hj || function () { (h.hj.q = h.hj.q || []).push(arguments) };
-            h._hjSettings = { hjid: 5361443, hjsv: 6 };
-            a = o.getElementsByTagName('head')[0];
-            r = o.createElement('script'); r.async = 1;
-            r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
-            a.appendChild(r);
-        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+    <meta property="og:site_name" content="BurnCloud AI">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@burncloud_com">
+    <meta name="twitter:creator" content="@burncloud_tech">
+
+    <!-- Enhanced Schema Markup -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": ["SoftwareApplication", "Organization"],
+        "name": "BurnCloud AI API",
+        "url": "https://ai.burncloud.com",
+        "logo": "https://api.burncloud.com/logo.png",
+        "description": "Enterprise AI model aggregation platform with unified API access",
+        "applicationCategory": "Developer Tools",
+        "operatingSystem": "Cloud",
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "USD",
+            "price": "0.80",
+            "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "2875",
+            "bestRating": "5"
+        }
+    }
     </script>
+
+    <!-- Performance Optimization -->
+    <link rel="preconnect" href="https://ai.burncloud.com">
+    <link rel="dns-prefetch" href="https://static.hotjar.com">
+    <link rel="preload" href="/fonts/Inter.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains">
+
+    <!-- Brand Protection -->
+    <meta name="copyright" content="BurnCloud Inc.">
+    <meta name="author" content="BurnCloud Developer Relations">
+
+    <!-- Analytics Integrations -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16652982294"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
+        function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'AW-16652982294');
     </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "BurnCloud AI API",
-      "url": "https://ai.burncloud.com",
-      "logo": "https://api.burncloud.com/logo.png",
-      "description": "BurnCloud provides cost-effective AI large model API services, fully compatible with OpenAI interfaces",
-      "sameAs": [
-        "https://twitter.com/burncloud_com",
-        "https://github.com/burncloud-com"
-      ],
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "https://ai.burncloud.com"
-      },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://ai.burncloud.com/docs?keywords={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
+    
+    <!-- Hotjar Tracking -->
+    <script>
+        (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:5361443,hjsv:6};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
     </script>
 </head>
+
 
 <body>
     <nav class="seo-nav" aria-label="SEO Navigation">
