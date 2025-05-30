@@ -451,6 +451,8 @@ const HeaderBar = (headerProps) => {
     if(headerProps.type === 'web'){
       window.location.reload();
     }
+    // 重定向到带有语言代码的URL
+    window.location.href = `/${lang}${window.location.pathname}`;
   };
   
   return (
