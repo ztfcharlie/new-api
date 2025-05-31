@@ -545,13 +545,13 @@ func HandleStreamResponseData(c *gin.Context, info *relaycommon.RelayInfo, claud
 
 	// 根据 RelayFormat 判断是处理 Claude 格式还是 OpenAI 格式
 	if info.RelayFormat == relaycommon.RelayFormatClaude {
-		common.LogInfo(c, "Processing Claude format")
+		//common.LogInfo(c, "Processing Claude format")
 
 		// 如果请求模式是完成模式
 		if requestMode == RequestModeCompletion {
 			// 将响应中的 Completion 字段追加到 ResponseText
 			claudeInfo.ResponseText.WriteString(claudeResponse.Completion)
-			common.LogInfo(c, fmt.Sprintf("Appended completion: %s", claudeResponse.Completion))
+			//common.LogInfo(c, fmt.Sprintf("Appended completion: %s", claudeResponse.Completion))
 		} else {
 			// 处理不同类型的响应数据
 			if claudeResponse.Type == "message_start" {
@@ -561,11 +561,11 @@ func HandleStreamResponseData(c *gin.Context, info *relaycommon.RelayInfo, claud
 				claudeInfo.Usage.PromptTokensDetails.CachedTokens = claudeResponse.Message.Usage.CacheReadInputTokens
 				claudeInfo.Usage.PromptTokensDetails.CachedCreationTokens = claudeResponse.Message.Usage.CacheCreationInputTokens
 				claudeInfo.Usage.CompletionTokens = claudeResponse.Message.Usage.OutputTokens
-				common.LogInfo(c, fmt.Sprintf("Processed message_start: Model=%s, PromptTokens=%d", info.UpstreamModelName, claudeInfo.Usage.PromptTokens))
+				//common.LogInfo(c, fmt.Sprintf("Processed message_start: Model=%s, PromptTokens=%d", info.UpstreamModelName, claudeInfo.Usage.PromptTokens))
 			} else if claudeResponse.Type == "content_block_delta" {
 				// 如果是 content_block_delta，将 Delta 中的文本追加到 ResponseText
 				claudeInfo.ResponseText.WriteString(claudeResponse.Delta.GetText())
-				common.LogInfo(c, fmt.Sprintf("Appended content_block_delta: %s", claudeResponse.Delta.GetText()))
+				//common.LogInfo(c, fmt.Sprintf("Appended content_block_delta: %s", claudeResponse.Delta.GetText()))
 			} else if claudeResponse.Type == "message_delta" {
 				// 如果是 message_delta，更新使用情况
 				if claudeResponse.Usage.InputTokens > 0 {
@@ -574,21 +574,21 @@ func HandleStreamResponseData(c *gin.Context, info *relaycommon.RelayInfo, claud
 				}
 				claudeInfo.Usage.CompletionTokens = claudeResponse.Usage.OutputTokens
 				claudeInfo.Usage.TotalTokens = claudeInfo.Usage.PromptTokens + claudeInfo.Usage.CompletionTokens
-				common.LogInfo(c, fmt.Sprintf("Processed message_delta: PromptTokens=%d, CompletionTokens=%d", claudeInfo.Usage.PromptTokens, claudeInfo.Usage.CompletionTokens))
+				//common.LogInfo(c, fmt.Sprintf("Processed message_delta: PromptTokens=%d, CompletionTokens=%d", claudeInfo.Usage.PromptTokens, claudeInfo.Usage.CompletionTokens))
 			}
 		}
 		// 处理 Claude 数据块
-		common.LogInfo(c, fmt.Sprintf("Sending to ClaudeChunkData: Type=%s, Data=%s", claudeResponse.Type, data))
+		//common.LogInfo(c, fmt.Sprintf("Sending to ClaudeChunkData: Type=%s, Data=%s", claudeResponse.Type, data))
 		helper.ClaudeChunkData(c, claudeResponse, data)
 	} else if info.RelayFormat == relaycommon.RelayFormatOpenAI {
-		common.LogInfo(c, "Processing OpenAI format")
+		//common.LogInfo(c, "Processing OpenAI format")
 
 		// 将 Claude 格式的响应转换为 OpenAI 格式
 		response := StreamResponseClaude2OpenAI(requestMode, &claudeResponse)
 
 		// 格式化 Claude 响应信息并检查是否成功
 		if !FormatClaudeResponseInfo(requestMode, &claudeResponse, response, claudeInfo) {
-			common.LogInfo(c, "Failed to format ClaudeResponseInfo")
+			//common.LogInfo(c, "Failed to format ClaudeResponseInfo")
 			return nil
 		}
 
@@ -600,7 +600,7 @@ func HandleStreamResponseData(c *gin.Context, info *relaycommon.RelayInfo, claud
 		}
 	}
 	// 返回 nil 表示成功处理
-	common.LogInfo(c, "HandleStreamResponseData completed successfully")
+	//common.LogInfo(c, "HandleStreamResponseData completed successfully")
 	return nil
 }
 
