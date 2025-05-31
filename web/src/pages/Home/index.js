@@ -69,7 +69,16 @@ const Home = () => {
     displayNotice().then();
     displayHomePageContent().then();
   }, []);
+  useEffect(() => {
+    const handleLanguageChanged = (lng) => {
+      displayHomePageContent();
+    };
 
+    i18n.on('languageChanged', handleLanguageChanged);
+    return () => {
+        i18n.off('languageChanged', handleLanguageChanged);
+    };
+}, [i18n]);
   return (
     <>
       {homePageContentLoaded && homePageContent === '' ? (

@@ -5,7 +5,7 @@ import { Layout } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
 
 const Faq = () => {
-    const { t } = useTranslation();
+    const { t,i18n } = useTranslation();
     const [faq, setFaq] = useState('');
     const [faqLoaded, setFaqLoaded] = useState(false);
   
@@ -31,6 +31,16 @@ const Faq = () => {
         displayFaq().then();
     }, []);
   
+    useEffect(() => {
+        const handleLanguageChanged = (lng) => {
+            displayFaq();
+        };
+
+        i18n.on('languageChanged', handleLanguageChanged);
+        return () => {
+            i18n.off('languageChanged', handleLanguageChanged);
+        };
+    }, [i18n]);
     return (
         <Layout>
             <Layout.Content>

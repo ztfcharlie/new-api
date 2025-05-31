@@ -102,10 +102,15 @@ func GetNotice(c *gin.Context) {
 func GetAbout(c *gin.Context) {
 	common.OptionMapRWMutex.RLock()
 	defer common.OptionMapRWMutex.RUnlock()
+	lang := lang.GetCurrentLang(c)
+	data := common.OptionMap["About"]
+	if lang != "en" {
+		data = common.OptionMap[lang+"About"]
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    common.OptionMap["About"],
+		"data":    data,
 	})
 	return
 }
@@ -113,10 +118,15 @@ func GetAbout(c *gin.Context) {
 func GetFaq(c *gin.Context) {
 	common.OptionMapRWMutex.RLock()
 	defer common.OptionMapRWMutex.RUnlock()
+	lang := lang.GetCurrentLang(c)
+	data := common.OptionMap["Faq"]
+	if lang != "en" {
+		data = common.OptionMap[lang+"Faq"]
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    common.OptionMap["Faq"],
+		"data":    data,
 	})
 	return
 }
@@ -135,10 +145,15 @@ func GetMidjourney(c *gin.Context) {
 func GetHomePageContent(c *gin.Context) {
 	common.OptionMapRWMutex.RLock()
 	defer common.OptionMapRWMutex.RUnlock()
+	lang := lang.GetCurrentLang(c)
+	data := common.OptionMap["HomePageContent"]
+	if lang != "en" {
+		data = common.OptionMap[lang+"HomePageContent"]
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    common.OptionMap["HomePageContent"],
+		"data":    data,
 	})
 	return
 }

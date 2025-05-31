@@ -16,7 +16,7 @@ import { StatusContext } from '../context/Status/index.js';
 import Text from '@douyinfe/semi-ui/lib/es/typography/text';
 
 const OtherSetting = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   let [inputs, setInputs] = useState({
     Notice: '',
     SystemName: '',
@@ -116,12 +116,17 @@ const OtherSetting = () => {
   };
   // 个性化设置 - 首页内容
   const submitOption = async (key) => {
+    let currentLanguage = i18n.language;
+    let updateKey = key
+    if(currentLanguage != "en") {
+      updateKey = currentLanguage+key
+    }
     try {
       setLoadingInput((loadingInput) => ({
         ...loadingInput,
         HomePageContent: true,
       }));
-      await updateOption(key, inputs[key]);
+      await updateOption(updateKey, inputs[key]);
       showSuccess(t('首页内容已更新'));
     } catch (error) {
       console.error(t('首页内容更新失败'), error);
@@ -134,10 +139,15 @@ const OtherSetting = () => {
     }
   };
   // 个性化设置 - 关于
-  const submitAbout = async () => {
+  const submitAbout = async (key) => {
+    let currentLanguage = i18n.language;
+    let updateKey = key
+    if(currentLanguage != "en") {
+      updateKey = currentLanguage+key
+    }
     try {
       setLoadingInput((loadingInput) => ({ ...loadingInput, About: true }));
-      await updateOption('About', inputs.About);
+      await updateOption(updateKey, inputs[key]);
       showSuccess(t('关于内容已更新'));
     } catch (error) {
       console.error(t('关于内容更新失败'), error);
@@ -147,10 +157,15 @@ const OtherSetting = () => {
     }
   };
  // 个性化设置 - FAQ
-  const submitFaq = async () => {
+  const submitFaq = async (key) => {
+    let currentLanguage = i18n.language;
+    let updateKey = key
+    if(currentLanguage != "en") {
+      updateKey = currentLanguage+key
+    }
     try {
       setLoadingInput((loadingInput) => ({ ...loadingInput, Faq: true }));
-      await updateOption('Faq', inputs.Faq);
+      await updateOption(updateKey, inputs[key]);
       showSuccess(t('FAQ内容已更新'));
     } catch (error) {
       console.error(t('FAQ内容更新失败'), error);
@@ -226,13 +241,24 @@ const OtherSetting = () => {
   const getOptions = async () => {
     const res = await API.get('/api/option/');
     const { success, message, data } = res.data;
+    let currentLanguage = i18n.language;
     if (success) {
       let newInputs = {};
       data.forEach((item) => {
         if (item.key in inputs) {
-          newInputs[item.key] = item.value;
+          if(["HomePageContent","Faq","About"].includes(item.key)){
+            if(currentLanguage !== "en"){
+              const findItem = data.find((i) => i.key === currentLanguage+item.key);
+              newInputs[item.key] = findItem ? findItem.value : "";
+            }else{
+              newInputs[item.key] = item.value;
+            }
+          }else{
+            newInputs[item.key] = item.value;
+          }
         }
       });
+      
       setInputs(newInputs);
       formAPISettingGeneral.current.setValues(newInputs);
       formAPIPersonalization.current.setValues(newInputs);
@@ -244,7 +270,16 @@ const OtherSetting = () => {
   useEffect(() => {
     getOptions();
   }, []);
+  useEffect(() => {
+    const handleLanguageChanged = (lng) => {
+      getOptions();
+    };
 
+    i18n.on('languageChanged', handleLanguageChanged);
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
   // Function to open GitHub release page
   const openGitHubRelease = () => {
     window.open(
@@ -351,9 +386,12 @@ const OtherSetting = () => {
               style={{ fontFamily: 'JetBrains Mono, Consolas' }}
               autosize={{ minRows: 6, maxRows: 12 }}
             />
-            <Button onClick={submitAbout} loading={loadingInput['About']}>
+            <Button 
+              onClick={() => submitAbout('About')}
+              loading={loadingInput['About']}>
               {t('设置关于')}
             </Button>
+            
             <Form.TextArea
               label={t('FAQ')}
               placeholder={t('在此输入新的 FAQ 内容，支持 Markdown & HTML 代码')}
@@ -362,9 +400,12 @@ const OtherSetting = () => {
               style={{ fontFamily: 'JetBrains Mono, Consolas' }}
               autosize={{ minRows: 6, maxRows: 12 }}
             />
-            <Button onClick={submitFaq} loading={loadingInput['Faq']}>
+            <Button 
+              onClick={() => submitFaq('Faq')}
+              loading={loadingInput['Faq']}>
               {t('设置FAQ')}
             </Button>
+            
             {/*  */}
             <Banner
               fullMode={false}
