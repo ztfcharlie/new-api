@@ -5,7 +5,7 @@ Burncloud is an integrated platform that aggregates and distributes popular AI m
 
 ## Information Flow Diagram
 
-<img style="max-width:500px;" src="https://ai.bruncloud.com/uploads/burncloud_request_flow.svg">
+<img style="max-width:500px;" src="https://ai.Burncloud.com/uploads/burncloud_request_flow.svg">
 
 ## Supported Model List
 Currently, mainstream models are supported:
