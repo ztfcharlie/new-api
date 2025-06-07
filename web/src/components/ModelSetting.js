@@ -61,12 +61,7 @@ const ModelSetting = () => {
       await getOptions();
       // showSuccess('刷新成功');
     } catch (error) {
-<<<<<<< HEAD
       showError(t('刷新失败'));
-=======
-      showError('刷新失败');
-      console.error(error);
->>>>>>> main
     } finally {
       setLoading(false);
     }
