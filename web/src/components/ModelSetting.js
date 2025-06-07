@@ -39,7 +39,9 @@ const ModelSetting = () => {
           item.key === 'claude.default_max_tokens' ||
           item.key === 'gemini.supported_imagine_models'
         ) {
-          item.value = JSON.stringify(JSON.parse(item.value), null, 2);
+          if (item.value !== '') {
+            item.value = JSON.stringify(JSON.parse(item.value), null, 2);
+          }
         }
         if (item.key.endsWith('Enabled') || item.key.endsWith('enabled')) {
           newInputs[item.key] = item.value === 'true' ? true : false;
@@ -59,7 +61,12 @@ const ModelSetting = () => {
       await getOptions();
       // showSuccess('刷新成功');
     } catch (error) {
+<<<<<<< HEAD
       showError(t('刷新失败'));
+=======
+      showError('刷新失败');
+      console.error(error);
+>>>>>>> main
     } finally {
       setLoading(false);
     }
