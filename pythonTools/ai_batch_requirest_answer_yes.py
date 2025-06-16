@@ -11,12 +11,16 @@ from tqdm import tqdm
 #API_KEY = "sk-x0EwwQLAz10Yvl4xRWj7YVnJ8gN7n31NlWt3AiY4f8PGY3"  # 请替换为您的 API 密钥
 #API_URL = "https://ent.zetatechs.com/v1/chat/completions"
 #API_KEY = "sk-1WmDLPI6Nn8JDJc2K7BMRYOTUPkaZ0IDJSNBrxjWVCR2TVLx" # https://ent.zetatechs.com/  - GPT
-API_URL = "https://ai.burncloud.com/v1/chat/completions"
-API_KEY = "sk-9DufUZISqD4FrlVzvO8nkioqEwxqjPkJ2OwSAibs7d9OKJLe" #burncloud test token
-MODEL = "gpt-4o-mini"
-CONCURRENCY = 400  # 1秒并发数量，调整以确保1分钟内完成1000个请求
+#API_URL = "https://ai.burncloud.com/v1/chat/completions"
+#API_KEY = "sk-9DufUZISqD4FrlVzvO8nkioqEwxqjPkJ2OwSAibs7d9OKJLe" #burncloud test token
+#MODEL = "gpt-4o-mini"
+API_URL = "http://10.252.17.40:8000/v1/chat/completions"
+API_KEY = "sk-4W10yKddMzLT0LUpE67e1b56A15e4cD88e6210Aa58C2Ee1c"  # 请替换为您的 API 密钥
+MODEL = "DeepSeek-V3-0324"
+#MODEL =  "DeepSeek-R1-250528"
+CONCURRENCY = 1  # 1秒并发数量，调整以确保1分钟内完成1000个请求
 MAX_TIME = 180  # 最大运行时间（秒）
-QUESTION_COUNT = 12000  # 要发送的请求数量
+QUESTION_COUNT = 1  # 要发送的请求数量
 
 # 确保输出目录存在
 OUTPUT_DIR = "responses"
@@ -30,7 +34,7 @@ async def make_request(session, question_id):
     }
     
     # 固定问题为 "answer yes."
-    question = "answer yes."
+    question = "What is the largest planet in our solar system?"
     
     payload = {
         "model": MODEL,
@@ -40,7 +44,7 @@ async def make_request(session, question_id):
                 "content": question
             }
         ],
-        "stream_options": {"include_usage": True},
+        #"stream_options": {"include_usage": True},
         "stream": False
     }
     
@@ -70,17 +74,17 @@ async def make_request(session, question_id):
             
             # 将响应保存到文件
             filename = f"{OUTPUT_DIR}/response_{question_id}.json"
-            #async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
-            #    result = {
-            #        "question": question,
-            #        "question_id": question_id,
-            #        "elapsed_time": elapsed_time,
-            #        "status_code": response.status,
-            #        "response": response_json,
-            #        "raw_response": response_text,
-            #        "answer": answer
-            #    }
-            #    await f.write(json.dumps(result, ensure_ascii=False, indent=2))
+            async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
+               result = {
+                   "question": question,
+                   "question_id": question_id,
+                   "elapsed_time": elapsed_time,
+                   "status_code": response.status,
+                   "response": response_json,
+                   "raw_response": response_text,
+                   "answer": answer
+               }
+               await f.write(json.dumps(result, ensure_ascii=False, indent=2))
             
             return {
                 "question_id": question_id,
