@@ -6,21 +6,29 @@ import time
 import os
 from tqdm import tqdm
 import random
+import uuid
+import datetime
 
 # 配置参数
-#API_URL = "https://gala.chataiapi.com/v1/chat/completions"
-#API_KEY = "sk-muyz3cHdpiKCLlH7cBsH0BSfMtQNveY9GshmdFqMnGU6LJ4n"  # 请替换为您的 API 密钥
+#API_URL = "https://hk.burncloud.com/v1/chat/completions"
+#API_KEY = "sk-UAj9ccP3URcRPm1L83YNMhnDTCf36Rn0OIlL7nrAiiGIB17D"  # 请替换为您的 API 密钥
+# API_URL = "http://10.252.17.40:8000/v1/chat/completions"
+# API_KEY = "sk-4W10yKddMzLT0LUpE67e1b56A15e4cD88e6210Aa58C2Ee1c"  # 请替换为您的 API 密钥
+
 API_URL = "https://hk.burncloud.com/v1/chat/completions"
-API_KEY = "sk-B3xgZ8Hufvuh0cpGb5m9qrQ2dhu60CrQVaGqzdhKHSO1iYkv"  # 请替换为您的 API 密钥
-MODEL = "deepseek-v3-0324"
-REQUESTS_PER_SECOND = 500  # 每秒发送的请求数
-MAX_CONCURRENT_REQUESTS = 1000  # 最大并发请求数量
+API_KEY = "sk-CPoHo43kxEjRKwmjhJphpqRqnZd4vjpG0BiZApY6KR6TFzpl"  # 请替换为您的 API 密钥
+
+API_URL = "http://10.252.17.40:8000/v1/chat/completions"
+API_KEY = "sk-4W10yKddMzLT0LUpE67e1b56A15e4cD88e6210Aa58C2Ee1c"  # 请替换为您的 API 密钥
+MODEL = "deepseek-v3"
+REQUESTS_PER_SECOND = 50  # 每秒发送的请求数
+MAX_CONCURRENT_REQUESTS = 500  # 最大并发请求数量
 QUESTIONS_FILE = "questions.txt"  # 包含问题的文本文件
 MAX_TIME = 60  # 最大运行时间（秒）
-TOTAL_REQUESTS = 2000  # 总共要发送的请求数量
+TOTAL_REQUESTS = 200  # 总共要发送的请求数量
 
 # 确保输出目录存在
-OUTPUT_DIR = "responses"
+OUTPUT_DIR = "D:\\www\\burncloud-aiapi-dev-local\\pythonTools\\responses"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 async def read_questions(file_path):
@@ -58,7 +66,7 @@ async def read_questions(file_path):
         print(f"Error reading questions file: {e}")
         return []
 
-async def make_request(session, question_id, question, cycle_num=0):
+async def make_request(session, request_id, question_id, question, cycle_num=0):
     """发送单个请求到 API"""
     headers = {
         "Content-Type": "application/json",
@@ -73,11 +81,11 @@ async def make_request(session, question_id, question, cycle_num=0):
                 "content": question
             }
         ],
-        "stream_options": {"include_usage": True},
         "stream": False
     }
     
     start_time = time.time()
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     
     try:
         async with session.post(API_URL, headers=headers, json=payload) as response:
@@ -89,25 +97,28 @@ async def make_request(session, question_id, question, cycle_num=0):
             if response.status == 200 and "choices" in response_json and len(response_json["choices"]) > 0:
                 answer = response_json["choices"][0].get("message", {}).get("content", "No answer")
             
-            # 输出问题和回答到终端
-            print(f"\nQuestion {question_id} (Cycle {cycle_num}): {question}")
+            # 输出问题和回答到终端（只打印一次）
+            print(f"\nRequest {request_id}: Question {question_id} (Cycle {cycle_num}): {question}")
             print(f"Answer: {answer[:100]}..." if len(answer) > 100 else f"Answer: {answer}")
             print(f"Response time: {elapsed_time:.2f}s")
             
-            # 将响应保存到文件
-            filename = f"{OUTPUT_DIR}/response_{question_id}_cycle_{cycle_num}.json"
+            # 将响应保存到文件 - 使用时间戳命名
+            filename = f"{OUTPUT_DIR}/request_{timestamp}_id{request_id}_q{question_id}_cycle{cycle_num}.json"
             async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
                 result = {
+                    "request_id": request_id,
                     "question": question,
                     "question_id": question_id,
                     "cycle": cycle_num,
                     "elapsed_time": elapsed_time,
                     "response": response_json,
-                    "answer": answer
+                    "answer": answer,
+                    "timestamp": time.time()
                 }
                 await f.write(json.dumps(result, ensure_ascii=False, indent=2))
             
             return {
+                "request_id": request_id,
                 "question_id": question_id,
                 "cycle": cycle_num,
                 "question": question,
@@ -115,20 +126,23 @@ async def make_request(session, question_id, question, cycle_num=0):
                 "elapsed_time": elapsed_time,
                 "success": response.status == 200,
                 "filename": filename,
-                "answer": answer
+                "answer": answer,
+                "timestamp": time.time()
             }
     except Exception as e:
         elapsed_time = time.time() - start_time
-        print(f"\nError processing question {question_id} (Cycle {cycle_num}): {question}")
+        print(f"\nError processing request {request_id}: Question {question_id} (Cycle {cycle_num}): {question}")
         print(f"Error: {str(e)}")
         return {
+            "request_id": request_id,
             "question_id": question_id,
             "cycle": cycle_num,
             "question": question,
             "status_code": None,
             "elapsed_time": elapsed_time,
             "success": False,
-            "error": str(e)
+            "error": str(e),
+            "timestamp": time.time()
         }
 
 async def process_questions(questions):
@@ -145,12 +159,22 @@ async def process_questions(questions):
         total_cycles = (TOTAL_REQUESTS + len(questions) - 1) // len(questions)
         print(f"Will cycle through questions approximately {total_cycles} times to reach {TOTAL_REQUESTS} requests")
         
-        # 生成所有需要处理的问题（可能会重复）
+        # 生成所有需要处理的问题（可能会重复，但会轮流使用不同问题）
         all_questions = []
-        for cycle in range(total_cycles):
-            for i, question in enumerate(questions):
-                if len(all_questions) < TOTAL_REQUESTS:
-                    all_questions.append((i+1, question, cycle+1))
+        question_index = 0
+        for i in range(TOTAL_REQUESTS):
+            # 使用全局唯一ID作为请求ID
+            request_id = i + 1
+            # 轮流选择问题
+            question_id = question_index + 1
+            question = questions[question_index]
+            # 计算当前循环次数
+            cycle_num = (i // len(questions)) + 1
+            
+            all_questions.append((request_id, question_id, question, cycle_num))
+            
+            # 更新问题索引，确保轮流使用所有问题
+            question_index = (question_index + 1) % len(questions)
         
         # 将问题分成每秒处理的批次
         batches = [all_questions[i:i+REQUESTS_PER_SECOND] for i in range(0, len(all_questions), REQUESTS_PER_SECOND)]
@@ -171,11 +195,11 @@ async def process_questions(questions):
                 break
                 
             batch_tasks = []
-            for question_id, question, cycle_num in batch:
+            for request_id, question_id, question, cycle_num in batch:
                 # 使用信号量控制最大并发数
                 async def bounded_request():
                     async with max_concurrency_semaphore:
-                        return await make_request(session, question_id, question, cycle_num)
+                        return await make_request(session, request_id, question_id, question, cycle_num)
                 
                 task = asyncio.create_task(bounded_request())
                 batch_tasks.append(task)
@@ -221,6 +245,7 @@ async def main():
     print(f"Loaded {len(questions)} unique questions.")
     print(f"Configuration: {REQUESTS_PER_SECOND} requests/second, max {MAX_CONCURRENT_REQUESTS} concurrent requests")
     print(f"Target: {TOTAL_REQUESTS} total requests")
+    print(f"Output directory: {OUTPUT_DIR}")
     
     # 处理所有问题
     start_time = time.time()
@@ -244,7 +269,7 @@ async def main():
     
     # 打印结果摘要
     print(f"\n--- Results Summary ---")
-    print(f"Total questions processed: {len(all_results)} of {TOTAL_REQUESTS}")
+    print(f"Total requests processed: {len(all_results)} of {TOTAL_REQUESTS}")
     print(f"Total execution time: {total_time:.2f} seconds")
     print(f"Successful: {len(successful)}")
     print(f"Failed: {len(failed)}")
@@ -262,6 +287,7 @@ async def main():
         print("Script completed processing all requests")
     
     # 保存汇总结果
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     summary = {
         "total_questions_in_file": len(questions),
         "total_requests_target": TOTAL_REQUESTS,
@@ -276,10 +302,10 @@ async def main():
         "results": all_results
     }
     
-    async with aiofiles.open(f"{OUTPUT_DIR}/summary.json", 'w', encoding='utf-8') as f:
+    async with aiofiles.open(f"{OUTPUT_DIR}/summary_{timestamp}.json", 'w', encoding='utf-8') as f:
         await f.write(json.dumps(summary, ensure_ascii=False, indent=2))
     
-    print(f"Detailed results saved to {OUTPUT_DIR}/summary.json")
+    print(f"Detailed results saved to {OUTPUT_DIR}/summary_{timestamp}.json")
 
 if __name__ == "__main__":
     asyncio.run(main())
