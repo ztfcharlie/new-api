@@ -7,20 +7,11 @@ import os
 from tqdm import tqdm
 import random
 import uuid
-import datetime
 
 # 配置参数
-#API_URL = "https://hk.burncloud.com/v1/chat/completions"
-#API_KEY = "sk-UAj9ccP3URcRPm1L83YNMhnDTCf36Rn0OIlL7nrAiiGIB17D"  # 请替换为您的 API 密钥
-# API_URL = "http://10.252.17.40:8000/v1/chat/completions"
-# API_KEY = "sk-4W10yKddMzLT0LUpE67e1b56A15e4cD88e6210Aa58C2Ee1c"  # 请替换为您的 API 密钥
-
 API_URL = "https://hk.burncloud.com/v1/chat/completions"
-API_KEY = "sk-CPoHo43kxEjRKwmjhJphpqRqnZd4vjpG0BiZApY6KR6TFzpl"  # 请替换为您的 API 密钥
-
-API_URL = "http://10.252.17.40:8000/v1/chat/completions"
-API_KEY = "sk-4W10yKddMzLT0LUpE67e1b56A15e4cD88e6210Aa58C2Ee1c"  # 请替换为您的 API 密钥
-MODEL = "deepseek-v3"
+API_KEY = "sk-UAj9ccP3URcRPm1L83YNMhnDTCf36Rn0OIlL7nrAiiGIB17D"  # 请替换为您的 API 密钥
+MODEL = "deepseek-v3-0324"
 REQUESTS_PER_SECOND = 50  # 每秒发送的请求数
 MAX_CONCURRENT_REQUESTS = 500  # 最大并发请求数量
 QUESTIONS_FILE = "questions.txt"  # 包含问题的文本文件
@@ -97,13 +88,13 @@ async def make_request(session, request_id, question_id, question, cycle_num=0):
             if response.status == 200 and "choices" in response_json and len(response_json["choices"]) > 0:
                 answer = response_json["choices"][0].get("message", {}).get("content", "No answer")
             
-            # 输出问题和回答到终端（只打印一次）
+            # 输出问题和回答到终端
             print(f"\nRequest {request_id}: Question {question_id} (Cycle {cycle_num}): {question}")
             print(f"Answer: {answer[:100]}..." if len(answer) > 100 else f"Answer: {answer}")
             print(f"Response time: {elapsed_time:.2f}s")
             
-            # 将响应保存到文件 - 使用时间戳命名
-            filename = f"{OUTPUT_DIR}/request_{timestamp}_id{request_id}_q{question_id}_cycle{cycle_num}.json"
+            # 将响应保存到文件 - 使用唯一的请求ID来避免覆盖
+            filename = f"{OUTPUT_DIR}/request_{request_id}_q{question_id}_cycle{cycle_num}.json"
             async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
                 result = {
                     "request_id": request_id,
@@ -161,20 +152,12 @@ async def process_questions(questions):
         
         # 生成所有需要处理的问题（可能会重复，但会轮流使用不同问题）
         all_questions = []
-        question_index = 0
-        for i in range(TOTAL_REQUESTS):
-            # 使用全局唯一ID作为请求ID
-            request_id = i + 1
-            # 轮流选择问题
-            question_id = question_index + 1
-            question = questions[question_index]
-            # 计算当前循环次数
-            cycle_num = (i // len(questions)) + 1
-            
-            all_questions.append((request_id, question_id, question, cycle_num))
-            
-            # 更新问题索引，确保轮流使用所有问题
-            question_index = (question_index + 1) % len(questions)
+        for cycle in range(total_cycles):
+            for i, question in enumerate(questions):
+                if len(all_questions) < TOTAL_REQUESTS:
+                    # 使用全局唯一ID作为请求ID
+                    request_id = len(all_questions) + 1
+                    all_questions.append((request_id, i+1, question, cycle+1))
         
         # 将问题分成每秒处理的批次
         batches = [all_questions[i:i+REQUESTS_PER_SECOND] for i in range(0, len(all_questions), REQUESTS_PER_SECOND)]
