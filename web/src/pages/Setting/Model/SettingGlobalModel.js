@@ -79,8 +79,15 @@ export default function SettingGlobalModel(props) {
                 <Form.Switch
                   label={t('启用请求透传')}
                   field={'global.pass_through_request_enabled'}
-                  onChange={(value) => setInputs({ ...inputs, 'global.pass_through_request_enabled': value })}
-                  extraText={t('开启后，所有请求将直接透传给上游，不会进行任何处理（重定向和渠道适配也将失效）,请谨慎开启')}
+                  onChange={(value) =>
+                    setInputs({
+                      ...inputs,
+                      'global.pass_through_request_enabled': value,
+                    })
+                  }
+                  extraText={
+                    '开启后，所有请求将直接透传给上游，不会进行任何处理（重定向和渠道适配也将失效）,请谨慎开启'
+                  }
                 />
               </Col>
             </Row>

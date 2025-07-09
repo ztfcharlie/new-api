@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="/logo.png" />
+    <link rel="canonical" href="https://ai.burncloud.com">
+    
+    <!-- Core SEO Elements -->
+    <title>Burncloud AI API Hub | GPT-4/Claude 3/Gemini & 20+ Models | Developer Platform</title>
+    <meta name="description" 
+          content="Unified API access to GPT-4, Claude 3, Gemini, DeepSeek and 20+ AI models. Enterprise-grade integration with OpenAI-compatible endpoints, real-time switching, and 20% cost savings. Start building with our developer-first platform.">
+    <meta name="keywords" 
+          content="GPT-4 API integration, Claude 3 enterprise solutions, Multi-AI model platform, OpenAI alternative API, Cost-effective AI deployment, Cross-model development">
+
+    <!-- Open Graph Protocol -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ai.burncloud.com">
+    <meta property="og:title" content="Burncloud AI API Hub | Multi-Model Developer Platform">
+    <meta property="og:description" 
+          content="Single API access to GPT-4, Claude 3, Gemini and 20+ leading AI models. Enterprise solutions with real-time model switching and cost optimization.">
+    <meta property="og:image" content="https://api.burncloud.com/logo.png">
+    <meta property="og:site_name" content="BurnCloud AI">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@burncloud_com">
+    <meta name="twitter:creator" content="@burncloud_tech">
+
+    <!-- Enhanced Schema Markup -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": ["SoftwareApplication", "Organization"],
+        "name": "BurnCloud AI API",
+        "url": "https://ai.burncloud.com",
+        "logo": "https://api.burncloud.com/logo.png",
+        "description": "Enterprise AI model aggregation platform with unified API access",
+        "applicationCategory": "Developer Tools",
+        "operatingSystem": "Cloud",
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "USD",
+            "price": "0.80",
+            "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "2875",
+            "bestRating": "5"
+        }
+    }
+    </script>
+
+    <!-- Performance Optimization -->
+    <link rel="preconnect" href="https://ai.burncloud.com">
+    <link rel="dns-prefetch" href="https://static.hotjar.com">
+    <link rel="preload" href="/fonts/Inter.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains">
+
+    <!-- Brand Protection -->
+    <meta name="copyright" content="BurnCloud Inc.">
+    <meta name="author" content="BurnCloud Developer Relations">
+
+    <!-- Analytics Integrations -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16652982294"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'AW-16652982294');
+    </script>
+    
+    <!-- Hotjar Tracking -->
+    <script>
+        (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:5361443,hjsv:6};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    </script>
+</head>
+
+
+<body>
+    <nav class="seo-nav" aria-label="SEO Navigation" style="display: none;">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/detail">Console</a></li>
+            <li><a href="/pricing">Pricing</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/docs">Docs</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/sitemap.html">Sitemap</a></li>
+        </ul>
+    </nav>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/index.js"></script>
+    <style>
+        :root {
+            --whatsapp-light: #DCF8C6;
+            --whatsapp-green: #25D366;
+            --whatsapp-dark: #128C7E;
+            --chat-background: #eee;
+        }
+
+        #whatsapp_level .contact-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            /* 添加这行，确保子元素右对齐 */
+        }
+
+        #whatsapp_level .contact-popup {
+            display: none;
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: absolute;
+            /* 添加这行 */
+            bottom: 70px;
+            /* 添加这行，确保在按钮上方 */
+            right: 0;
+            /* 添加这行，右对齐 */
+        }
+
+        #whatsapp_level .popup-header {
+            background: var(--whatsapp-green);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        #whatsapp_level .popup-header h3 {
+            margin: 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #whatsapp_level .header-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        #whatsapp_level .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 20px;
+        }
+
+        #whatsapp_level .contact-options {
+            padding: 15px;
+            background-color: var(--chat-background);
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25.5 25.5c0 0 75 0 75 75' stroke='%23DDD' fill='none'/%3E%3C/svg%3E");
+        }
+
+        #whatsapp_level .contact-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 8px 0;
+            text-decoration: none;
+            color: #333;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        #whatsapp_level .contact-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        #whatsapp_level .contact-option img {
+            width: 32px;
+            height: 32px;
+            margin-right: 15px;
+        }
+
+        #whatsapp_level .contact-option span {
+            flex-grow: 1;
+        }
+
+        #whatsapp_level .contact-option .arrow {
+            color: #999;
+        }
+
+        #whatsapp_level .toggle-button {
+            position: relative;
+            /* 添加这行 */
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            /* 添加这行，确保按钮始终在最上层 */
+        }
+
+        #whatsapp_level .toggle-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 添加工作时间的样式 */
+        #whatsapp_level .working-hours {
+            padding: 15px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        #whatsapp_level .divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 8px 0;
+        }
+    </style>
+    <div id="whatsapp_level">
+        <div class="contact-widget">
+            <div class="contact-popup" id="contactPopup">
+                <div class="popup-header">
+                    <h3>
+                        <img id="siteIcon" class="header-icon" src="" alt="Site Icon">
+                        Our team is here for you
+                    </h3>
+                    <button class="close-button" onclick="togglePopup()">×</button>
+                </div>
+                <div class="contact-options">
+                    <div class="working-hours">
+                        <span>Support Days: Monday - Friday</span>
+                        <span>CA,&nbsp;&nbsp;USA:&nbsp;&nbsp;&nbsp;&nbsp;9:00 - 17:00</span>
+                        <span>HK, China: 9:00 - 17:00</span>
+                    </div>
+                    <div class="divider"></div>
+                    <a href="https://wa.me/13022752870" class="contact-option" target="_blank">
+                        <img src="/contact/WhatsApp.svg" alt="WhatsApp">
+                        <span>+1(302)275-2870</span>
+                        <div class="arrow">›</div>
+                    </a>
+                    <div class="divider"></div>
+                    <a href="https://t.me/BurncloudCharlie" class="contact-option" target="_blank">
+                        <img src="/contact/Telegram_logo.svg" alt="Telegram">
+                        <span>@BurncloudCharlie</span>
+                        <div class="arrow">›</div>
+                    </a>
+
+                    <!-- QQ联系方式，仅在中文环境下显示 -->
+                    <div id="qq-contact" style="display: none;">
+                        <div class="divider"></div>
+                        <a href="https://wpa.qq.com/msgrd?v=3&uin=858377817&site=qq&menu=yes" class="contact-option"
+                            target="_blank">
+                            <img src="/contact/qe.png" alt="QQ"><span>858377817</span>
+                            <div class="arrow">›</div>
+                        </a>
+                    </div>
+
+                    <div class="divider"></div>
+                    <a href="mailto:Contact@burncloud.com" class="contact-option">
+                        <img src="/contact/Gmail_icon_%282020%29.svg" alt="Email">
+                        <span>Contact@burncloud.com</span>
+                        <div class="arrow">›</div>
+                    </a>
+                </div>
+            </div>
+            <div class="toggle-button" onclick="togglePopup()">
+                <img src="/contact/WhatsApp.svg" alt="Telegram" width="48" height="48">
+            </div>
+        </div>
+
+        <script>
+            // 获取网站favicon
+            function getFavicon() {
+                return '/contact_logo.png';
+            }
+
+            function initializeWidget() {
+                // 设置网站图标
+                const iconUrl = getFavicon();
+                const siteIcon = document.getElementById('siteIcon');
+                siteIcon.src = iconUrl;
+
+                // 处理图标加载错误
+                siteIcon.onerror = function () {
+                    // 如果图标加载失败，使用默认图标
+                    this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="white"/></svg>';
+                };
+
+                // 初始化时隐藏弹窗
+                document.getElementById('contactPopup').style.display = 'none';
+
+                // 检查当前语言设置并显示/隐藏QQ联系方式
+                checkLanguageForQQ();
+            }
+
+            function checkLanguageForQQ() {
+                // 从localStorage获取当前i18n语言设置
+                const currentLang = localStorage.getItem('i18nextLng');
+                const qqContact = document.getElementById('qq-contact');
+
+                // 如果当前语言是中文，显示QQ联系方式
+                if (currentLang === 'zh') {
+                    qqContact.style.display = 'block';
+                } else {
+                    qqContact.style.display = 'none';
+                }
+            }
+
+            function togglePopup() {
+                const popup = document.getElementById('contactPopup');
+                popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+            }
+
+            // 监听localStorage的变化，以便在语言切换时更新QQ联系方式的显示状态
+            window.addEventListener('storage', function (e) {
+                if (e.key === 'i18nextLng') {
+                    checkLanguageForQQ();
+                }
+            });
+
+            // 页面加载完成后初始化
+            document.addEventListener('DOMContentLoaded', initializeWidget);
+
+            // 由于React应用可能会在页面加载后更改语言，我们需要定期检查语言设置
+            setInterval(checkLanguageForQQ, 2000);
+        </script>
+    </div>
+</body>
+
+</html>
