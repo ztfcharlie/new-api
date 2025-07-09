@@ -17,8 +17,7 @@ import {
   IconSave,
   IconBolt,
 } from '@douyinfe/semi-icons';
-import { showError, showSuccess } from '../../../helpers';
-import { API } from '../../../helpers';
+import { API, showError, showSuccess } from '../../../helpers';
 import { useTranslation } from 'react-i18next';
 
 export default function ModelRatioNotSetEditor(props) {
@@ -373,7 +372,7 @@ export default function ModelRatioNotSetEditor(props) {
   return (
     <>
       <Space vertical align='start' style={{ width: '100%' }}>
-        <Space>
+        <Space className='mt-2'>
           <Button icon={<IconPlus />} onClick={() => setVisible(true)}>
             {t('添加模型')}
           </Button>

@@ -115,8 +115,13 @@ func RequestEpay(c *gin.Context) {
 		return
 	}
 
+	if !setting.ContainsPayMethod(req.PaymentMethod) {
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.payment_method_does_not_exist")})
+		return
+	}
+
 	callBackAddress := service.GetCallbackAddress()
-	returnUrl, _ := url.Parse(setting.ServerAddress + "/log")
+	returnUrl, _ := url.Parse(setting.ServerAddress + "/console/log")
 	notifyUrl, _ := url.Parse(callBackAddress + "/api/user/epay/notify")
 	tradeNo := fmt.Sprintf("%s%d", common.GetRandomString(6), time.Now().Unix())
 	tradeNo = fmt.Sprintf("USR%dNO%s", id, tradeNo)
@@ -214,7 +219,7 @@ func RequestEpay(c *gin.Context) {
 		uri, params, err = client.Purchase(&epay.PurchaseArgs{
 			Type:           payType,
 			ServiceTradeNo: tradeNo,
-			Name:           fmt.Sprintf("Burncloud Credit Top-up %d", req.Amount),
+			Name:           fmt.Sprintf("TUC%d", req.Amount),
 			Money:          strconv.FormatFloat(payMoney_RMB, 'f', 2, 64),
 			Device:         epay.PC,
 			NotifyUrl:      notifyUrl,

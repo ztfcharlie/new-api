@@ -17,8 +17,8 @@ func GetAllTokens(c *gin.Context) {
 	userId := c.GetInt("id")
 	p, _ := strconv.Atoi(c.Query("p"))
 	size, _ := strconv.Atoi(c.Query("size"))
-	if p < 0 {
-		p = 0
+	if p < 1 {
+		p = 1
 	}
 	if size <= 0 {
 		size = common.ItemsPerPage
@@ -28,9 +28,9 @@ func GetAllTokens(c *gin.Context) {
 	var tokens []*model.Token
 	var err error
 	if isRootUser(c) {
-		tokens, err = model.GetRootAllUserTokens(0, p*size, size)
+		tokens, err = model.GetRootAllUserTokens(0, (p-1)*size, size)
 	} else {
-		tokens, err = model.GetAllUserTokens(userId, p*size, size)
+		tokens, err = model.GetAllUserTokens(userId, (p-1)*size, size)
 	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -39,10 +39,18 @@ func GetAllTokens(c *gin.Context) {
 		})
 		return
 	}
+	// Get total count for pagination
+	total, _ := model.CountUserTokens(userId)
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    tokens,
+		"data": gin.H{
+			"items":     tokens,
+			"total":     total,
+			"page":      p,
+			"page_size": size,
+		},
 	})
 	return
 }
@@ -335,4 +343,33 @@ func UpdateToken(c *gin.Context) {
 		"data":    cleanToken,
 	})
 	return
+}
+
+type TokenBatch struct {
+	Ids []int `json:"ids"`
+}
+
+func DeleteTokenBatch(c *gin.Context) {
+	tokenBatch := TokenBatch{}
+	if err := c.ShouldBindJSON(&tokenBatch); err != nil || len(tokenBatch.Ids) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "参数错误",
+		})
+		return
+	}
+	userId := c.GetInt("id")
+	count, err := model.BatchDeleteTokens(tokenBatch.Ids, userId)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    count,
+	})
 }

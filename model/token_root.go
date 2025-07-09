@@ -43,7 +43,7 @@ func SearchRootUserTokens(userId int, keyword string, token string) (tokens []*T
 		db = db.Where("name LIKE ?", "%"+keyword+"%")
 	}
 	if token != "" {
-		db = db.Where(keyCol+" LIKE ?", "%"+token+"%")
+		db = db.Where(commonKeyCol+" LIKE ?", "%"+token+"%")
 	}
 	err = db.Find(&tokens).Error
 	return tokens, err

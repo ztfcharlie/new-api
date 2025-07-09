@@ -241,6 +241,7 @@
 "topup.error.min_amount": "충전 금액은 %d 미만일 수 없습니다",
 "topup.error.get_group": "사용자 그룹을 가져오지 못했습니다",
 "topup.error.amount_too_low": "충전 금액이 너무 낮습니다",
+"topup.error.payment_method_does_not_exist": "결제 방법이 존재하지 않습니다",
 "topup.error.no_payment_config": "현재 관리자가 결제 정보를 구성하지 않았습니다",
 "topup.error.payment_failed": "결제 시작 실패",
 "topup.error.create_order": "주문 생성 실패",

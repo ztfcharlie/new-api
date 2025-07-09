@@ -241,6 +241,7 @@
     "topup.error.min_amount": "Aufladebetrag darf nicht kleiner als %d sein",
     "topup.error.get_group": "Benutzergruppe konnte nicht abgerufen werden",
     "topup.error.amount_too_low": "Aufladebetrag ist zu niedrig",
+    "topup.error.payment_method_does_not_exist": "Die ausgewählte Zahlungsmethode existiert nicht",
     "topup.error.no_payment_config": "Aktueller Administrator hat keine Zahlungsinformationen konfiguriert",
     "topup.error.payment_failed": "Zahlung konnte nicht initiiert werden",
     "topup.error.create_order": "Bestellung konnte nicht erstellt werden",

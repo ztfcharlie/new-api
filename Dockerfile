@@ -28,7 +28,7 @@ FROM alpine
 WORKDIR /data
 # RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
 RUN apk update \
-    && apk upgrade \
+    && apk upgrade --no-cache \
     && apk add --no-cache ca-certificates tzdata ffmpeg \
     && update-ca-certificates \
     && mkdir -p /usr/local/share/one-api/lang     # 使用标准的应用数据目录

@@ -1,13 +1,13 @@
 import HeaderBar from './HeaderBar.js';
 import { Layout } from '@douyinfe/semi-ui';
 import SiderBar from './SiderBar.js';
-import App from '../App.js';
+import App from '../../App.js';
 import FooterBar from './Footer.js';
 import { ToastContainer } from 'react-toastify';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleContext } from '../context/Style/index.js';
 import { useTranslation } from 'react-i18next';
-import { API, getLogo, getSystemName, showError } from '../helpers/index.js';
+import { API, getLogo, getSystemName, showError,setStatusData } from '../helpers/index.js';
 import { setStatusData } from '../helpers/data.js';
 import { UserContext } from '../context/User/index.js';
 import { StatusContext } from '../context/Status/index.js';
@@ -22,8 +22,15 @@ import en_GB from '@douyinfe/semi-ui/lib/es/locale/source/en_GB';
 const PageLayout = () => {
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState, statusDispatch] = useContext(StatusContext);
-  const [styleState, styleDispatch] = useContext(StyleContext);
+  const { state: styleState } = useStyle();
   const { i18n } = useTranslation();
+  const location = useLocation();
+
+  const shouldHideFooter = location.pathname === '/console/playground' || location.pathname.startsWith('/console/chat');
+
+  const shouldInnerPadding = location.pathname.includes('/console') &&
+    !location.pathname.startsWith('/console/chat') &&
+    location.pathname !== '/console/playground';
 
   const loadUser = () => {
     let user = localStorage.getItem('user');
@@ -67,14 +74,7 @@ const PageLayout = () => {
     if (savedLang) {
       i18n.changeLanguage(savedLang);
     }
-
-    // 默认显示侧边栏
-    styleDispatch({ type: 'SET_SIDER', payload: true });
   }, [i18n]);
-
-  // 获取侧边栏折叠状态
-  const isSidebarCollapsed =
-    localStorage.getItem('default_collapse_sidebar') === 'true';
 
   return (
     <Layout
@@ -90,19 +90,16 @@ const PageLayout = () => {
           padding: 0,
           height: 'auto',
           lineHeight: 'normal',
-          position: styleState.isMobile ? 'sticky' : 'fixed',
+          position: 'fixed',
           width: '100%',
           top: 0,
           zIndex: 100,
-          boxShadow: '0 1px 6px rgba(0, 0, 0, 0.08)',
         }}
       >
         <HeaderBar />
       </Header>
       <Layout
         style={{
-          marginTop: styleState.isMobile ? '0' : '56px',
-          height: styleState.isMobile ? 'auto' : 'calc(100vh - 56px)',
           overflow: styleState.isMobile ? 'visible' : 'auto',
           display: 'flex',
           flexDirection: 'column',
@@ -113,13 +110,11 @@ const PageLayout = () => {
             style={{
               position: 'fixed',
               left: 0,
-              top: '56px',
+              top: '64px',
               zIndex: 99,
-              background: 'var(--semi-color-bg-1)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
               border: 'none',
               paddingRight: '0',
-              height: 'calc(100vh - 56px)',
+              height: 'calc(100vh - 64px)',
             }}
           >
             <SiderBar />
@@ -132,7 +127,7 @@ const PageLayout = () => {
               : styleState.showSider
                 ? styleState.siderCollapsed
                   ? '60px'
-                  : '200px'
+                  : '180px'
                 : '0',
             transition: 'margin-left 0.3s ease',
             flex: '1 1 auto',
@@ -143,23 +138,24 @@ const PageLayout = () => {
           <Content
             style={{
               flex: '1 0 auto',
-              overflowY: styleState.isMobile ? 'visible' : 'auto',
+              overflowY: styleState.isMobile ? 'visible' : 'hidden',
               WebkitOverflowScrolling: 'touch',
-              padding: styleState.shouldInnerPadding ? '24px' : '0',
+              padding: shouldInnerPadding ? (styleState.isMobile ? '5px' : '24px') : '0',
               position: 'relative',
-              marginTop: styleState.isMobile ? '2px' : '0',
             }}
           >
             <App />
           </Content>
-          <Layout.Footer
-            style={{
-              flex: '0 0 auto',
-              width: '100%',
-            }}
-          >
-            <FooterBar />
-          </Layout.Footer>
+          {!shouldHideFooter && (
+            <Layout.Footer
+              style={{
+                flex: '0 0 auto',
+                width: '100%',
+              }}
+            >
+              <FooterBar />
+            </Layout.Footer>
+          )}
         </Layout>
       </Layout>
       <ToastContainer />

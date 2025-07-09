@@ -32,6 +32,7 @@ require (
 	github.com/shopspring/decimal v1.4.0
 	github.com/stripe/stripe-go v70.15.0+incompatible
 	github.com/stripe/stripe-go/v81 v81.4.0
+	github.com/tiktoken-go/tokenizer v0.6.2
 	golang.org/x/crypto v0.35.0
 	golang.org/x/image v0.23.0
 	golang.org/x/net v0.35.0
@@ -52,7 +53,7 @@ require (
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/dlclark/regexp2 v1.11.0 // indirect
+	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect

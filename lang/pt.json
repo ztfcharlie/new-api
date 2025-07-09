@@ -241,6 +241,7 @@
 "topup.error.min_amount": "O valor de recarga não pode ser menor que %d",
 "topup.error.get_group": "Falha ao obter grupo de usuário",
 "topup.error.amount_too_low": "Valor de recarga é muito baixo",
+"topup.error.payment_method_does_not_exist": "O método de pagamento não existe",
 "topup.error.no_payment_config": "O administrador atual não configurou informações de pagamento",
 "topup.error.payment_failed": "Falha ao iniciar pagamento",
 "topup.error.create_order": "Falha ao criar pedido",

@@ -241,6 +241,7 @@
 "topup.error.min_amount": "チャージ金額は%d未満にできません",
 "topup.error.get_group": "ユーザーグループの取得に失敗しました",
 "topup.error.amount_too_low": "チャージ金額が低すぎます",
+"topup.error.payment_method_does_not_exist": "支払い方法が存在しません",
 "topup.error.no_payment_config": "現在の管理者は支払い情報を設定していません",
 "topup.error.payment_failed": "支払いの開始に失敗しました",
 "topup.error.create_order": "注文の作成に失敗しました",

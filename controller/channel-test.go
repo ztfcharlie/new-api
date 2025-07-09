@@ -11,13 +11,13 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"one-api/common"
+	"one-api/constant"
 	"one-api/dto"
 	"one-api/lang"
 	"one-api/middleware"
 	"one-api/model"
 	"one-api/relay"
 	relaycommon "one-api/relay/common"
-	"one-api/relay/constant"
 	"one-api/relay/helper"
 	"one-api/service"
 	"strconv"
@@ -32,14 +32,20 @@ import (
 
 func testChannel(channel *model.Channel, testModel string) (err error, openAIErrorWithStatusCode *dto.OpenAIErrorWithStatusCode) {
 	tik := time.Now()
-	if channel.Type == common.ChannelTypeMidjourney {
-		return errors.New(lang.T(nil, "channel.test.midjourney_not_supported")), nil
+	if channel.Type == constant.ChannelTypeMidjourney {
+		return errors.New("midjourney channel test is not supported"), nil
 	}
-	if channel.Type == common.ChannelTypeMidjourneyPlus {
-		return errors.New(lang.T(nil, "channel.test.midjourney_plus_not_supported")), nil
+	if channel.Type == constant.ChannelTypeMidjourneyPlus {
+		return errors.New("midjourney plus channel test is not supported"), nil
 	}
-	if channel.Type == common.ChannelTypeSunoAPI {
-		return errors.New(lang.T(nil, "channel.test.suno_not_supported")), nil
+	if channel.Type == constant.ChannelTypeSunoAPI {
+		return errors.New("suno channel test is not supported"), nil
+	}
+	if channel.Type == constant.ChannelTypeKling {
+		return errors.New("kling channel test is not supported"), nil
+	}
+	if channel.Type == constant.ChannelTypeJimeng {
+		return errors.New("jimeng channel test is not supported"), nil
 	}
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
@@ -51,7 +57,7 @@ func testChannel(channel *model.Channel, testModel string) (err error, openAIErr
 		strings.HasPrefix(testModel, "m3e") || // m3e 系列模型
 		strings.Contains(testModel, "bge-") || // bge 系列模型
 		strings.Contains(testModel, "embed") ||
-		channel.Type == common.ChannelTypeMokaAI { // 其他 embedding 模型
+		channel.Type == constant.ChannelTypeMokaAI { // 其他 embedding 模型
 		requestPath = "/v1/embeddings" // 修改请求路径
 	}
 
@@ -91,13 +97,13 @@ func testChannel(channel *model.Channel, testModel string) (err error, openAIErr
 
 	info := relaycommon.GenRelayInfo(c)
 
-	err = helper.ModelMappedHelper(c, info)
+	err = helper.ModelMappedHelper(c, info, nil)
 	if err != nil {
 		return err, nil
 	}
 	testModel = info.UpstreamModelName
 
-	apiType, _ := constant.ChannelType2APIType(channel.Type)
+	apiType, _ := common.ChannelType2APIType(channel.Type)
 	adaptor := relay.GetAdaptor(apiType)
 	if adaptor == nil {
 		return fmt.Errorf("invalid api type: %d, adaptor is nil", apiType), nil
@@ -166,10 +172,10 @@ func testChannel(channel *model.Channel, testModel string) (err error, openAIErr
 	tok := time.Now()
 	milliseconds := tok.Sub(tik).Milliseconds()
 	consumedTime := float64(milliseconds) / 1000.0
-	other := service.GenerateTextOtherInfo(c, info, priceData.ModelRatio, priceData.GroupRatio, priceData.CompletionRatio,
-		usage.PromptTokensDetails.CachedTokens, priceData.CacheRatio, priceData.ModelPrice)
+	other := service.GenerateTextOtherInfo(c, info, priceData.ModelRatio, priceData.GroupRatioInfo.GroupRatio, priceData.CompletionRatio,
+		usage.PromptTokensDetails.CachedTokens, priceData.CacheRatio, priceData.ModelPrice, priceData.GroupRatioInfo.GroupSpecialRatio)
 	model.RecordConsumeLog(c, 1, channel.Id, usage.PromptTokens, usage.CompletionTokens, info.OriginModelName, lang.T(nil, "channel.test.model_test"),
-		quota, lang.T(nil, "channel.test.model_test"), 0, quota, int(consumedTime), false, info.Group, other)
+		quota, lang.T(nil, "channel.test.model_test"), 0, quota, int(consumedTime), false, info.UsingGroup, other)
 	common.SysLog(fmt.Sprintf("testing channel #%d, response: \n%s", channel.Id, string(respBody)))
 	return nil, nil
 }
@@ -197,14 +203,14 @@ func buildTestRequest(model string) *dto.GeneralOpenAIRequest {
 			testRequest.MaxTokens = 50
 		}
 	} else if strings.Contains(model, "gemini") {
-		testRequest.MaxTokens = 300
+		testRequest.MaxTokens = 3000
 	} else {
 		testRequest.MaxTokens = 10
 	}
-	content, _ := json.Marshal("hi")
+
 	testMessage := dto.Message{
 		Role:    "user",
-		Content: content,
+		Content: "hi",
 	}
 	testRequest.Model = model
 	testRequest.Messages = append(testRequest.Messages, testMessage)
@@ -270,6 +276,13 @@ func testAllChannels(notify bool) error {
 		disableThreshold = 10000000 // a impossible value
 	}
 	gopool.Go(func() {
+		// 使用 defer 确保无论如何都会重置运行状态，防止死锁
+		defer func() {
+			testAllChannelsLock.Lock()
+			testAllChannelsRunning = false
+			testAllChannelsLock.Unlock()
+		}()
+
 		for _, channel := range channels {
 			isChannelEnabled := channel.Status == common.ChannelStatusEnabled
 			tik := time.Now()
@@ -306,9 +319,7 @@ func testAllChannels(notify bool) error {
 			channel.UpdateResponseTime(milliseconds)
 			time.Sleep(common.RequestInterval)
 		}
-		testAllChannelsLock.Lock()
-		testAllChannelsRunning = false
-		testAllChannelsLock.Unlock()
+
 		if notify {
 			service.NotifyRootUser(dto.NotifyTypeChannelTest,
 				lang.T(nil, "channel.test.notify_title"),

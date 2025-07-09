@@ -9,6 +9,7 @@ import (
 
 	"github.com/samber/lo"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Ability struct {
@@ -21,10 +22,25 @@ type Ability struct {
 	Tag       *string `json:"tag" gorm:"index"`
 }
 
-func GetGroupModels(group string) []string {
+type AbilityWithChannel struct {
+	Ability
+	ChannelType int `json:"channel_type"`
+}
+
+func GetAllEnableAbilityWithChannels() ([]AbilityWithChannel, error) {
+	var abilities []AbilityWithChannel
+	err := DB.Table("abilities").
+		Select("abilities.*, channels.type as channel_type").
+		Joins("left join channels on abilities.channel_id = channels.id").
+		Where("abilities.enabled = ?", true).
+		Scan(&abilities).Error
+	return abilities, err
+}
+
+func GetGroupEnabledModels(group string) []string {
 	var models []string
 	// Find distinct models
-	DB.Table("abilities").Where(groupCol+" = ? and enabled = ?", group, true).Distinct("model").Pluck("model", &models)
+	DB.Table("abilities").Where(commonGroupCol+" = ? and enabled = ?", group, true).Distinct("model").Pluck("model", &models)
 	return models
 }
 
@@ -42,15 +58,11 @@ func GetAllEnableAbilities() []Ability {
 }
 
 func getPriority(group string, model string, retry int) (int, error) {
-	trueVal := "1"
-	if common.UsingPostgreSQL {
-		trueVal = "true"
-	}
 
 	var priorities []int
 	err := DB.Model(&Ability{}).
 		Select("DISTINCT(priority)").
-		Where(groupCol+" = ? and model = ? and enabled = "+trueVal, group, model).
+		Where(commonGroupCol+" = ? and model = ? and enabled = ?", group, model, true).
 		Order("priority DESC").              // 按优先级降序排序
 		Pluck("priority", &priorities).Error // Pluck用于将查询的结果直接扫描到一个切片中
 
@@ -76,18 +88,14 @@ func getPriority(group string, model string, retry int) (int, error) {
 }
 
 func getChannelQuery(group string, model string, retry int) *gorm.DB {
-	trueVal := "1"
-	if common.UsingPostgreSQL {
-		trueVal = "true"
-	}
-	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(groupCol+" = ? and model = ? and enabled = "+trueVal, group, model)
-	channelQuery := DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal+" and priority = (?)", group, model, maxPrioritySubQuery)
+	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(commonGroupCol+" = ? and model = ? and enabled = ?", group, model, true)
+	channelQuery := DB.Where(commonGroupCol+" = ? and model = ? and enabled = ? and priority = (?)", group, model, true, maxPrioritySubQuery)
 	if retry != 0 {
 		priority, err := getPriority(group, model, retry)
 		if err != nil {
 			common.SysError(fmt.Sprintf("Get priority failed: %s", err.Error()))
 		} else {
-			channelQuery = DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal+" and priority = ?", group, model, priority)
+			channelQuery = DB.Where(commonGroupCol+" = ? and model = ? and enabled = ? and priority = ?", group, model, true, priority)
 		}
 	}
 
@@ -134,9 +142,15 @@ func GetRandomSatisfiedChannel(group string, model string, retry int) (*Channel,
 func (channel *Channel) AddAbilities() error {
 	models_ := strings.Split(channel.Models, ",")
 	groups_ := strings.Split(channel.Group, ",")
+	abilitySet := make(map[string]struct{})
 	abilities := make([]Ability, 0, len(models_))
 	for _, model := range models_ {
 		for _, group := range groups_ {
+			key := group + "|" + model
+			if _, exists := abilitySet[key]; exists {
+				continue
+			}
+			abilitySet[key] = struct{}{}
 			ability := Ability{
 				Group:     group,
 				Model:     model,
@@ -153,7 +167,7 @@ func (channel *Channel) AddAbilities() error {
 		return nil
 	}
 	for _, chunk := range lo.Chunk(abilities, 50) {
-		err := DB.Create(&chunk).Error
+		err := DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&chunk).Error
 		if err != nil {
 			return err
 		}
@@ -195,9 +209,15 @@ func (channel *Channel) UpdateAbilities(tx *gorm.DB) error {
 	// Then add new abilities
 	models_ := strings.Split(channel.Models, ",")
 	groups_ := strings.Split(channel.Group, ",")
+	abilitySet := make(map[string]struct{})
 	abilities := make([]Ability, 0, len(models_))
 	for _, model := range models_ {
 		for _, group := range groups_ {
+			key := group + "|" + model
+			if _, exists := abilitySet[key]; exists {
+				continue
+			}
+			abilitySet[key] = struct{}{}
 			ability := Ability{
 				Group:     group,
 				Model:     model,
@@ -213,7 +233,7 @@ func (channel *Channel) UpdateAbilities(tx *gorm.DB) error {
 
 	if len(abilities) > 0 {
 		for _, chunk := range lo.Chunk(abilities, 50) {
-			err = tx.Create(&chunk).Error
+			err = tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&chunk).Error
 			if err != nil {
 				if isNewTx {
 					tx.Rollback()

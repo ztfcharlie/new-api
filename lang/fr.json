@@ -241,6 +241,7 @@
     "topup.error.min_amount": "Le montant de recharge ne peut pas être inférieur à %d",
     "topup.error.get_group": "Échec de l'obtention du groupe d'utilisateurs",
     "topup.error.amount_too_low": "Le montant de recharge est trop faible",
+    "topup.error.payment_method_does_not_exist": "La méthode de paiement n'existe pas",
     "topup.error.no_payment_config": "L'administrateur actuel n'a pas configuré les informations de paiement",
     "topup.error.payment_failed": "Échec de l'initiation du paiement",
     "topup.error.create_order": "Échec de la création de la commande",

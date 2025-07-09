@@ -1,5 +1,5 @@
 // ModelSettingsVisualEditor.js
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Table,
   Button,
@@ -9,8 +9,8 @@ import {
   Space,
   RadioGroup,
   Radio,
-  Tabs,
-  TabPane,
+  Checkbox,
+  Tag
 } from '@douyinfe/semi-ui';
 import {
   IconDelete,
@@ -19,11 +19,8 @@ import {
   IconSave,
   IconEdit,
 } from '@douyinfe/semi-icons';
-import { showError, showSuccess } from '../../../helpers';
-import { API } from '../../../helpers';
+import { API, showError, showSuccess, getQuotaPerUnit } from '../../../helpers';
 import { useTranslation } from 'react-i18next';
-import { StatusContext } from '../../../context/Status/index.js';
-import { getQuotaPerUnit } from '../../../helpers/render.js';
 
 export default function ModelSettingsVisualEditor(props) {
   const { t } = useTranslation();
@@ -35,6 +32,7 @@ export default function ModelSettingsVisualEditor(props) {
   const [loading, setLoading] = useState(false);
   const [pricingMode, setPricingMode] = useState('per-token'); // 'per-token' or 'per-request'
   const [pricingSubMode, setPricingSubMode] = useState('ratio'); // 'ratio' or 'token-price'
+  const [conflictOnly, setConflictOnly] = useState(false);
   const formRef = useRef(null);
   const pageSize = 10;
   const quotaPerUnit = getQuotaPerUnit();
@@ -52,13 +50,19 @@ export default function ModelSettingsVisualEditor(props) {
         ...Object.keys(completionRatio),
       ]);
 
-      const modelData = Array.from(modelNames).map((name) => ({
-        name,
-        price: modelPrice[name] === undefined ? '' : modelPrice[name],
-        ratio: modelRatio[name] === undefined ? '' : modelRatio[name],
-        completionRatio:
-          completionRatio[name] === undefined ? '' : completionRatio[name],
-      }));
+      const modelData = Array.from(modelNames).map((name) => {
+        const price = modelPrice[name] === undefined ? '' : modelPrice[name];
+        const ratio = modelRatio[name] === undefined ? '' : modelRatio[name];
+        const comp = completionRatio[name] === undefined ? '' : completionRatio[name];
+
+        return {
+          name,
+          price,
+          ratio,
+          completionRatio: comp,
+          hasConflict: price !== '' && (ratio !== '' || comp !== ''),
+        };
+      });
 
       setModels(modelData);
     } catch (error) {
@@ -74,11 +78,13 @@ export default function ModelSettingsVisualEditor(props) {
   };
 
   // 在 return 语句之前，先处理过滤和分页逻辑
-  const filteredModels = models.filter((model) =>
-    searchText
+  const filteredModels = models.filter((model) => {
+    const keywordMatch = searchText
       ? model.name.toLowerCase().includes(searchText.toLowerCase())
-      : true,
-  );
+      : true;
+    const conflictMatch = conflictOnly ? model.hasConflict : true;
+    return keywordMatch && conflictMatch;
+  });
 
   // 然后基于过滤后的数据计算分页数据
   const pagedData = getPagedData(filteredModels, currentPage, pageSize);
@@ -157,6 +163,16 @@ export default function ModelSettingsVisualEditor(props) {
       title: t('模型名称'),
       dataIndex: 'name',
       key: 'name',
+      render: (text, record) => (
+        <span>
+          {text}
+          {record.hasConflict && (
+            <Tag color='red' shape='circle' className='ml-2'>
+              {t('矛盾')}
+            </Tag>
+          )}
+        </span>
+      ),
     },
     {
       title: t('模型固定价格'),
@@ -224,9 +240,13 @@ export default function ModelSettingsVisualEditor(props) {
       return;
     }
     setModels((prev) =>
-      prev.map((model) =>
-        model.name === name ? { ...model, [field]: value } : model,
-      ),
+      prev.map((model) => {
+        if (model.name !== name) return model;
+        const updated = { ...model, [field]: value };
+        updated.hasConflict =
+          updated.price !== '' && (updated.ratio !== '' || updated.completionRatio !== '');
+        return updated;
+      }),
     );
   };
 
@@ -316,16 +336,18 @@ export default function ModelSettingsVisualEditor(props) {
     if (existingModelIndex >= 0) {
       // Update existing model
       setModels((prev) =>
-        prev.map((model, index) =>
-          index === existingModelIndex
-            ? {
-                name: values.name,
-                price: values.price || '',
-                ratio: values.ratio || '',
-                completionRatio: values.completionRatio || '',
-              }
-            : model,
-        ),
+        prev.map((model, index) => {
+          if (index !== existingModelIndex) return model;
+          const updated = {
+            name: values.name,
+            price: values.price || '',
+            ratio: values.ratio || '',
+            completionRatio: values.completionRatio || '',
+          };
+          updated.hasConflict =
+            updated.price !== '' && (updated.ratio !== '' || updated.completionRatio !== '');
+          return updated;
+        }),
       );
       setVisible(false);
       showSuccess(t('更新成功'));
@@ -337,15 +359,17 @@ export default function ModelSettingsVisualEditor(props) {
         return;
       }
 
-      setModels((prev) => [
-        {
+      setModels((prev) => {
+        const newModel = {
           name: values.name,
           price: values.price || '',
           ratio: values.ratio || '',
           completionRatio: values.completionRatio || '',
-        },
-        ...prev,
-      ]);
+        };
+        newModel.hasConflict =
+          newModel.price !== '' && (newModel.ratio !== '' || newModel.completionRatio !== '');
+        return [newModel, ...prev];
+      });
       setVisible(false);
       showSuccess(t('添加成功'));
     }
@@ -424,7 +448,7 @@ export default function ModelSettingsVisualEditor(props) {
   return (
     <>
       <Space vertical align='start' style={{ width: '100%' }}>
-        <Space>
+        <Space className='mt-2'>
           <Button
             icon={<IconPlus />}
             onClick={() => {
@@ -446,7 +470,17 @@ export default function ModelSettingsVisualEditor(props) {
               setCurrentPage(1);
             }}
             style={{ width: 200 }}
+            showClear
           />
+          <Checkbox
+            checked={conflictOnly}
+            onChange={(e) => {
+              setConflictOnly(e.target.checked);
+              setCurrentPage(1);
+            }}
+          >
+            {t('仅显示矛盾倍率')}
+          </Checkbox>
         </Space>
         <Table
           columns={columns}
@@ -471,8 +505,8 @@ export default function ModelSettingsVisualEditor(props) {
       <Modal
         title={
           currentModel &&
-          currentModel.name &&
-          models.some((model) => model.name === currentModel.name)
+            currentModel.name &&
+            models.some((model) => model.name === currentModel.name)
             ? t('编辑模型')
             : t('添加模型')
         }

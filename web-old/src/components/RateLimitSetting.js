@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Spin, Tabs } from '@douyinfe/semi-ui';
+import { Card, Spin } from '@douyinfe/semi-ui';
 
-import { API, showError, showSuccess } from '../helpers';
-import SettingsChats from '../pages/Setting/Operation/SettingsChats.js';
+import { API, showError } from '../../helpers/index.js';
 import { useTranslation } from 'react-i18next';
-import RequestRateLimit from '../pages/Setting/RateLimit/SettingsRequestRateLimit.js';
+import RequestRateLimit from '../../pages/Setting/RateLimit/SettingsRequestRateLimit.js';
 
 const RateLimitSetting = () => {
   const { t } = useTranslation();
@@ -24,14 +23,14 @@ const RateLimitSetting = () => {
     if (success) {
       let newInputs = {};
       data.forEach((item) => {
-      if (item.key === 'ModelRequestRateLimitGroup') {
-        item.value = JSON.stringify(JSON.parse(item.value), null, 2);
-      }
+        if (item.key === 'ModelRequestRateLimitGroup') {
+          item.value = JSON.stringify(JSON.parse(item.value), null, 2);
+        }
 
-      if (item.key.endsWith('Enabled')) {
-        newInputs[item.key] = item.value === 'true' ? true : false;
-      } else {
-        newInputs[item.key] = item.value;
+        if (item.key.endsWith('Enabled')) {
+          newInputs[item.key] = item.value === 'true' ? true : false;
+        } else {
+          newInputs[item.key] = item.value;
         }
       });
 

@@ -25,6 +25,7 @@ export default function ModelRatioSettings(props) {
     ModelRatio: '',
     CacheRatio: '',
     CompletionRatio: '',
+    ExposeRatioEnabled: false,
   });
   const refForm = useRef();
   const [inputsRow, setInputsRow] = useState(inputs);
