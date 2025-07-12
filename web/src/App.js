@@ -30,6 +30,9 @@ import SetupCheck from './components/layout/SetupCheck.js';
 const Home = lazy(() => import('./pages/Home'));
 const Detail = lazy(() => import('./pages/Detail'));
 const About = lazy(() => import('./pages/About'));
+const Faq = lazy(() => import('./pages/Faq'));
+const Docs = lazy(() => import('./pages/Docs'));
+const DocDetail = lazy(() => import('./pages/Docs/Detail'));
 
 function App() {
   const location = useLocation();
@@ -266,6 +269,30 @@ function App() {
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
               <About />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/faq'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <Faq />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/docs'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <Docs />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/doc/:slug'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <DocDetail />
             </Suspense>
           }
         />

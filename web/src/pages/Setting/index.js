@@ -26,6 +26,7 @@ import RatioSetting from '../../components/settings/RatioSetting.js';
 import ChatsSetting from '../../components/settings/ChatsSetting.js';
 import DrawingSetting from '../../components/settings/DrawingSetting.js';
 import PaymentSetting from '../../components/settings/PaymentSetting.js';
+import DocSetting from '@/components/settings/DocSetting';
 
 const Setting = () => {
   const { t } = useTranslation();
@@ -134,6 +135,16 @@ const Setting = () => {
       ),
       content: <OtherSetting />,
       itemKey: 'other',
+    });
+    panes.push({
+      tab: (
+        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <MoreHorizontal size={18} />
+          {t('文章设置')}
+        </span>
+      ),
+      content: <DocSetting />,
+      itemKey: 'docs',
     });
   }
   const onChangeTab = (key) => {

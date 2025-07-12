@@ -22,6 +22,9 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.GET("/notice", controller.GetNotice)
 		apiRouter.GET("/about", controller.GetAbout)
 		apiRouter.GET("/faq", controller.GetFaq)
+		apiRouter.GET("/doc/detail", controller.GetDocDetail)
+		apiRouter.GET("/doc/list", controller.GetDocList)
+
 		//apiRouter.GET("/midjourney", controller.GetMidjourney)
 		apiRouter.GET("/home_page_content", controller.GetHomePageContent)
 		apiRouter.GET("/pricing", middleware.TryUserAuth(), controller.GetPricing)
@@ -58,7 +61,7 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.GET("/self", controller.GetSelf)
 				selfRoute.GET("/models", controller.GetUserModels)
 				selfRoute.PUT("/self", controller.UpdateSelf)
-				selfRoute.DELETE("/self", controller.DeleteSelf)
+				// selfRoute.DELETE("/self", controller.DeleteSelf)
 				selfRoute.GET("/token", controller.GenerateAccessToken)
 				selfRoute.GET("/aff", controller.GetAffCode)
 				selfRoute.POST("/topup", controller.TopUp)

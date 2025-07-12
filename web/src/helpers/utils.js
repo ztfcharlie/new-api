@@ -538,3 +538,12 @@ export function setTableCompactMode(compact, tableKey = 'global') {
   modes[tableKey] = compact;
   writeTableCompactModes(modes);
 }
+
+
+// 转换成seo标识
+export function slugify(str) {
+  str = str.replace(/^\s+|\s+$/g, '');
+  str = str.toLowerCase();
+  str = str.replace(/\s+/g, '-').replace(/-+/g, '-');
+  return str;
+}

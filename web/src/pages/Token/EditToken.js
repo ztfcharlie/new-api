@@ -7,6 +7,7 @@ import {
   timestamp2string,
   renderGroupOption,
   renderQuotaWithPrompt,
+  isRoot,
 } from '../../helpers';
 import {
   Button,
@@ -30,6 +31,8 @@ import {
 } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
 import { StatusContext } from '../../context/Status';
+import { debounce } from 'lodash-es';
+import { ITEMS_PER_PAGE } from '@/constants';
 
 const { Text, Title } = Typography;
 
@@ -42,7 +45,73 @@ const EditToken = (props) => {
   const [groups, setGroups] = useState([]);
   const isEdit = props.editingToken.id !== undefined;
 
+  // 用户部分
+  const [loadingUser, setLoadingUser] = useState(false);
+  const [userList, setUserList] = useState([]);
+
+  // 初始化
+  async function loadUserList(){
+    setLoadingUser(true);
+    const res = await API.get(`/api/user/?p=1&page_size=${ITEMS_PER_PAGE}`);
+    const { success, message, data } = res.data;
+    if (success) {
+      const list = data.items.map(item=>({value:item.id,label:item.username}))
+      setUserList(list);
+    } else {
+      showError(message);
+    }
+    setLoadingUser(false);
+  };
+  // 搜索用户
+  async function searchUserList(inputValue){
+    setLoadingUser(true);
+    if (inputValue) {
+      const res = await API.get(`/api/user/search?keyword=${inputValue}&p=1&page_size=${ITEMS_PER_PAGE}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        const list = data.items.map(item=>({value:item.id,label:item.username}))
+        setUserList(list);
+      } else {
+        showError(message);
+      }
+    }else{
+      loadUserList();
+    }
+    setLoadingUser(false);
+  };
+  // 加载用户
+  async function loadUser(userId){
+    let res = undefined;
+    if (userId) {
+      res = await API.get(`/api/user/${userId}`);
+    } else {
+      res = await API.get(`/api/user/self`);
+    }
+    const { success, message, data } = res.data;
+    if (success) {
+      setUserList([{value:data.id,label:data.username}])
+      if(!userId){
+        formApiRef.current.setValue("user_id",data.id);
+        console.log("formApiRef.current",formApiRef.current.getValues(),data.id)
+      }
+    } else {
+      showError(message);
+    }
+  };
+  useEffect(() => {
+    if(!props.visiable){
+      return
+    }
+    if (props.editingToken.id !== undefined){
+      loadUser(props.editingToken.user_id);
+    }else{
+      loadUser('');
+    }
+  }, [props.visiable]);
+
+
   const getInitValues = () => ({
+    user_id:'',
     name: '',
     remain_quota: 500000,
     expired_time: -1,
@@ -130,7 +199,7 @@ const EditToken = (props) => {
         formApiRef.current.setValues({ ...getInitValues(), ...data });
       }
     } else {
-      showError(message);
+      showError(t(message));
     }
     setLoading(false);
   };
@@ -310,6 +379,26 @@ const EditToken = (props) => {
                   </div>
                 </div>
                 <Row gutter={12}>
+                  {isRoot()?(
+                    <>
+                      <Col span={24}>
+                        <Form.Select
+                          className="w-full"
+                          field='user_id'
+                          label={t('用户名')}
+                          placeholder={t('请输入用户名')}
+                          rules={[{ required: true, message: t('请输入用户名') }]}
+                          optionList={userList}
+                          loading={loadingUser}
+                          onSearch={debounce(searchUserList, 500)}
+                          showClear
+                          remote
+                          filter
+                        />      
+                        {t('支持搜索用户的 ID、用户名、显示名称和邮箱地址')}
+                      </Col>
+                    </>
+                  ):null}
                   <Col span={24}>
                     <Form.Input
                       field='name'

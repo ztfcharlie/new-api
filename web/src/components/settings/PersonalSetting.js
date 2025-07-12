@@ -1023,7 +1023,7 @@ const PersonalSetting = () => {
                         </Card>
 
                         {/* 危险区域 */}
-                        <Card
+                        {/* <Card
                           className="!rounded-xl border-red-200 w-full"
                           bodyStyle={{ padding: '20px' }}
                           shadows='hover'
@@ -1052,7 +1052,7 @@ const PersonalSetting = () => {
                               {t('删除账户')}
                             </Button>
                           </div>
-                        </Card>
+                        </Card> */}
                       </Space>
                     </div>
                   </div>

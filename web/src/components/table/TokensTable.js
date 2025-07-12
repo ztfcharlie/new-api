@@ -7,7 +7,8 @@ import {
   timestamp2string,
   renderGroup,
   renderQuota,
-  getQuotaPerUnit
+  getQuotaPerUnit,
+  isRoot,
 } from '../../helpers';
 import { ITEMS_PER_PAGE } from '../../constants';
 import {
@@ -710,6 +711,22 @@ const TokensTable = () => {
                 pure
               />
             </div>
+
+            {isRoot()?(
+              <>
+              <div className="relative w-full md:w-56">
+                <Form.Input
+                  field="searchKeyword"
+                  label={t('搜索用户名')}
+                  placeholder={t('用户名')}
+                  showClear
+                  pure
+                  loading={searching}
+                />
+              </div>
+              </>
+            ):null}
+
             <div className="relative w-full md:w-56">
               <Form.Input
                 field="searchToken"

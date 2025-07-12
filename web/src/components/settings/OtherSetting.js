@@ -24,6 +24,7 @@ const OtherSetting = () => {
     Footer: '',
     About: '',
     HomePageContent: '',
+    Faq: '',
   });
   let [loading, setLoading] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -142,6 +143,19 @@ const OtherSetting = () => {
       showError('关于内容更新失败');
     } finally {
       setLoadingInput((loadingInput) => ({ ...loadingInput, About: false }));
+    }
+  };
+  // 个性化设置 - Faq
+  const submitFaq = async () => {
+    try {
+      setLoadingInput((loadingInput) => ({ ...loadingInput, Faq: true }));
+      await updateOption('Faq', inputs.Faq);
+      showSuccess('FAQ内容已更新');
+    } catch (error) {
+      console.error('FAQ内容更新失败', error);
+      showError('FAQ内容更新失败');
+    } finally {
+      setLoadingInput((loadingInput) => ({ ...loadingInput, Faq: false }));
     }
   };
   // 个性化设置 - 页脚
@@ -365,6 +379,22 @@ const OtherSetting = () => {
               <Button onClick={submitAbout} loading={loadingInput['About']}>
                 {t('设置关于')}
               </Button>
+
+
+              <Form.TextArea
+                label={t('FAQ')}
+                placeholder={t(
+                  '在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面',
+                )}
+                field={'Faq'}
+                onChange={handleInputChange}
+                style={{ fontFamily: 'JetBrains Mono, Consolas' }}
+                autosize={{ minRows: 6, maxRows: 12 }}
+              />
+              <Button onClick={submitFaq} loading={loadingInput['Faq']}>
+                {t('设置FAQ')}
+              </Button>
+
               {/*  */}
               <Banner
                 fullMode={false}

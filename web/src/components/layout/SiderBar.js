@@ -144,11 +144,11 @@ const SiderBar = () => {
         itemKey: 'playground',
         to: '/playground',
       },
-      {
-        text: t('聊天'),
-        itemKey: 'chat',
-        items: chatItems,
-      },
+      // {
+      //   text: t('聊天'),
+      //   itemKey: 'chat',
+      //   items: chatItems,
+      // },
     ],
     [chatItems, t],
   );

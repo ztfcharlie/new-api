@@ -61,6 +61,7 @@ func InitOptionMap() {
 	common.OptionMap["SMTPSSLEnabled"] = strconv.FormatBool(common.SMTPSSLEnabled)
 	common.OptionMap["Notice"] = ""
 	common.OptionMap["About"] = ""
+	common.OptionMap["Faq"] = ""
 	common.OptionMap["HomePageContent"] = ""
 	common.OptionMap["Footer"] = common.Footer
 	common.OptionMap["SystemName"] = common.SystemName

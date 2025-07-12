@@ -17,6 +17,8 @@ export default function SettingsCreditLimit(props) {
     PreConsumedQuota: '',
     QuotaForInviter: '',
     QuotaForInvitee: '',
+    QuotaForCode: '', // 兑换奖励百分比
+    QuotaForCount: '', // 在线充值奖励百分比
   });
   const refForm = useRef();
   const [inputsRow, setInputsRow] = useState(inputs);
@@ -129,7 +131,7 @@ export default function SettingsCreditLimit(props) {
               </Col>
             </Row>
             <Row>
-              <Col xs={24} sm={12} md={8} lg={8} xl={6}>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
                 <Form.InputNumber
                   label={t('新用户使用邀请码奖励额度')}
                   field={'QuotaForInvitee'}
@@ -144,6 +146,52 @@ export default function SettingsCreditLimit(props) {
                       QuotaForInvitee: String(value),
                     })
                   }
+                />
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Form.InputNumber
+                  label={t('兑换码奖励百分比(给推广人员的)')}
+                  field={'QuotaForCode'}
+                  step={1}
+                  min={0}
+                  suffix={'%'}
+                  extraText={''}
+                  placeholder={t('例如：50')}
+                  onChange={(value) =>
+                    setInputs({
+                      ...inputs,
+                      QuotaForCode: String(value),
+                    })
+                  }
+                  rules={[
+                    { 
+                      validator: (rule, value) => value>=0, 
+                      message: t('不能是负数')
+                    },
+                  ]}
+                />
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Form.InputNumber
+                  label={t('在线充值奖励百分比(给推广人员的)')}
+                  field={'QuotaForCount'}
+                  step={1}
+                  min={0}
+                  suffix={'%'}
+                  extraText={''}
+                  placeholder={t('例如：50')}
+                  onChange={(value) =>
+                    setInputs({
+                      ...inputs,
+                      QuotaForCount: String(value),
+                    })
+                  }
+                  rules={[
+                    { 
+                      validator: (rule, value) => value>=0, 
+                      message: t('不能是负数')
+                    },
+                  ]}
                 />
               </Col>
             </Row>

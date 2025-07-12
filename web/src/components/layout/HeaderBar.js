@@ -5,8 +5,9 @@ import { useSetTheme, useTheme } from '../../context/Theme/index.js';
 import { useTranslation } from 'react-i18next';
 import { API, getLogo, getSystemName, showSuccess, stringToColor } from '../../helpers/index.js';
 import fireworks from 'react-fireworks';
-import { CN, GB } from 'country-flag-icons/react/3x2';
+import { CN, GB,RU,DE,PT,ES,FR,JP,KR } from 'country-flag-icons/react/3x2';
 import NoticeModal from './NoticeModal.js';
+import { langs } from '@/i18n/i18n'; // 导入语言数组
 
 import {
   IconClose,
@@ -30,6 +31,21 @@ import {
   Skeleton,
   Badge,
 } from '@douyinfe/semi-ui';
+
+const langComponentMap = {
+  'zh': CN,
+  'en': GB,
+  'jp': JP,
+  'ru': RU,
+  'de': DE,
+  'pt': PT,
+  'es': ES,
+  'fr': FR,
+  'ja': JP,
+  'ko': KR,
+};
+
+
 import { StatusContext } from '../../context/Status/index.js';
 import { useStyle, styleActions } from '../../context/Style/index.js';
 
@@ -109,16 +125,26 @@ const HeaderBar = () => {
       itemKey: 'pricing',
       to: '/pricing',
     },
-    ...(docsLink
-      ? [
-        {
-          text: t('文档'),
-          itemKey: 'docs',
-          isExternal: true,
-          externalLink: docsLink,
-        },
-      ]
-      : []),
+    // ...(docsLink
+    //   ? [
+    //     {
+    //       text: t('文档'),
+    //       itemKey: 'docs',
+    //       isExternal: true,
+    //       externalLink: docsLink,
+    //     },
+    //   ]
+    //   : []),
+    {
+      text: t('FAQ'),
+      itemKey: 'faq',
+      to: '/faq',
+    },
+    {
+      text: t('文章'),
+      itemKey: 'docs',
+      to: '/docs',
+    },
     {
       text: t('关于'),
       itemKey: 'about',
@@ -552,20 +578,23 @@ const HeaderBar = () => {
               position="bottomRight"
               render={
                 <Dropdown.Menu className="!bg-semi-color-bg-overlay !border-semi-color-border !shadow-lg !rounded-lg dark:!bg-gray-700 dark:!border-gray-600">
-                  <Dropdown.Item
-                    onClick={() => handleLanguageChange('zh')}
-                    className={`!flex !items-center !gap-2 !px-3 !py-1.5 !text-sm !text-semi-color-text-0 dark:!text-gray-200 ${currentLang === 'zh' ? '!bg-semi-color-primary-light-default dark:!bg-blue-600 !font-semibold' : 'hover:!bg-semi-color-fill-1 dark:hover:!bg-gray-600'}`}
-                  >
-                    <CN title="中文" className="!w-5 !h-auto" />
-                    <span>中文</span>
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => handleLanguageChange('en')}
-                    className={`!flex !items-center !gap-2 !px-3 !py-1.5 !text-sm !text-semi-color-text-0 dark:!text-gray-200 ${currentLang === 'en' ? '!bg-semi-color-primary-light-default dark:!bg-blue-600 !font-semibold' : 'hover:!bg-semi-color-fill-1 dark:hover:!bg-gray-600'}`}
-                  >
-                    <GB title="English" className="!w-5 !h-auto" />
-                    <span>English</span>
-                  </Dropdown.Item>
+
+                  {langs.map((lang) => {
+                    const Component = langComponentMap[lang.value];
+                    return (
+                      <Dropdown.Item
+                        key={lang.value}
+                        onClick={() => handleLanguageChange(lang.value)}
+                        className={`!flex !items-center !gap-2 !px-3 !py-1.5 !text-sm !text-semi-color-text-0 dark:!text-gray-200 ${currentLang === lang.value ? '!bg-semi-color-primary-light-default dark:!bg-blue-600 !font-semibold' : 'hover:!bg-semi-color-fill-1 dark:hover:!bg-gray-600'}`}
+                      >
+                        <Component key={lang.value} title={lang.label} className="!w-5 !h-auto" />
+                        <span>{lang.label}</span>
+                      </Dropdown.Item>
+                    )
+                  })}
+
+
+                  
                 </Dropdown.Menu>
               }
             >

@@ -2,9 +2,17 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, transformWithEsbuild } from 'vite';
 import pkg from '@douyinfe/vite-plugin-semi';
 const { vitePluginSemi } = pkg;
+import {resolve} from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    /* 设置路径别名 */
+    alias: {
+      '@': resolve(__dirname, './src')
+    },
+    
+  },
   plugins: [
     {
       name: 'treat-js-files-as-jsx',

@@ -29,6 +29,14 @@ export default function SettingsPaymentGateway(props) {
     TopupGroupRatio: '',
     CustomCallbackAddress: '',
     PayMethods: '',
+    // ... 现有的字段 ...
+    StripeKey: '',
+    StripeWebHookKey: '',
+    // 添加 Coinbase 和 PayPal 的配置项
+    CoinbaseKey: '',
+    CoinbaseWebHookKey: '',
+    PaypalKey: '',
+    PaypalWebHookKey: '',
   });
   const [originInputs, setOriginInputs] = useState({});
   const formApiRef = useRef(null);
@@ -44,6 +52,14 @@ export default function SettingsPaymentGateway(props) {
         TopupGroupRatio: props.options.TopupGroupRatio || '',
         CustomCallbackAddress: props.options.CustomCallbackAddress || '',
         PayMethods: props.options.PayMethods || '',
+        // ... 现有的字段 ...
+        StripeKey: props.options.StripeKey || '',
+        StripeWebHookKey: props.options.StripeWebHookKey || '',
+        // 添加 Coinbase 和 PayPal 的配置项
+        CoinbaseKey: props.options.CoinbaseKey || '',
+        CoinbaseWebHookKey: props.options.CoinbaseWebHookKey || '',
+        PaypalKey: props.options.PaypalKey || '',
+        PaypalWebHookKey: props.options.PaypalWebHookKey || '',
       };
       setInputs(currentInputs);
       setOriginInputs({ ...currentInputs });
@@ -105,6 +121,27 @@ export default function SettingsPaymentGateway(props) {
       if (originInputs['PayMethods'] !== inputs.PayMethods) {
         options.push({ key: 'PayMethods', value: inputs.PayMethods });
       }
+
+      if (inputs.StripeKey) {
+        options.push({ key: 'StripeKey', value: inputs.StripeKey });
+      }
+      if (inputs.StripeWebHookKey !== undefined && inputs.StripeWebHookKey !== '') {
+        options.push({ key: 'StripeWebHookKey', value: inputs.StripeWebHookKey });
+      }
+      if (inputs.CoinbaseKey) {
+        options.push({ key: 'CoinbaseKey', value: inputs.CoinbaseKey });
+      }
+      if (inputs.CoinbaseWebHookKey !== undefined && inputs.CoinbaseWebHookKey !== '') {
+        options.push({ key: 'CoinbaseWebHookKey', value: inputs.CoinbaseWebHookKey });
+      }
+      if (inputs.PaypalKey) {
+        options.push({ key: 'PaypalKey', value: inputs.PaypalKey });
+      }
+      if (inputs.PaypalWebHookKey !== undefined && inputs.PaypalWebHookKey !== '') {
+        options.push({ key: 'PaypalWebHookKey', value: inputs.PaypalWebHookKey });
+      }
+
+
 
       // 发送请求
       const requestQueue = options.map(opt =>
@@ -198,6 +235,72 @@ export default function SettingsPaymentGateway(props) {
               />
             </Col>
           </Row>
+
+
+          <Row
+            gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+            style={{ marginTop: 16 }}
+          >
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+              <Form.Input
+                field='StripeKey'
+                label='StripeKey'
+                placeholder=""
+              />
+            </Col>
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+              <Form.Input
+                field='StripeWebHookKey'
+                label='StripeWebHookKey'
+                placeholder={t('敏感信息不会发送到前端显示')}
+                type='password'
+              />
+            </Col>
+          </Row>
+
+          <Row
+            gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+            style={{ marginTop: 16 }}
+          >
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+              <Form.Input
+                field='CoinbaseKey'
+                label='CoinbaseKey'
+                placeholder=""
+              />
+            </Col>
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+              <Form.Input
+                field='CoinbaseWebHookKey'
+                label='CoinbaseWebHookKey'
+                placeholder={t('敏感信息不会发送到前端显示')}
+                type='password'
+              />
+            </Col>
+          </Row>
+
+          <Row
+            gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+            style={{ marginTop: 16 }}
+          >
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+              <Form.Input
+                field='PaypalKey'
+                label='PaypalKey'
+                placeholder=""
+              />
+            </Col>
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+              <Form.Input
+                field='PaypalWebHookKey'
+                label='PaypalWebHookKey'
+                placeholder={t('敏感信息不会发送到前端显示')}
+                type='password'
+              />
+            </Col>
+          </Row>
+
+
           <Form.TextArea
             field='TopupGroupRatio'
             label={t('充值分组倍率')}

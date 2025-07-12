@@ -14,6 +14,8 @@ const OperationSetting = () => {
     PreConsumedQuota: 0,
     QuotaForInviter: 0,
     QuotaForInvitee: 0,
+    QuotaForCode: 0,
+    QuotaForCount: 0,
 
     /* 通用设置 */
     TopUpLink: '',

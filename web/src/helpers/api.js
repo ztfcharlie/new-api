@@ -55,7 +55,21 @@ export function updateAPI() {
 
   patchAPIInstance(API);
 }
-
+// 重新添加拦截器到新的 API 实例
+API.interceptors.request.use(
+  function (config) {
+    const currentLang = localStorage.getItem('i18nextLng');
+    if (currentLang) {
+      config.headers["I18n-Next-lng"] = currentLang;
+      //console.log('Setting language header (after update):', currentLang);
+    }
+    return config;
+  },
+  function (error) {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
 API.interceptors.response.use(
   (response) => response,
   (error) => {

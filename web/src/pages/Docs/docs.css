@@ -1,0 +1,131 @@
+/* 基础样式 */
+.burncloud-container-docs {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+  overflow-x: hidden; /* 防止整个容器横向溢出 */
+}
+
+/* 容器样式 */
+.burncloud-container-docs .container {
+  max-width: 1200px !important;
+  margin: 0 auto;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.burncloud-container-docs .out_container_product-list {
+  background-color: #fff;
+  width: 100%; /* 确保宽度不超过父容器 */
+  box-sizing: border-box;
+}
+
+.burncloud-container-docs .out_container_product-list .container {
+  margin: 2rem auto;
+}
+
+/* 搜索框样式 */
+.burncloud-container-docs .search-section {
+  max-width: 1200px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.burncloud-container-docs .search-container {
+  position: relative;
+  width: 300px;
+}
+
+.burncloud-container-docs .search-input {
+  width: 100%;
+  padding: 10px 40px 10px 10px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.burncloud-container-docs .search-input:focus {
+  box-sizing: border-box;
+  border: 1px solid #ff6b4a; /* 自定义边框颜色 */
+  outline: none; /* 移除默认高亮样式 */
+}
+
+.burncloud-container-docs .search-button {
+  position: absolute;
+  top: 50%;
+  right: 1px;
+  transform: translateY(-50%);
+  background-color: #ff6b4a;
+  border: none;
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.burncloud-container-docs .search-button:hover {
+  background-color: #ff8f70;
+}
+
+/* FAQ 部分 - 调整背景色和卡片样式 */
+.burncloud-container-docs .out_container_product-list.faq-section {
+  background-color: #f8f9fa; /* 浅灰色背景，柔和但与白色卡片形成对比 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.burncloud-container-docs .faq-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #333; /* 确保标题在浅灰背景上清晰可见 */
+}
+
+.burncloud-container-docs .faq-item {
+  margin: 0 auto 1.5rem;
+  background: #fff; /* 保持卡片为白色 */
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* 增强阴影效果，提高卡片辨识度 */
+  transition: all 0.3s ease;
+  border-left: 3px solid #ff6b4a; /* 添加左侧边框，与网站主题色一致 */
+}
+
+.burncloud-container-docs .faq-item:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+
+.burncloud-container-docs .faq-question {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+/* FAQ 标题链接样式 */
+.burncloud-container-docs .faq-question a {
+  text-decoration: none; /* 去掉下划线 */
+  color: #333; /* 链接颜色，与按钮一致 */
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.burncloud-container-docs .faq-question a:hover {
+  color: #ff6b4a; /* 悬停时颜色变化，与按钮一致 */
+}
+
+.burncloud-container-docs .faq-answer {
+  color: #666;
+  line-height: 1.6;
+  text-align: left;
+}

@@ -25,6 +25,10 @@ const SystemSetting = () => {
     PasswordLoginEnabled: '',
     PasswordRegisterEnabled: '',
     EmailVerificationEnabled: '',
+    BurnCloudAuthEnabled: '',
+    BurnCloudClientId: '',
+    BurnCloudClientSecret: '',
+
     GitHubOAuthEnabled: '',
     GitHubClientId: '',
     GitHubClientSecret: '',
@@ -304,7 +308,26 @@ const SystemSetting = () => {
       await updateOptions(options);
     }
   };
+  const submitBurnCloudOAuth = async () => {
+    const options = [];
 
+    if (originInputs['BurnCloudClientId'] !== inputs.BurnCloudClientId) {
+      options.push({ key: 'BurnCloudClientId', value: inputs.BurnCloudClientId });
+    }
+    if (
+      originInputs['BurnCloudClientSecret'] !== inputs.BurnCloudClientSecret &&
+      inputs.BurnCloudClientSecret !== ''
+    ) {
+      options.push({
+        key: 'BurnCloudClientSecret',
+        value: inputs.BurnCloudClientSecret,
+      });
+    }
+
+    if (options.length > 0) {
+      await updateOptions(options);
+    }
+  };
   const submitGitHubOAuth = async () => {
     const options = [];
 
@@ -582,6 +605,15 @@ const SystemSetting = () => {
                     </Col>
                     <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                       <Form.Checkbox
+                        field='BurnCloudOAuthEnabled'
+                        noLabel
+                        onChange={(e) =>
+                          handleCheckboxChange('BurnCloudOAuthEnabled', e)
+                        }
+                      >
+                        允许通过 BurnCloud 账户登录 & 注册  
+                      </Form.Checkbox>
+                      <Form.Checkbox
                         field='GitHubOAuthEnabled'
                         noLabel
                         onChange={(e) =>
@@ -813,6 +845,38 @@ const SystemSetting = () => {
                     </Col>
                   </Row>
                   <Button onClick={submitOIDCSettings}>保存 OIDC 设置</Button>
+                </Form.Section>
+              </Card>
+
+              <Card>
+                <Form.Section text='配置 BurnCloud OAuth App'>
+                  <Text>用以支持通过 BurnCloud 进行登录注册</Text>
+                  <Banner
+                    type='info'
+                    description={`Homepage URL 填 ${inputs.ServerAddress ? inputs.ServerAddress : '网站地址'}，Authorization callback URL 填 ${inputs.ServerAddress ? inputs.ServerAddress : '网站地址'}/oauth/github`}
+                    style={{ marginBottom: 20, marginTop: 16 }}
+                  />
+                  <Row
+                    gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+                  >
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field='BurnCloudClientId'
+                        label='BurnCloud Client ID'
+                      />
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field='BurnCloudClientSecret'
+                        label='BurnCloud Client Secret'
+                        type='password'
+                        placeholder='敏感信息不会发送到前端显示'
+                      />
+                    </Col>
+                  </Row>
+                  <Button onClick={submitBurnCloudOAuth}>
+                    保存 BurnCloud OAuth 设置
+                  </Button>
                 </Form.Section>
               </Card>
 

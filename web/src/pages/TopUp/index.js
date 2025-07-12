@@ -87,6 +87,9 @@ const TopUp = () => {
   ]);
   const [selectedPreset, setSelectedPreset] = useState(null);
 
+  const [quotaForCode, setQuotaForCode] = useState('');
+  const [quotaForCount, setQuotaForCount] = useState('');
+
   const getUsername = () => {
     if (userState.user) {
       return userState.user.username;
@@ -327,6 +330,10 @@ const TopUp = () => {
       setTopUpLink(statusState.status.top_up_link || '');
       setEnableOnlineTopUp(statusState.status.enable_online_topup || false);
       setPriceRatio(statusState.status.price || 1);
+
+      
+      setQuotaForCode(statusState?.status?.quota_for_code);
+      setQuotaForCount(statusState?.status?.quota_for_count);
     }
   }, [statusState?.status]);
 
@@ -944,7 +951,39 @@ const TopUp = () => {
                     </Button>
                   }
                 />
+                {quotaForCode || quotaForCount?
+                <div className='mt-4'>
+                  <Card className='!rounded-2xl'>
+                    <div className='space-y-4'>
+                      {quotaForCode?(
+                        <div className='flex items-start'>
+                          <div className='w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 mr-3 flex-shrink-0'></div>
+                          <Text type='tertiary' className='text-sm leading-6'>
+                            
+                          {t('邀请的用户通过兑换码充值成功，您将获得兑换金额')}
+                          <span style={{color: 'rgba(var(--semi-red-5), 1)'}}> {(quotaForCode)}% </span>
+                          {t('对应的代币奖励。')}
 
+                          </Text>
+                        </div>
+                      ):null}
+                      {quotaForCount?(
+                          <div className='flex items-start'>
+                        <div className='w-1.5 h-1.5 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0'></div>
+                        <Text type='tertiary' className='text-sm leading-6'>
+                          {t('邀请的用户通过在线支付充值成功，您将获得充值金额')}
+                          <span style={{color: 'rgba(var(--semi-red-5), 1)'}}> {(quotaForCount)}% </span>
+                          {t('对应的代币奖励。')}
+                        </Text>
+                      </div>
+                      ):null}
+                      
+                      
+                    </div>
+                  </Card>
+                </div>
+                :null}
+                
                 <div className='mt-4'>
                   <Card className='!rounded-2xl'>
                     <div className='space-y-4'>
