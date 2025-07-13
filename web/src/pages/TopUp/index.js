@@ -40,7 +40,7 @@ import {
 const { Text, Title } = Typography;
 
 const TopUp = () => {
-  const { t } = useTranslation();
+  const { t,i18n } = useTranslation();
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState] = useContext(StatusContext);
   const theme = useTheme();
@@ -296,6 +296,7 @@ const TopUp = () => {
     await copy(affLink);
     showSuccess(t('邀请链接已复制到剪切板'));
   };
+  
 
   useEffect(() => {
     if (userState?.user?.id) {
@@ -307,35 +308,9 @@ const TopUp = () => {
     getAffLink().then();
     setTransferAmount(getQuotaPerUnit());
     loadPresetAmounts()
-    let payMethods = localStorage.getItem('pay_methods');
-    try {
-      payMethods = JSON.parse(payMethods);
-      if (payMethods && payMethods.length > 0) {
-        // 检查name和type是否为空
-        payMethods = payMethods.filter((method) => {
-          return method.name && method.type;
-        });
-        // 如果没有color，则设置默认颜色
-        payMethods = payMethods.map((method) => {
-          if (!method.color) {
-            if (method.type === 'zfb') {
-              method.color = 'rgba(var(--semi-blue-5), 1)';
-            } else if (method.type === 'wx') {
-              method.color = 'rgba(var(--semi-green-5), 1)';
-            } else {
-              method.color = 'rgba(var(--semi-primary-5), 1)';
-            }
-          }
-          return method;
-        });
-        setPayMethods(payMethods);
-      }
-    } catch (e) {
-      console.log(e);
-      showError(t('支付方式配置错误, 请联系管理员'));
-    }
+    loadPayMethods();
   }, []);
-
+  
   useEffect(() => {
     if (statusState?.status) {
       setMinTopUp(statusState.status.min_topup || 1);
@@ -349,7 +324,7 @@ const TopUp = () => {
       setQuotaForCount(statusState?.status?.quota_for_count);
     }
   }, [statusState?.status]);
-
+  
   const renderAmount = () => {
     return amount + ' ' + t('美元');
   };
@@ -417,7 +392,53 @@ const TopUp = () => {
   const formatLargeNumber = (num) => {
     return num.toString();
   };
+  useEffect(() => {
+      const handleLanguageChanged = (lng) => {
+        loadPayMethods();
+      };
 
+      i18n.on('languageChanged', handleLanguageChanged);
+      return () => {
+          i18n.off('languageChanged', handleLanguageChanged);
+      };
+  }, [i18n]);
+  // 加载支付方式
+  function loadPayMethods(){
+    let payMethods = localStorage.getItem('pay_methods');
+    try {
+      payMethods = JSON.parse(payMethods);
+      if (payMethods && payMethods.length > 0) {
+        // 检查name和type是否为空
+        payMethods = payMethods.filter((method) => {
+          return method.name && method.type;
+        });
+        // 如果没有color，则设置默认颜色
+        payMethods = payMethods.map((method) => {
+          if (!method.color) {
+            if (method.type === 'zfb') {
+              method.color = 'rgba(var(--semi-blue-5), 1)';
+            } else if (method.type === 'wx') {
+              method.color = 'rgba(var(--semi-green-5), 1)';
+            } else {
+              method.color = 'rgba(var(--semi-primary-5), 1)';
+            }
+          }
+          return method;
+        });
+        // 中文才用支付宝和微信
+        if(['zh','zh-CN','zh-HK','zh-Hans','zh-Hant'].includes(i18n.language)){
+
+          payMethods = payMethods.filter((item) => {
+            return !["alipay","wxpay"].includes(item.type)
+          })
+        }
+        setPayMethods(payMethods);
+      }
+    } catch (e) {
+      console.log(e);
+      showError(t('支付方式配置错误, 请联系管理员'));
+    }
+  }
   return (
     <div className='mx-auto relative min-h-screen lg:min-h-0 mt-[64px]'>
       {/* 划转模态框 */}
