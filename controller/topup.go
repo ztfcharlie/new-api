@@ -619,3 +619,23 @@ func PaypalNotify(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "success"})
 	//log.Println("PaypalNotify: Webhook handler completed successfully")
 }
+// 获取充值倍率
+func GetGroupRatio(c *gin.Context) {
+	id := c.GetInt("id")
+	group, err := model.GetUserGroup(id, true)
+	if err != nil {
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.get_group")})
+		return
+	}
+	topupGroupRatio := common.GetTopupGroupRatio(group)
+	if topupGroupRatio == 0 {
+		topupGroupRatio = 1
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data": gin.H{
+			"ratio": topupGroupRatio,
+		},
+	})
+}

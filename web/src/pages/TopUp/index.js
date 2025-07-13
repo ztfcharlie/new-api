@@ -89,7 +89,19 @@ const TopUp = () => {
 
   const [quotaForCode, setQuotaForCode] = useState('');
   const [quotaForCount, setQuotaForCount] = useState('');
-
+  const loadPresetAmounts = async () => {
+    try {
+      const res = await API.get(`/api/user/ratio`);
+      const { data } = res.data;
+      const changePresetAmounts = presetAmounts.map(item=>{
+        item.price = item.value * data.ratio
+        return item;
+      })
+      setPresetAmounts(changePresetAmounts)
+    } catch (error) {
+    } finally {
+    }
+  };
   const getUsername = () => {
     if (userState.user) {
       return userState.user.username;
@@ -321,6 +333,7 @@ const TopUp = () => {
       console.log(e);
       showError(t('支付方式配置错误, 请联系管理员'));
     }
+    loadPresetAmounts()
   }, []);
 
   useEffect(() => {
@@ -338,7 +351,7 @@ const TopUp = () => {
   }, [statusState?.status]);
 
   const renderAmount = () => {
-    return amount + ' ' + t('元');
+    return amount + ' ' + t('美元');
   };
   const showExchangeRate = () => {
     if (payWay === 'alipay' || payWay === 'wxpay') { 
@@ -397,6 +410,7 @@ const TopUp = () => {
     setTopUpCount(preset.value);
     setSelectedPreset(preset.value);
     setAmount(preset.value * priceRatio);
+    getAmount(preset.value);
   };
 
   // 格式化大数字显示
@@ -627,8 +641,8 @@ const TopUp = () => {
                             {formatLargeNumber(preset.value)}
                           </div>
                           <div className='text-xs text-gray-500'>
-                            {t('实付')} ￥
-                            {(preset.value * priceRatio).toFixed(2)}
+                            {t('实付')} $
+                            {(preset.price).toFixed(2)}
                           </div>
                         </Card>
                       ))}

@@ -51,6 +51,7 @@ import { useStyle, styleActions } from '../../context/Style/index.js';
 
 const HeaderBar = () => {
   const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language.split('-')[0].toUpperCase();
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState, statusDispatch] = useContext(StatusContext);
   const { state: styleState, dispatch: styleDispatch } = useStyle();
@@ -605,7 +606,7 @@ const HeaderBar = () => {
                 type="tertiary"
                 className="!p-1.5 !text-current focus:!bg-semi-color-fill-1 dark:focus:!bg-gray-700 !rounded-full !bg-semi-color-fill-0 dark:!bg-semi-color-fill-1 hover:!bg-semi-color-fill-1 dark:hover:!bg-semi-color-fill-2"
               >
-                {i18n.language.toUpperCase()}
+                {currentLanguage}
               </Button>
             </Dropdown>
 
