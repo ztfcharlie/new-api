@@ -909,6 +909,9 @@ const TopUp = () => {
                       <Text type='tertiary' className='text-sm'>
                         {t('邀请好友获得额外奖励')}
                       </Text>
+                      <a href={`/doc/Invitation_Reward_Explanation`} className='!text-semi-color-primary text-sm ml-3' target='_blank'>
+                        {t('邀请奖励说明')}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -972,11 +975,11 @@ const TopUp = () => {
                     </Button>
                   }
                 />
-                {quotaForCode || quotaForCount?
+                
                 <div className='mt-4'>
                   <Card className='!rounded-2xl'>
                     <div className='space-y-4'>
-                      {quotaForCode?(
+                    {quotaForCode?(
                         <div className='flex items-start'>
                           <div className='w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 mr-3 flex-shrink-0'></div>
                           <Text type='tertiary' className='text-sm leading-6'>
@@ -998,16 +1001,6 @@ const TopUp = () => {
                         </Text>
                       </div>
                       ):null}
-                      
-                      
-                    </div>
-                  </Card>
-                </div>
-                :null}
-                
-                <div className='mt-4'>
-                  <Card className='!rounded-2xl'>
-                    <div className='space-y-4'>
                       <div className='flex items-start'>
                         <div className='w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 mr-3 flex-shrink-0'></div>
                         <Text type='tertiary' className='text-sm leading-6'>
