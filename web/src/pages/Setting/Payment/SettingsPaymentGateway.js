@@ -25,6 +25,7 @@ export default function SettingsPaymentGateway(props) {
     EpayId: '',
     EpayKey: '',
     Price: 7.3,
+    RmbPrice: 7.3,
     MinTopUp: 1,
     TopupGroupRatio: '',
     CustomCallbackAddress: '',
@@ -48,6 +49,7 @@ export default function SettingsPaymentGateway(props) {
         EpayId: props.options.EpayId || '',
         EpayKey: props.options.EpayKey || '',
         Price: props.options.Price !== undefined ? parseFloat(props.options.Price) : 7.3,
+        RmbPrice: props.options.RmbPrice !== undefined ? parseFloat(props.options.RmbPrice) : 7.3,
         MinTopUp: props.options.MinTopUp !== undefined ? parseFloat(props.options.MinTopUp) : 1,
         TopupGroupRatio: props.options.TopupGroupRatio || '',
         CustomCallbackAddress: props.options.CustomCallbackAddress || '',
@@ -105,6 +107,9 @@ export default function SettingsPaymentGateway(props) {
       }
       if (inputs.Price !== '') {
         options.push({ key: 'Price', value: inputs.Price.toString() });
+      }
+      if (inputs.RmbPrice !== undefined && inputs.RmbPrice !== '') {
+        options.push({ key: 'RmbPrice', value: inputs.RmbPrice.toString() });
       }
       if (inputs.MinTopUp !== '') {
         options.push({ key: 'MinTopUp', value: inputs.MinTopUp.toString() });
@@ -219,6 +224,12 @@ export default function SettingsPaymentGateway(props) {
                 placeholder={t('例如：https://yourdomain.com')}
               />
             </Col>
+            
+          </Row>
+          <Row
+            gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+            style={{ marginTop: 16 }}
+          >
             <Col xs={24} sm={24} md={8} lg={8} xl={8}>
               <Form.InputNumber
                 field='Price'
@@ -234,8 +245,14 @@ export default function SettingsPaymentGateway(props) {
                 placeholder={t('例如：2，就是最低充值2$')}
               />
             </Col>
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+              <Form.InputNumber
+                field='RmbPrice'
+                label='充值价格（x人民币/美金）'
+                placeholder="例如：1，就是1人民币/美金"
+              />
+            </Col>
           </Row>
-
 
           <Row
             gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
@@ -299,6 +316,7 @@ export default function SettingsPaymentGateway(props) {
               />
             </Col>
           </Row>
+          
 
 
           <Form.TextArea

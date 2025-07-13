@@ -92,7 +92,16 @@ const Home = () => {
     }, 3000);
     return () => clearInterval(timer);
   }, [endpointItems.length]);
+  useEffect(() => {
+      const handleLanguageChanged = (lng) => {
+        displayHomePageContent();
+      };
 
+      i18n.on('languageChanged', handleLanguageChanged);
+      return () => {
+          i18n.off('languageChanged', handleLanguageChanged);
+      };
+  }, [i18n]);
   return (
     <div className="w-full overflow-x-hidden">
       <NoticeModal

@@ -6,7 +6,7 @@ import { IllustrationConstruction, IllustrationConstructionDark } from '@douyinf
 import { useTranslation } from 'react-i18next';
 
 const About = () => {
-  const { t } = useTranslation();
+  const { t,i18n } = useTranslation();
   const [about, setAbout] = useState('');
   const [aboutLoaded, setAboutLoaded] = useState(false);
   const currentYear = new Date().getFullYear();
@@ -32,7 +32,16 @@ const About = () => {
   useEffect(() => {
     displayAbout().then();
   }, []);
+  useEffect(() => {
+      const handleLanguageChanged = (lng) => {
+        displayAbout();
+      };
 
+      i18n.on('languageChanged', handleLanguageChanged);
+      return () => {
+          i18n.off('languageChanged', handleLanguageChanged);
+      };
+  }, [i18n]);
   const emptyStyle = {
     padding: '24px'
   };

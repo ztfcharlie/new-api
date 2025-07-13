@@ -25,6 +25,7 @@ type Doc struct {
 type DocQuery struct {
 	Id     int
 	Title  string
+	Slug   string
 	Status int
 }
 
@@ -45,6 +46,9 @@ func GetAllDocs(query DocQuery, startIdx int, num int) (docs []*Doc, total int64
 	if query.Id != 0 {
 		countQuery = countQuery.Where("id = ?", query.Id)
 	}
+	if query.Slug != "" {
+		countQuery = countQuery.Where("slug = ?", query.Slug)
+	}
 	if query.Title != "" {
 		countQuery = countQuery.Where("title LIKE ?", "%"+query.Title+"%")
 	}
@@ -59,6 +63,9 @@ func GetAllDocs(query DocQuery, startIdx int, num int) (docs []*Doc, total int64
 	tx = tx.Unscoped().Select("id", "title", "slug", "summary", "keywords", "description", "views", "weight", `type`, "created_at", "updated_at", "status")
 	if query.Id != 0 {
 		tx = tx.Where("id = ?", query.Id)
+	}
+	if query.Slug != "" {
+		tx = tx.Where("slug = ?", query.Slug)
 	}
 	if query.Title != "" {
 		tx = tx.Where("title LIKE ?", "%"+query.Title+"%")

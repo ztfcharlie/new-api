@@ -340,7 +340,23 @@ const TopUp = () => {
   const renderAmount = () => {
     return amount + ' ' + t('元');
   };
+  const showExchangeRate = () => {
+    if (payWay === 'alipay' || payWay === 'wxpay') { 
+      let statusData  = localStorage.getItem('status');
+      statusData  = JSON.parse(statusData );
+      return (
 
+        <div className='flex justify-between items-center py-2'>
+        <Text strong>{t('当前汇率')}：</Text>
+        <Text>
+          <p>1 {t('美元')} = {statusData .rmb_price} {t('元人民币')} {t(' 本订单需支付')} {amount * statusData .rmb_price} {t('元人民币')} </p>
+        </Text>
+        </div>
+          
+      );
+    }
+    return null; // 添加默认返回值
+  };  
   const getAmount = async (value) => {
     if (value === undefined) {
       value = topUpCount;
@@ -462,7 +478,12 @@ const TopUp = () => {
                 {renderAmount()}
               </Text>
             )}
+            
+           
+
           </div>
+          {showExchangeRate()}
+
           <div className='flex justify-between items-center py-2'>
             <Text strong>{t('支付方式')}：</Text>
             <Text>

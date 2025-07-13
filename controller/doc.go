@@ -201,7 +201,7 @@ func GetDocList(c *gin.Context) {
 // 获取文档详情，不需要登录
 func GetDocDetail(c *gin.Context) {
 
-	slug := c.Param("slug")
+	slug := c.Query("slug")
 	tmpDoc := model.Doc{Slug: slug, Status: 1}
 	doc, err := tmpDoc.GetDoc()
 	if err != nil {
