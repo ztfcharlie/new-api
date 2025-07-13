@@ -177,7 +177,8 @@ func GetDocList(c *gin.Context) {
 		Title:  keyword,
 		Status: 1,
 	}
-	docs, total, err := model.GetAllDocs(query, p, pageSize)
+	startIdx := (p - 1) * pageSize
+	docs, total, err := model.GetAllDocs(query, startIdx, pageSize)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
