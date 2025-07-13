@@ -860,3 +860,9 @@ func RootUserExists() bool {
 	}
 	return true
 }
+
+func GetUsersByIDs(ids []int) ([]User, error) {
+	var users []User
+	err := DB.Select("id", "username").Where("id IN ?", ids).Find(&users).Error
+	return users, err
+}

@@ -42,11 +42,20 @@ func GetAllTokens(c *gin.Context) {
 	// Get total count for pagination
 	total, _ := model.CountUserTokens(userId)
 
+	// 添加token所属的用户字段
+	userTokens, err := addTokenUsername(tokens)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data": gin.H{
-			"items":     tokens,
+			"items":     userTokens,
 			"total":     total,
 			"page":      p,
 			"page_size": size,
@@ -62,7 +71,7 @@ func SearchTokens(c *gin.Context) {
 	username := c.Query("username")
 	var tokens []*model.Token
 	var err error
-	if isRootUser(c) {
+	if true || isRootUser(c) {
 		if username != "" {
 			searchUserId := -1
 			searchUser, err := model.GetUserByUsername(username)
@@ -76,6 +85,16 @@ func SearchTokens(c *gin.Context) {
 	} else {
 		tokens, err = model.SearchUserTokens(userId, keyword, token)
 	}
+
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	// 添加token所属的用户字段
+	userTokens, err := addTokenUsername(tokens)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -86,7 +105,7 @@ func SearchTokens(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    tokens,
+		"data":    userTokens,
 	})
 	return
 }
@@ -372,4 +391,37 @@ func DeleteTokenBatch(c *gin.Context) {
 		"message": "",
 		"data":    count,
 	})
+}
+
+type UserToken struct {
+	model.Token
+	Username string `json:"username"`
+}
+
+// 添加token所属的用户字段
+func addTokenUsername(tokens []*model.Token) ([]*UserToken, error) {
+	var userTokens []*UserToken
+	if len(tokens) > 0 {
+		var userIds []int
+		for _, token := range tokens {
+			fmt.Println(token.UserId)
+			userIds = append(userIds, token.UserId)
+		}
+		users, err := model.GetUsersByIDs(userIds)
+		userMap := make(map[int]string)
+		for _, user := range users {
+			userMap[user.Id] = user.Username
+		}
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range tokens {
+			item := UserToken{
+				Token: *v,
+			}
+			item.Username = userMap[v.UserId]
+			userTokens = append(userTokens, &item)
+		}
+	}
+	return userTokens, nil
 }

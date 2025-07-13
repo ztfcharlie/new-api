@@ -345,6 +345,14 @@ const TokensTable = () => {
       },
     },
   ];
+  if(isRoot()){
+    const findIndex = columns.findIndex(item=>item.dataIndex==='name')
+    columns.splice(findIndex+1,0,{
+      title: t('用户名'),
+      dataIndex: 'username',
+    },)
+
+  }
 
   const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
   const [showEdit, setShowEdit] = useState(false);
@@ -362,6 +370,7 @@ const TokensTable = () => {
   // Form 初始值
   const formInitValues = {
     searchKeyword: '',
+    searchUsername: '',
     searchToken: '',
   };
 
@@ -373,6 +382,7 @@ const TokensTable = () => {
     const formValues = formApi ? formApi.getValues() : {};
     return {
       searchKeyword: formValues.searchKeyword || '',
+      searchUsername: formValues.searchUsername || '',
       searchToken: formValues.searchToken || '',
     };
   };
@@ -494,14 +504,14 @@ const TokensTable = () => {
   };
 
   const searchTokens = async () => {
-    const { searchKeyword, searchToken } = getFormValues();
-    if (searchKeyword === '' && searchToken === '') {
+    const { searchKeyword,searchUsername, searchToken } = getFormValues();
+    if (searchKeyword === '' && searchToken === ''  && searchUsername === '') {
       await loadTokens(1);
       return;
     }
     setSearching(true);
     const res = await API.get(
-      `/api/token/search?keyword=${searchKeyword}&token=${searchToken}`,
+      `/api/token/search?keyword=${searchKeyword}&username=${searchUsername}&token=${searchToken}`,
     );
     const { success, message, data } = res.data;
     if (success) {
@@ -716,7 +726,7 @@ const TokensTable = () => {
               <>
               <div className="relative w-full md:w-56">
                 <Form.Input
-                  field="searchKeyword"
+                  field="searchUsername"
                   label={t('搜索用户名')}
                   placeholder={t('用户名')}
                   showClear

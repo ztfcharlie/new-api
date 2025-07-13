@@ -599,12 +599,14 @@ const HeaderBar = () => {
               }
             >
               <Button
-                icon={<IconLanguage className="text-lg" />}
+                
                 aria-label={t('切换语言')}
                 theme="borderless"
                 type="tertiary"
                 className="!p-1.5 !text-current focus:!bg-semi-color-fill-1 dark:focus:!bg-gray-700 !rounded-full !bg-semi-color-fill-0 dark:!bg-semi-color-fill-1 hover:!bg-semi-color-fill-1 dark:hover:!bg-semi-color-fill-2"
-              />
+              >
+                {i18n.language.toUpperCase()}
+              </Button>
             </Dropdown>
 
             {renderUserArea()}
