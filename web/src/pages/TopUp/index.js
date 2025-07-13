@@ -76,14 +76,14 @@ const TopUp = () => {
 
   // 预设充值额度选项
   const [presetAmounts, setPresetAmounts] = useState([
-    { value: 5 },
-    { value: 10 },
-    { value: 30 },
-    { value: 50 },
-    { value: 100 },
-    { value: 300 },
-    { value: 500 },
-    { value: 1000 },
+    { value: 5,price: 5 },
+    { value: 10,price: 10 },
+    { value: 30,price: 30 },
+    { value: 50,price: 50 },
+    { value: 100,price: 100 },
+    { value: 300,price: 300 },
+    { value: 500,price: 500 },
+    { value: 1000,price: 1000 },
   ]);
   const [selectedPreset, setSelectedPreset] = useState(null);
 
@@ -102,6 +102,7 @@ const TopUp = () => {
     } finally {
     }
   };
+
   const getUsername = () => {
     if (userState.user) {
       return userState.user.username;
@@ -305,7 +306,7 @@ const TopUp = () => {
     }
     getAffLink().then();
     setTransferAmount(getQuotaPerUnit());
-
+    loadPresetAmounts()
     let payMethods = localStorage.getItem('pay_methods');
     try {
       payMethods = JSON.parse(payMethods);
@@ -333,7 +334,6 @@ const TopUp = () => {
       console.log(e);
       showError(t('支付方式配置错误, 请联系管理员'));
     }
-    loadPresetAmounts()
   }, []);
 
   useEffect(() => {
