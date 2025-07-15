@@ -426,7 +426,7 @@ const TopUp = () => {
           return method;
         });
         // 中文才用支付宝和微信
-        if(['zh','zh-CN','zh-HK','zh-Hans','zh-Hant'].includes(i18n.language)){
+        if(!['zh','zh-CN','zh-HK','zh-Hans','zh-Hant'].includes(i18n.language)){
 
           payMethods = payMethods.filter((item) => {
             return !["alipay","wxpay"].includes(item.type)
@@ -658,7 +658,7 @@ const TopUp = () => {
                           bodyStyle={{ textAlign: 'center' }}
                         >
                           <div className='font-medium text-lg flex items-center justify-center mb-1'>
-                            <Coins size={16} className='mr-0.5' />
+                            <Coins size={16} className='mr-0.5 text-yellow-500 drop-shadow-sm' />
                             {formatLargeNumber(preset.value)}
                           </div>
                           <div className='text-xs text-gray-500'>
