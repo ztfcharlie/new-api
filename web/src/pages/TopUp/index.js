@@ -658,7 +658,7 @@ const TopUp = () => {
                           bodyStyle={{ textAlign: 'center' }}
                         >
                           <div className='font-medium text-lg flex items-center justify-center mb-1'>
-                            <Coins size={16} className='mr-0.5 text-yellow-500 drop-shadow-sm' />
+                            <Coins size={16} className='mr-0.5 stroke-yellow-500 stroke-2' />
                             {formatLargeNumber(preset.value)}
                           </div>
                           <div className='text-xs text-gray-500'>
