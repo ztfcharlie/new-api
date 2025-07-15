@@ -210,7 +210,7 @@ const ModelPricing = () => {
         );
       },
     },
-    {
+    {/**
       title: () => (
         <div className="flex items-center space-x-1">
           <span>{t('倍率')}</span>
@@ -245,6 +245,7 @@ const ModelPricing = () => {
         );
         return content;
       },
+      */
     },
     {
       title: t('模型价格'),
@@ -499,7 +500,7 @@ const ModelPricing = () => {
                 <Card
                   className="!rounded-2xl !border-0 !shadow-md overflow-hidden mb-6"
                   style={{
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 25%, #a855f7 50%, #c084fc 75%, #d8b4fe 100%)',
+                    background: 'linear-gradient(135deg, #1a365d 0%, #112240 50%, #0a192f 100%)',
                     position: 'relative'
                   }}
                   bodyStyle={{ padding: 0 }}

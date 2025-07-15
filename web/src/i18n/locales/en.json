@@ -1194,7 +1194,7 @@
   "模型价格": "Model price",
   "可用分组": "Available groups",
   "您的默认分组为：{{group}}，分组倍率为：{{ratio}}": "Your default group is: {{group}}, group ratio: {{ratio}}",
-  "按量计费费用 = 分组倍率 × 模型倍率 × （提示token数 + 补全token数 × 补全倍率）/ 500000 （单位：美元）": "The cost of pay-as-you-go = Group ratio × Model ratio × (Prompt token number + Completion token number × Completion ratio) / 500000 (Unit: USD)",
+  "按量计费费用 = 分组倍率 × 模型倍率 × （提示token数 + 补全token数 × 补全倍率）/ 500000 （单位：美元）": "The cost of pay-as-you-go = Group ratio × (Prompt token number + Completion token number × Completion ratio)  (Unit: USD)",
   "模糊搜索模型名称": "Fuzzy search model name",
   "您还未登陆，显示的价格为默认分组倍率: {{ratio}}": "You are not logged in, the displayed price is the default group ratio: {{ratio}}",
   "你的分组无权使用该模型": "Your group is not authorized to use this model",

@@ -1205,7 +1205,7 @@
   "模型价格": "Prix du modèle",
   "可用分组": "Groupes disponibles",
   "您的默认分组为：{{group}}，分组倍率为：{{ratio}}": "Votre groupe par défaut est : {{group}}, taux du groupe : {{ratio}}",
-  "按量计费费用 = 分组倍率 × 模型倍率 × （提示token数 + 补全token数 × 补全倍率）/ 500000 （单位：美元）": "Coût de paiement à l'usage = Taux du groupe × Taux du modèle × (Nombre de tokens d'invite + Nombre de tokens de complétion × Taux de complétion) / 500000 (Unité : USD)",
+  "按量计费费用 = 分组倍率 × 模型倍率 × （提示token数 + 补全token数 × 补全倍率）/ 500000 （单位：美元）": "Coût de paiement à l'usage = Taux du groupe × (Nombre de tokens d'invite + Nombre de tokens de complétion × Taux de complétion)  (Unité : USD)",
   "按量计费费用 = 分组倍率 ×（提示token数 × 提示价格 + 补全token数 × 补全价格）（单位：美元）": "Coût de paiement à l'usage = Taux du groupe × (Nombre de tokens d'invite × Prix du token d'entrée + Nombre de tokens de complétion × Prix du token de sortie) (Unité : USD)",
   "模糊搜索模型名称": "Recherche floue de nom de modèle",
   "您还未登陆，显示的价格为默认分组倍率: {{ratio}}": "Vous n'êtes pas connecté, le prix affiché correspond au taux du groupe par défaut : {{ratio}}",

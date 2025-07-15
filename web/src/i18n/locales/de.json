@@ -1205,7 +1205,7 @@
   "模型价格": "Modellpreis",
   "可用分组": "Verfügbare Gruppen",
   "您的默认分组为：{{group}}，分组倍率为：{{ratio}}": "Ihre Standardgruppe ist: {{group}}, Gruppenfaktor: {{ratio}}",
-  "按量计费费用 = 分组倍率 × 模型倍率 × （提示token数 + 补全token数 × 补全倍率）/ 500000 （单位：美元）": "Pay-as-you-go-Kosten = Gruppenfaktor × Modellfaktor × (Prompt-Token-Anzahl + Vervollständigungs-Token-Anzahl × Vervollständigungsfaktor) / 500000 (Einheit: USD)",
+  "按量计费费用 = 分组倍率 × 模型倍率 × （提示token数 + 补全token数 × 补全倍率）/ 500000 （单位：美元）": "Pay-as-you-go-Kosten = Gruppenfaktor × (Prompt-Token-Anzahl + Vervollständigungs-Token-Anzahl × Vervollständigungsfaktor)  (Einheit: USD)",
   "按量计费费用 = 分组倍率 ×（提示token数 × 提示价格 + 补全token数 × 补全价格）（单位：美元）": "Pay-as-you-go-Kosten = Gruppenfaktor × (Prompt-Token-Anzahl × Eingabe-Token-Preis + Vervollständigungs-Token-Anzahl × Ausgabe-Token-Preis) (Einheit: USD)",
   "模糊搜索模型名称": "Unscharfe Suche nach Modellnamen",
   "您还未登陆，显示的价格为默认分组倍率: {{ratio}}": "Sie sind nicht angemeldet, der angezeigte Preis ist der Standard-Gruppenfaktor: {{ratio}}",
