@@ -224,6 +224,8 @@ const TopUp = () => {
             form.target = '_blank';
           }
           for (let key in params) {
+             // 跳过 method 键，不创建对应的 input 元素
+            if (key === 'method') continue;
             let input = document.createElement('input');
             input.type = 'hidden';
             input.name = key;

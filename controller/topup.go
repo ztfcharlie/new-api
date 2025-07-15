@@ -128,7 +128,7 @@ func RequestEpay(c *gin.Context) {
 
 	payType := PayTypeWxPay
 	switch req.PaymentMethod {
-	case "zfb":
+	case "zfb", "alipay":
 		payType = PayTypeAliPay
 	case "wx", "wxpay":
 		payType = PayTypeWxPay
@@ -197,7 +197,7 @@ func RequestEpay(c *gin.Context) {
 			ReturnUrl:      returnUrl,
 		})
 		if err != nil {
-			translated := lang.T(c, "topup.error.paypal_create_faild")
+			translated := lang.T(c, "topup.error.payment_failed")
 			fmt.Printf("Debug - Translated result: '%s'\n", translated)
 			c.JSON(200, gin.H{"message": "error", "data": translated})
 			return
@@ -219,7 +219,7 @@ func RequestEpay(c *gin.Context) {
 		uri, params, err = client.Purchase(&epay.PurchaseArgs{
 			Type:           payType,
 			ServiceTradeNo: tradeNo,
-			Name:           fmt.Sprintf("TUC%d", req.Amount),
+			Name:           fmt.Sprintf("Burncloud Credit Top-up %d", req.Amount),
 			Money:          strconv.FormatFloat(payMoney_RMB, 'f', 2, 64),
 			Device:         epay.PC,
 			NotifyUrl:      notifyUrl,
@@ -619,6 +619,7 @@ func PaypalNotify(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "success"})
 	//log.Println("PaypalNotify: Webhook handler completed successfully")
 }
+
 // 获取充值倍率
 func GetGroupRatio(c *gin.Context) {
 	id := c.GetInt("id")
