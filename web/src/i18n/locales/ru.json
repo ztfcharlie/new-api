@@ -1934,5 +1934,18 @@
   "创建后可在编辑渠道时获取上游模型列表": "После создания можно получить список моделей вышестоящего при редактировании канала",
   "可用端点类型": "Доступные типы конечных точек",
   "未登录，使用默认分组倍率：": "Не выполнен вход, используется коэффициент группы по умолчанию:",
-  "限制周期统一使用上方配置的\"限制周期\"值。": "Период ограничения единообразно использует значение \"Период ограничения\", настроенное выше."
+  "限制周期统一使用上方配置的\"限制周期\"值。": "Период ограничения единообразно использует значение \"Период ограничения\", настроенное выше.",
+  "模型价格：${{price}} * {{ratioType}}：{{ratio}} = ${{total}}": "Цена модели: ${{price}} * {{ratioType}}: {{ratio}} = ${{total}}",
+  "输入价格：${{price}} / 1M tokens{{audioPrice}}": "Цена ввода: ${{price}} / 1M токенов{{audioPrice}}",
+  "(输入 {{nonImageInput}} tokens + 图片输入 {{imageInput}} tokens * {{imageRatio}} / 1M tokens * ${{price}}": "(Ввод {{nonImageInput}} токенов + Ввод изображения {{imageInput}} токенов * {{imageRatio}} / 1M токенов * ${{price}}",
+  "(输入 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}}": "(Ввод {{nonCacheInput}} токенов / 1M токенов * ${{price}} + Кэш {{cacheInput}} токенов / 1M токенов * ${{cachePrice}}",
+  "(输入 {{nonAudioInput}} tokens / 1M tokens * ${{price}} + 音频输入 {{audioInput}} tokens / 1M tokens * ${{audioPrice}}": "(Ввод {{nonAudioInput}} токенов / 1M токенов * ${{price}} + Аудио ввод {{audioInput}} токенов / 1M токенов * ${{audioPrice}}",
+  "(输入 {{input}} tokens / 1M tokens * ${{price}}": "(Ввод {{input}} токенов / 1M токенов * ${{price}}",
+  "输出 {{completion}} tokens / 1M tokens * ${{compPrice}}) * {{ratioType}} {{ratio}}": "Вывод {{completion}} токенов / 1M токенов * ${{compPrice}}) * {{ratioType}} {{ratio}}",
+  " + Web搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + Веб-поиск {{count}} раз / 1K раз * ${{price}} * {{ratioType}} {{ratio}}",
+  " + 文件搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + Поиск файлов {{count}} раз / 1K раз * ${{price}} * {{ratioType}} {{ratio}}",
+  "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}": "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}",
+  "模型: {{ratio}} * {{ratioType}}：{{groupRatio}}": "Модель: {{ratio}} * {{ratioType}}: {{groupRatio}}",
+  "提示 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}} + 缓存创建 {{cacheCreationInput}} tokens / 1M tokens * ${{cacheCreationPrice}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "Промпт {{nonCacheInput}} токенов / 1M токенов * ${{price}} + Кэш {{cacheInput}} токенов / 1M токенов * ${{cachePrice}} + Создание кэша {{cacheCreationInput}} токенов / 1M токенов * ${{cacheCreationPrice}} + Завершение {{completion}} токенов / 1M токенов * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}",
+  "提示 {{input}} tokens / 1M tokens * ${{price}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "Промпт {{input}} токенов / 1M токенов * ${{price}} + Завершение {{completion}} токенов / 1M токенов * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}"
 }

@@ -1933,5 +1933,18 @@
   "创建后可在编辑渠道时获取上游模型列表": "作成後、チャネル編集時にアップストリームモデルリストを取得できます",
   "可用端点类型": "利用可能なエンドポイントタイプ",
   "未登录，使用默认分组倍率：": "未ログイン、デフォルトグループ倍率を使用：",
-  "限制周期统一使用上方配置的\"限制周期\"值。": "制限周期は上記で設定された\"制限周期\"値を統一して使用します。"
+  "限制周期统一使用上方配置的\"限制周期\"值。": "制限周期は上記で設定された\"制限周期\"値を統一して使用します。",
+  "模型价格：${{price}} * {{ratioType}}：{{ratio}} = ${{total}}": "モデル価格：${{price}} * {{ratioType}}：{{ratio}} = ${{total}}",
+  "输入价格：${{price}} / 1M tokens{{audioPrice}}": "入力価格：${{price}} / 1M トークン{{audioPrice}}",
+  "(输入 {{nonImageInput}} tokens + 图片输入 {{imageInput}} tokens * {{imageRatio}} / 1M tokens * ${{price}}": "(入力 {{nonImageInput}} トークン + 画像入力 {{imageInput}} トークン * {{imageRatio}} / 1M トークン * ${{price}}",
+  "(输入 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}}": "(入力 {{nonCacheInput}} トークン / 1M トークン * ${{price}} + キャッシュ {{cacheInput}} トークン / 1M トークン * ${{cachePrice}}",
+  "(输入 {{nonAudioInput}} tokens / 1M tokens * ${{price}} + 音频输入 {{audioInput}} tokens / 1M tokens * ${{audioPrice}}": "(入力 {{nonAudioInput}} トークン / 1M トークン * ${{price}} + 音声入力 {{audioInput}} トークン / 1M トークン * ${{audioPrice}}",
+  "(输入 {{input}} tokens / 1M tokens * ${{price}}": "(入力 {{input}} トークン / 1M トークン * ${{price}}",
+  "输出 {{completion}} tokens / 1M tokens * ${{compPrice}}) * {{ratioType}} {{ratio}}": "出力 {{completion}} トークン / 1M トークン * ${{compPrice}}) * {{ratioType}} {{ratio}}",
+  " + Web搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + Web検索 {{count}}回 / 1K 回 * ${{price}} * {{ratioType}} {{ratio}}",
+  " + 文件搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + ファイル検索 {{count}}回 / 1K 回 * ${{price}} * {{ratioType}} {{ratio}}",
+  "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}": "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}",
+  "模型: {{ratio}} * {{ratioType}}：{{groupRatio}}": "モデル: {{ratio}} * {{ratioType}}：{{groupRatio}}",
+  "提示 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}} + 缓存创建 {{cacheCreationInput}} tokens / 1M tokens * ${{cacheCreationPrice}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "プロンプト {{nonCacheInput}} トークン / 1M トークン * ${{price}} + キャッシュ {{cacheInput}} トークン / 1M トークン * ${{cachePrice}} + キャッシュ作成 {{cacheCreationInput}} トークン / 1M トークン * ${{cacheCreationPrice}} + 補完 {{completion}} トークン / 1M トークン * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}",
+  "提示 {{input}} tokens / 1M tokens * ${{price}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "プロンプト {{input}} トークン / 1M トークン * ${{price}} + 補完 {{completion}} トークン / 1M トークン * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}"
 }

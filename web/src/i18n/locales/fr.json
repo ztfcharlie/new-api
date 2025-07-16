@@ -1935,5 +1935,18 @@
   "创建后可在编辑渠道时获取上游模型列表": "La liste des modèles amont sera disponible lors de l'édition du canal après création",
   "可用端点类型": "Types de points de terminaison disponibles",
   "未登录，使用默认分组倍率：": "Non connecté, utilisation du taux de groupe par défaut :",
-  "限制周期统一使用上方配置的\"限制周期\"值。": "La période de limitation utilise la valeur \"Période de limitation\" configurée ci-dessus."
+  "限制周期统一使用上方配置的\"限制周期\"值。": "La période de limitation utilise la valeur \"Période de limitation\" configurée ci-dessus.",
+  "模型价格：${{price}} * {{ratioType}}：{{ratio}} = ${{total}}": "Prix du modèle: ${{price}} * {{ratioType}}: {{ratio}} = ${{total}}",
+  "输入价格：${{price}} / 1M tokens{{audioPrice}}": "Prix d'entrée: ${{price}} / 1M tokens{{audioPrice}}",
+  "(输入 {{nonImageInput}} tokens + 图片输入 {{imageInput}} tokens * {{imageRatio}} / 1M tokens * ${{price}}": "(Entrée {{nonImageInput}} tokens + Entrée d'image {{imageInput}} tokens * {{imageRatio}} / 1M tokens * ${{price}}",
+  "(输入 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}}": "(Entrée {{nonCacheInput}} tokens / 1M tokens * ${{price}} + Cache {{cacheInput}} tokens / 1M tokens * ${{cachePrice}}",
+  "(输入 {{nonAudioInput}} tokens / 1M tokens * ${{price}} + 音频输入 {{audioInput}} tokens / 1M tokens * ${{audioPrice}}": "(Entrée {{nonAudioInput}} tokens / 1M tokens * ${{price}} + Entrée audio {{audioInput}} tokens / 1M tokens * ${{audioPrice}}",
+  "(输入 {{input}} tokens / 1M tokens * ${{price}}": "(Entrée {{input}} tokens / 1M tokens * ${{price}}",
+  "输出 {{completion}} tokens / 1M tokens * ${{compPrice}}) * {{ratioType}} {{ratio}}": "Sortie {{completion}} tokens / 1M tokens * ${{compPrice}}) * {{ratioType}} {{ratio}}",
+  " + Web搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + Recherche web {{count}} fois / 1K fois * ${{price}} * {{ratioType}} {{ratio}}",
+  " + 文件搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + Recherche de fichiers {{count}} fois / 1K fois * ${{price}} * {{ratioType}} {{ratio}}",
+  "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}": "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}",
+  "模型: {{ratio}} * {{ratioType}}：{{groupRatio}}": "Modèle: {{ratio}} * {{ratioType}}: {{groupRatio}}",
+  "提示 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}} + 缓存创建 {{cacheCreationInput}} tokens / 1M tokens * ${{cacheCreationPrice}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "Invite {{nonCacheInput}} tokens / 1M tokens * ${{price}} + Cache {{cacheInput}} tokens / 1M tokens * ${{cachePrice}} + Création de cache {{cacheCreationInput}} tokens / 1M tokens * ${{cacheCreationPrice}} + Complétion {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}",
+  "提示 {{input}} tokens / 1M tokens * ${{price}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "Invite {{input}} tokens / 1M tokens * ${{price}} + Complétion {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}"
 }

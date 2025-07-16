@@ -106,6 +106,18 @@ const LogsTable = () => {
             {t('错误')}
           </Tag>
         );
+      case 100:
+          return (
+            <Tag color='red' size='large' shape='circle'>
+              {t('兑换码奖励')}
+            </Tag>
+          );
+      case 101:
+            return (
+              <Tag color='red' size='large' shape='circle'>
+                {t('充值奖励')}
+              </Tag>
+            );
       default:
         return (
           <Tag color='grey' size='large' shape='circle'>

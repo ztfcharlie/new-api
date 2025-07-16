@@ -1934,5 +1934,18 @@
   "限制周期统一使用上方配置的\"限制周期\"值。": "Limit period uses the \"Limit Period\" value configured above.",
   "请输入智能体ID，例如：7342866812345": "Please enter Agent ID, e.g.: 7342866812345",
   "智能体ID：": "Agent ID:",
-  "限制周期统一使用上方配置的“限制周期”值。": "Limit period uses the \"Limit Period\" value configured above."
+  "限制周期统一使用上方配置的“限制周期”值。": "Limit period uses the \"Limit Period\" value configured above.",
+  "模型价格：${{price}} * {{ratioType}}：{{ratio}} = ${{total}}": "Model Price: ${{price}} * {{ratioType}}: {{ratio}} = ${{total}}",
+  "输入价格：${{price}} / 1M tokens{{audioPrice}}": "Input Price: ${{price}} / 1M tokens{{audioPrice}}",
+  "(输入 {{nonImageInput}} tokens + 图片输入 {{imageInput}} tokens * {{imageRatio}} / 1M tokens * ${{price}}": "(Input {{nonImageInput}} tokens + Image Input {{imageInput}} tokens * {{imageRatio}} / 1M tokens * ${{price}}",
+  "(输入 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}}": "(Input {{nonCacheInput}} tokens / 1M tokens * ${{price}} + Cache {{cacheInput}} tokens / 1M tokens * ${{cachePrice}}",
+  "(输入 {{nonAudioInput}} tokens / 1M tokens * ${{price}} + 音频输入 {{audioInput}} tokens / 1M tokens * ${{audioPrice}}": "(Input {{nonAudioInput}} tokens / 1M tokens * ${{price}} + Audio Input {{audioInput}} tokens / 1M tokens * ${{audioPrice}}",
+  "(输入 {{input}} tokens / 1M tokens * ${{price}}": "(Input {{input}} tokens / 1M tokens * ${{price}}",
+  "输出 {{completion}} tokens / 1M tokens * ${{compPrice}}) * {{ratioType}} {{ratio}}": "Output {{completion}} tokens / 1M tokens * ${{compPrice}}) * {{ratioType}} {{ratio}}",
+  " + Web搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + Web Search {{count}} calls / 1K calls * ${{price}} * {{ratioType}} {{ratio}}",
+  " + 文件搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + File Search {{count}} calls / 1K calls * ${{price}} * {{ratioType}} {{ratio}}",
+  "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}": "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}",
+  "模型: {{ratio}} * {{ratioType}}：{{groupRatio}}": "Model: {{ratio}} * {{ratioType}}: {{groupRatio}}",
+  "提示 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}} + 缓存创建 {{cacheCreationInput}} tokens / 1M tokens * ${{cacheCreationPrice}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "Prompt {{nonCacheInput}} tokens / 1M tokens * ${{price}} + Cache {{cacheInput}} tokens / 1M tokens * ${{cachePrice}} + Cache Creation {{cacheCreationInput}} tokens / 1M tokens * ${{cacheCreationPrice}} + Completion {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}",
+  "提示 {{input}} tokens / 1M tokens * ${{price}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "Prompt {{input}} tokens / 1M tokens * ${{price}} + Completion {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}"
 }

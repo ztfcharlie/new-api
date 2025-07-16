@@ -1934,5 +1934,18 @@
   "创建后可在编辑渠道时获取上游模型列表": "생성 후 채널 편집 시 업스트림 모델 목록을 가져올 수 있습니다",
   "可用端点类型": "사용 가능한 엔드포인트 유형",
   "未登录，使用默认分组倍率：": "로그인하지 않음, 기본 그룹 배율 사용:",
-  "限制周期统一使用上方配置的\"限制周期\"值。": "제한 주기는 위에서 구성한 \"제한 주기\" 값을 통일하여 사용합니다."
+  "限制周期统一使用上方配置的\"限制周期\"值。": "제한 주기는 위에서 구성한 \"제한 주기\" 값을 통일하여 사용합니다.",
+  "模型价格：${{price}} * {{ratioType}}：{{ratio}} = ${{total}}": "모델 가격: ${{price}} * {{ratioType}}: {{ratio}} = ${{total}}",
+  "输入价格：${{price}} / 1M tokens{{audioPrice}}": "입력 가격: ${{price}} / 1M 토큰{{audioPrice}}",
+  "(输入 {{nonImageInput}} tokens + 图片输入 {{imageInput}} tokens * {{imageRatio}} / 1M tokens * ${{price}}": "(입력 {{nonImageInput}} 토큰 + 이미지 입력 {{imageInput}} 토큰 * {{imageRatio}} / 1M 토큰 * ${{price}}",
+  "(输入 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}}": "(입력 {{nonCacheInput}} 토큰 / 1M 토큰 * ${{price}} + 캐시 {{cacheInput}} 토큰 / 1M 토큰 * ${{cachePrice}}",
+  "(输入 {{nonAudioInput}} tokens / 1M tokens * ${{price}} + 音频输入 {{audioInput}} tokens / 1M tokens * ${{audioPrice}}": "(입력 {{nonAudioInput}} 토큰 / 1M 토큰 * ${{price}} + 오디오 입력 {{audioInput}} 토큰 / 1M 토큰 * ${{audioPrice}}",
+  "(输入 {{input}} tokens / 1M tokens * ${{price}}": "(입력 {{input}} 토큰 / 1M 토큰 * ${{price}}",
+  "输出 {{completion}} tokens / 1M tokens * ${{compPrice}}) * {{ratioType}} {{ratio}}": "출력 {{completion}} 토큰 / 1M 토큰 * ${{compPrice}}) * {{ratioType}} {{ratio}}",
+  " + Web搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + 웹 검색 {{count}}회 / 1K 회 * ${{price}} * {{ratioType}} {{ratio}}",
+  " + 文件搜索 {{count}}次 / 1K 次 * ${{price}} * {{ratioType}} {{ratio}}": " + 파일 검색 {{count}}회 / 1K 회 * ${{price}} * {{ratioType}} {{ratio}}",
+  "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}": "{{inputDesc}} + {{outputDesc}}{{extraServices}} = ${{total}}",
+  "模型: {{ratio}} * {{ratioType}}：{{groupRatio}}": "모델: {{ratio}} * {{ratioType}}: {{groupRatio}}",
+  "提示 {{nonCacheInput}} tokens / 1M tokens * ${{price}} + 缓存 {{cacheInput}} tokens / 1M tokens * ${{cachePrice}} + 缓存创建 {{cacheCreationInput}} tokens / 1M tokens * ${{cacheCreationPrice}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "프롬프트 {{nonCacheInput}} 토큰 / 1M 토큰 * ${{price}} + 캐시 {{cacheInput}} 토큰 / 1M 토큰 * ${{cachePrice}} + 캐시 생성 {{cacheCreationInput}} 토큰 / 1M 토큰 * ${{cacheCreationPrice}} + 완성 {{completion}} 토큰 / 1M 토큰 * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}",
+  "提示 {{input}} tokens / 1M tokens * ${{price}} + 补全 {{completion}} tokens / 1M tokens * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}": "프롬프트 {{input}} 토큰 / 1M 토큰 * ${{price}} + 완성 {{completion}} 토큰 / 1M 토큰 * ${{compPrice}} * {{ratioType}} {{ratio}} = ${{total}}"
 }
