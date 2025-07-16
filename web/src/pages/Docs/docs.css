@@ -4,9 +4,12 @@
   line-height: 1.6;
   margin: 0;
   padding: 0;
-  background-color: #f9f9f9;
   color: #333;
   overflow-x: hidden; /* 防止整个容器横向溢出 */
+  background-color: #fff;
+  display: flex;      /* 使用flex布局 */
+  flex-direction: column;
+  min-height: calc(100vh - 100px);  /* 填满整个视窗高度 */
 }
 
 /* 容器样式 */
@@ -35,7 +38,7 @@
   justify-content: flex-end;
   align-items: center;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #fff;
   border-bottom: 1px solid #ddd;
 }
 
@@ -78,7 +81,7 @@
 
 /* FAQ 部分 - 调整背景色和卡片样式 */
 .burncloud-container-docs .out_container_product-list.faq-section {
-  background-color: #f8f9fa; /* 浅灰色背景，柔和但与白色卡片形成对比 */
+  background-color: #fff; /* 浅灰色背景，柔和但与白色卡片形成对比 */
   width: 100%;
   box-sizing: border-box;
 }

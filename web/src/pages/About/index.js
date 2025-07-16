@@ -4,6 +4,7 @@ import { marked } from 'marked';
 import { Empty } from '@douyinfe/semi-ui';
 import { IllustrationConstruction, IllustrationConstructionDark } from '@douyinfe/semi-illustrations';
 import { useTranslation } from 'react-i18next';
+import { Flex } from 'antd';
 
 const About = () => {
   const { t,i18n } = useTranslation();
@@ -135,7 +136,7 @@ const About = () => {
             />
           ) : (
             <div
-              style={{ fontSize: 'larger' }}
+            style={{ fontSize: 'larger', background:'#fff', minHeight:'calc(100vh - 100px)', display: 'Flex', flexDirection:"column" }}
               dangerouslySetInnerHTML={{ __html: about }}
             ></div>
           )}

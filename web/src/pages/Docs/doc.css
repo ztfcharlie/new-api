@@ -1,10 +1,15 @@
-body {
+/* 基础样式 */
+.burncloud-container-docs-detail {
   font-family: Arial, sans-serif;
+  line-height: 1.6;
   margin: 0;
   padding: 0;
-  line-height: 1.6;
   color: #333;
-  background-color: #f9f9f9;
+  overflow-x: hidden; /* 防止整个容器横向溢出 */
+  background-color: #fff;
+  display: flex;      /* 使用flex布局 */
+  flex-direction: column;
+  min-height: calc(100vh - 100px);  /* 填满整个视窗高度 */
 }
 
 .burncloud-container-docs-detail .container {
