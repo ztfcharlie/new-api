@@ -71,7 +71,7 @@ func SearchTokens(c *gin.Context) {
 	username := c.Query("username")
 	var tokens []*model.Token
 	var err error
-	if true || isRootUser(c) {
+	if isRootUser(c) {
 		if username != "" {
 			searchUserId := -1
 			searchUser, err := model.GetUserByUsername(username)

@@ -55,7 +55,7 @@ const EditToken = (props) => {
     const res = await API.get(`/api/user/?p=1&page_size=${ITEMS_PER_PAGE}`);
     const { success, message, data } = res.data;
     if (success) {
-      const list = data.items.map(item=>({value:item.id,label:item.username}))
+      const list = data.items.map(item=>({value: parseInt(item.id), label: item.username}))
       setUserList(list);
     } else {
       showError(message);
@@ -69,8 +69,8 @@ const EditToken = (props) => {
       const res = await API.get(`/api/user/search?keyword=${inputValue}&p=1&page_size=${ITEMS_PER_PAGE}`);
       const { success, message, data } = res.data;
       if (success) {
-        const list = data.items.map(item=>({value:item.id,label:item.username}))
-        setUserList(list);
+        const list = data.items.map(item=>({value: parseInt(item.id), label: item.username}))
+      setUserList(list);
       } else {
         showError(message);
       }
@@ -82,14 +82,15 @@ const EditToken = (props) => {
   // 加载用户
   async function loadUser(userId){
     let res = undefined;
-    if (userId) {
+    if (isRoot() && userId) {
       res = await API.get(`/api/user/${userId}`);
     } else {
       res = await API.get(`/api/user/self`);
     }
     const { success, message, data } = res.data;
     if (success) {
-      setUserList([{value:data.id,label:data.username}])
+      // 确保 value 是整数类型
+      setUserList([{value: parseInt(data.id), label: data.username}])
       if(!userId){
         formApiRef.current.setValue("user_id",data.id);
         console.log("formApiRef.current",formApiRef.current.getValues(),data.id)
@@ -103,7 +104,13 @@ const EditToken = (props) => {
       return
     }
     if (props.editingToken.id !== undefined){
-      loadUser(props.editingToken.user_id);
+      if (isRoot()) {
+        // 只有管理员才加载特定用户
+        loadUser(props.editingToken.user_id);
+      } else {
+        // 普通用户加载自己
+        loadUser('');
+      }
     }else{
       loadUser('');
     }
@@ -243,6 +250,10 @@ const EditToken = (props) => {
     if (isEdit) {
       let { tokenCount: _tc, ...localInputs } = values;
       localInputs.remain_quota = parseInt(localInputs.remain_quota);
+       // 确保 user_id 是整数
+      if (localInputs.user_id) {
+        localInputs.user_id = parseInt(localInputs.user_id);
+      }
       if (localInputs.expired_time !== -1) {
         let time = Date.parse(localInputs.expired_time);
         if (isNaN(time)) {
@@ -271,6 +282,10 @@ const EditToken = (props) => {
       let successCount = 0;
       for (let i = 0; i < count; i++) {
         let { tokenCount: _tc, ...localInputs } = values;
+        // 确保 user_id 是整数
+        if (localInputs.user_id) {
+          localInputs.user_id = parseInt(localInputs.user_id);
+        }
         const baseName = values.name.trim() === '' ? 'default' : values.name.trim();
         if (i !== 0 || values.name.trim() === '') {
           localInputs.name = `${baseName}-${generateRandomSuffix()}`;
