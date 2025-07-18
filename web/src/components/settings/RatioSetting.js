@@ -7,6 +7,7 @@ import ModelRatioSettings from '../../pages/Setting/Ratio/ModelRatioSettings.js'
 import ModelSettingsVisualEditor from '../../pages/Setting/Ratio/ModelSettingsVisualEditor.js';
 import ModelRatioNotSetEditor from '../../pages/Setting/Ratio/ModelRationNotSetEditor.js';
 import UpstreamRatioSync from '../../pages/Setting/Ratio/UpstreamRatioSync.js';
+import PriceCalculator from '../../pages/Setting/Ratio/PriceCalculator.js';
 
 import { API, showError } from '../../helpers';
 
@@ -109,6 +110,12 @@ const RatioSetting = () => {
           </Tabs.TabPane>
           <Tabs.TabPane tab={t('上游倍率同步')} itemKey='upstream_sync'>
             <UpstreamRatioSync
+              options={inputs}
+              refresh={onRefresh}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane tab={t('销售价格计算器')} itemKey='price_calculator'>
+            <PriceCalculator
               options={inputs}
               refresh={onRefresh}
             />
