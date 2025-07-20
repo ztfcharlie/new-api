@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   Input,
+  Select,
   Layout,
   Modal,
   Space,
@@ -127,19 +128,19 @@ const ModelPricing = () => {
   }
 
   const columns = [
-    {
-      title: t('可用性'),
-      dataIndex: 'available',
-      render: (text, record, index) => {
-        return renderAvailable(record.enable_groups.includes(selectedGroup));
-      },
-      sorter: (a, b) => {
-        const aAvailable = a.enable_groups.includes(selectedGroup);
-        const bAvailable = b.enable_groups.includes(selectedGroup);
-        return Number(aAvailable) - Number(bAvailable);
-      },
-      defaultSortOrder: 'descend',
-    },
+    // {
+    //   title: t('可用性'),
+    //   dataIndex: 'available',
+    //   render: (text, record, index) => {
+    //     return renderAvailable(record.enable_groups.includes(selectedGroup));
+    //   },
+    //   sorter: (a, b) => {
+    //     const aAvailable = a.enable_groups.includes(selectedGroup);
+    //     const bAvailable = b.enable_groups.includes(selectedGroup);
+    //     return Number(aAvailable) - Number(bAvailable);
+    //   },
+    //   defaultSortOrder: 'descend',
+    // },
     {
       title: t('可用端点类型'),
       dataIndex: 'supported_endpoint_types',
@@ -288,7 +289,19 @@ const ModelPricing = () => {
   const [userState] = useContext(UserContext);
   const [groupRatio, setGroupRatio] = useState({});
   const [usableGroup, setUsableGroup] = useState({});
-
+  const groupList = useMemo(()=>{
+    const tempGroupList = Object.entries(usableGroup)
+    if(!tempGroupList.length){
+      return []
+    }
+    const list = tempGroupList.filter(item=>item[0]).map(item=>{
+      return {
+        label: item[1],
+        value: item[0],
+      }
+    })
+    return list
+  },[usableGroup])
   const setModelsFormat = (models, groupRatio) => {
     for (let i = 0; i < models.length; i++) {
       models[i].key = models[i].model_name;
@@ -411,35 +424,46 @@ const ModelPricing = () => {
 
   const filteredModels = useMemo(() => {
     let result = models;
-
     if (activeKey !== 'all') {
       result = result.filter(model => modelCategories[activeKey].filter(model));
     }
-
     if (filteredValue.length > 0) {
       const searchTerm = filteredValue[0].toLowerCase();
       result = result.filter(model =>
         model.model_name.toLowerCase().includes(searchTerm)
       );
     }
+    if(selectedGroup){
+      result = result.filter(model => model.enable_groups.includes(selectedGroup))
+    }
 
     return result;
-  }, [activeKey, models, filteredValue]);
+  }, [activeKey, models, filteredValue,selectedGroup]);
 
   const SearchAndActions = useMemo(() => (
     <Card className="!rounded-xl mb-6" bordered={false}>
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex-1 min-w-[200px]">
-          <Input
-            prefix={<IconSearch />}
-            placeholder={t('模糊搜索模型名称')}
-            onCompositionStart={handleCompositionStart}
-            onCompositionEnd={handleCompositionEnd}
-            onChange={handleChange}
-            showClear
-            size="large"
-          />
+            <Input
+              prefix={<IconSearch />}
+              placeholder={t('模糊搜索模型名称')}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
+              onChange={handleChange}
+              showClear
+              size="large"
+            />
         </div>
+       
+        <Select className='' placeholder={t('请选择分组')} size="large"
+        onChange={(e)=>{
+          setSelectedGroup(e)
+        }}
+        >
+          <Select.Option value="">{t('请选择分组')}</Select.Option>
+          {groupList.map(item=><Select.Option key={item.value} value={item.value}>{item.label}</Select.Option>)}
+        </Select>
+
         <Button
           theme='light'
           type='primary'
@@ -453,7 +477,7 @@ const ModelPricing = () => {
         </Button>
       </div>
     </Card>
-  ), [selectedRowKeys, t]);
+  ), [selectedRowKeys, t,groupList]);
 
   const ModelTable = useMemo(() => (
     <Card className="!rounded-xl overflow-hidden" bordered={false}>
