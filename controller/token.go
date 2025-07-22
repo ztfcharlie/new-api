@@ -330,8 +330,13 @@ func UpdateToken(c *gin.Context) {
 			return
 		}
 	}
+
+	originalUserId := cleanToken.UserId // 保存原始的用户ID
+
 	if statusOnly != "" {
 		cleanToken.Status = token.Status
+		// 确保在status_only模式下保持原始用户ID
+		cleanToken.UserId = originalUserId
 	} else {
 		// If you add more fields, please also update token.Update()
 		cleanToken.Name = token.Name
@@ -342,9 +347,15 @@ func UpdateToken(c *gin.Context) {
 		cleanToken.ModelLimits = token.ModelLimits
 		cleanToken.AllowIps = token.AllowIps
 		cleanToken.Group = token.Group
+
+		if isRootUser(c) {
+			cleanToken.UserId = token.UserId
+		} else {
+			cleanToken.UserId = originalUserId // 非管理员用户保持原始用户ID
+		}
 	}
+
 	if isRootUser(c) {
-		cleanToken.UserId = token.UserId
 		err = cleanToken.UpdateRoot()
 	} else {
 		err = cleanToken.Update()
