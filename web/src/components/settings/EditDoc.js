@@ -78,7 +78,7 @@ export default function (props) {
         if (isEdit) {
             res = await API.put(`/api/doc/${props.editingDoc.id}`, values);
         } else {
-            res = await API.post(`/api/doc`, values);
+            res = await API.post(`/api/doc/`, values);
         }
         const { success, message } = res.data;
         if (success) {
