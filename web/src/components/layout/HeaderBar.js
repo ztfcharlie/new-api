@@ -255,8 +255,8 @@ const HeaderBar = () => {
 
     return mainNavLinks.map((link) => {
       const commonLinkClasses = isMobileView
-        ? 'flex items-center gap-1 p-3 w-full text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors font-semibold'
-        : 'flex items-center gap-1 p-2 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded-md font-semibold';
+        ? 'flex items-center gap-1 p-3 w-full text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors'
+        : 'flex items-center gap-1 p-2 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded-md';
 
       const linkContent = (
         <span>{link.text}</span>
@@ -485,11 +485,21 @@ const HeaderBar = () => {
                   {isLoading ? (
                     <Skeleton.Title style={{ width: 120, height: 24 }} />
                   ) : (
-                    <Typography.Title heading={4} className="!text-lg !font-semibold !mb-0 
-                                                          bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400
-                                                          bg-clip-text text-transparent">
-                      {systemName}
-                    </Typography.Title>
+                    <Typography.Title 
+  heading={4} 
+  className="!text-lg !font-semibold !mb-0"
+  style={{
+    background: 'linear-gradient(45deg, rgb(249, 115, 22), rgb(220, 38, 38))',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    fontWeight: 'bold',
+    fontSize: '18px',
+    padding: '0px 5px'
+  }}
+>
+  {systemName}
+</Typography.Title>
                   )}
                   {(isSelfUseMode || isDemoSiteMode) && !isLoading && (
                     <Tag
@@ -604,7 +614,7 @@ const HeaderBar = () => {
                 aria-label={t('切换语言')}
                 theme="borderless"
                 type="tertiary"
-                className="!p-1.5 !text-current focus:!bg-semi-color-fill-1 dark:focus:!bg-gray-700 !rounded-full !bg-semi-color-fill-0 dark:!bg-semi-color-fill-1 hover:!bg-semi-color-fill-1 dark:hover:!bg-semi-color-fill-2"
+                className="!p-1.5 !text-current !font-normal focus:!bg-semi-color-fill-1 dark:focus:!bg-gray-700 !rounded-full !bg-semi-color-fill-0 dark:!bg-semi-color-fill-1 hover:!bg-semi-color-fill-1 dark:hover:!bg-semi-color-fill-2"
               >
                 {currentLanguage}
               </Button>
