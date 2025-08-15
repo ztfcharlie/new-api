@@ -12,7 +12,7 @@ services:
       - ./data:/data
       - ./logs:/app/logs
     env_file:
-      - .env.enterprise
+      - .env
     environment:
       - GLOBAL_API_RATE_LIMIT_ENABLE=${GLOBAL_API_RATE_LIMIT_ENABLE:-false}
       - GLOBAL_API_RATE_LIMIT=${GLOBAL_API_RATE_LIMIT:-300}
