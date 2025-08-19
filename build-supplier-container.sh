@@ -13,9 +13,21 @@ start_services() {
     CONTAINER_PREFIX=$1
     PORT=$2
 
+    # Validate container prefix is not reserved
+    if [ "$CONTAINER_PREFIX" = "burncloud-aiapi" ] || [ "$CONTAINER_PREFIX" = "burncloud-enterprise" ]; then
+        echo "Error: Container prefix cannot be 'burncloud-aiapi' or 'burncloud-enterprise'"
+        exit 1
+    fi
+
     # Validate port is a number
     if ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
         echo "Error: Port must be a number"
+        exit 1
+    fi
+
+    # Validate port is 3003 or higher
+    if [ "$PORT" -lt 3003 ]; then
+        echo "Error: Port must be 3003 or higher"
         exit 1
     fi
 
@@ -116,6 +128,10 @@ if [ $# -lt 1 ]; then
     echo "Start: $0 start <container_prefix> <port>"
     echo "Stop: $0 stop <container_prefix>"
     echo "Quit: $0 {q|quit}"
+    echo ""
+    echo "Validation rules:"
+    echo "  - Container prefix cannot be 'burncloud-aiapi' or 'burncloud-enterprise'"
+    echo "  - Port must be a number and 3003 or higher"
     exit 1
 fi
 
