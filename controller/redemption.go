@@ -6,6 +6,7 @@ import (
 	"one-api/lang"
 	"one-api/model"
 	"strconv"
+	"errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -127,6 +128,10 @@ func AddRedemption(c *gin.Context) {
 		})
 		return
 	}
+	if err := validateExpiredTime(redemption.ExpiredTime); err != nil {
+		c.JSON(http.StatusOK, gin.H{"success": false, "message": err.Error()})
+		return
+	}
 	var keys []string
 	for i := 0; i < redemption.Count; i++ {
 		key := common.GetUUID()
@@ -136,6 +141,7 @@ func AddRedemption(c *gin.Context) {
 			Key:         key,
 			CreatedTime: common.GetTimestamp(),
 			Quota:       redemption.Quota,
+			ExpiredTime: redemption.ExpiredTime,
 		}
 		err = cleanRedemption.Insert()
 		if err != nil {
@@ -192,12 +198,18 @@ func UpdateRedemption(c *gin.Context) {
 		})
 		return
 	}
-	if statusOnly != "" {
-		cleanRedemption.Status = redemption.Status
-	} else {
+	if statusOnly == "" {
+		if err := validateExpiredTime(redemption.ExpiredTime); err != nil {
+			c.JSON(http.StatusOK, gin.H{"success": false, "message": err.Error()})
+			return
+		}
 		// If you add more fields, please also update redemption.Update()
 		cleanRedemption.Name = redemption.Name
 		cleanRedemption.Quota = redemption.Quota
+		cleanRedemption.ExpiredTime = redemption.ExpiredTime
+	}
+	if statusOnly != "" {
+		cleanRedemption.Status = redemption.Status
 	}
 	err = cleanRedemption.Update()
 	if err != nil {
@@ -213,4 +225,28 @@ func UpdateRedemption(c *gin.Context) {
 		"data":    cleanRedemption,
 	})
 	return
+}
+
+func DeleteInvalidRedemption(c *gin.Context) {
+	rows, err := model.DeleteInvalidRedemptions()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data": rows,
+	})
+	return
+}
+
+func validateExpiredTime(expired int64) error {
+	if expired != 0 && expired < common.GetTimestamp() {
+		return errors.New("过期时间不能早于当前时间")
+	}
+	return nil
 }

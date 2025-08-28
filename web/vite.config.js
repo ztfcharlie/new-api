@@ -1,7 +1,8 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig, transformWithEsbuild } from 'vite';
+import pkg from '@douyinfe/vite-plugin-semi';
+const { vitePluginSemi } = pkg;
 import {resolve} from "path";
-import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -29,7 +30,9 @@ export default defineConfig({
       },
     },
     react(),
-    tailwindcss(),
+    vitePluginSemi({
+      cssLayer: true
+    })
   ],
   optimizeDeps: {
     force: true,
@@ -41,12 +44,12 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
           'react-core': ['react', 'react-dom', 'react-router-dom'],
           'semi-ui': ['@douyinfe/semi-icons', '@douyinfe/semi-ui'],
-          semantic: ['semantic-ui-offline', 'semantic-ui-react'],
           visactor: ['@visactor/react-vchart', '@visactor/vchart'],
           tools: ['axios', 'history', 'marked'],
           'react-components': [
@@ -66,8 +69,13 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0',
     proxy: {
       '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+      '/mj': {
         target: 'http://localhost:3000',
         changeOrigin: true,
       },

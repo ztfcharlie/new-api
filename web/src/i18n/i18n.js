@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import cookie from 'js-cookie';
+
 import enTranslation from './locales/en.json';
 import zhTranslation from './locales/zh.json';
 import jaTranslation from './locales/ja.json';
@@ -11,15 +11,6 @@ import ptTranslation from './locales/pt.json';
 import esTranslation from './locales/es.json';
 import frTranslation from './locales/fr.json';
 import koTranslation from './locales/ko.json';
-
-export const langs = ['en', 'zh', 'ru', 'de', 'pt', 'es', 'fr','ja', "ko"];
-let defaultLang = navigator?.language?navigator.language.split('-')[0]:'en';
-if (!langs.includes(defaultLang)) {
-  defaultLang = 'en';
-}
-// 获取保存的语言设置或默认使用浏览器语言
-const savedLanguage = localStorage.getItem('i18nextLng') || defaultLang;
-
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -29,10 +20,7 @@ i18n
         translation: enTranslation,
       },
       zh: {
-        translation: zhTranslation
-      },
-      ja: {
-        translation: jaTranslation
+        translation: zhTranslation,
       },
       ru: {
         translation: ruTranslation
@@ -49,26 +37,60 @@ i18n
       fr: {
         translation: frTranslation
       },
+      ja: {
+        translation: jaTranslation
+      },
       ko: {
         translation: koTranslation
       }
     },
-    lng: savedLanguage, // 使用保存的语言或浏览器语言
-    fallbackLng: 'en', // 当检测到的语言不支持时，回退到英语
-    detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'], // 缓存语言设置到 localStorage
-      lookupLocalStorage: 'i18nextLng',
-    },
+    fallbackLng: 'zh',
     interpolation: {
       escapeValue: false,
     },
   });
 
-// 确保语言变更时保存到 localStorage
-i18n.on('languageChanged', (lng) => {
-  localStorage.setItem('i18nextLng', lng);
-  cookie.set("i18nextLng",lng,{ expires: 365 });
-});
+// export const langs = ['en', 'zh', 'ru', 'de', 'pt', 'es', 'fr','ja', "ko"];
+export const langs = [
+  {
+    label: 'English',
+    value: 'en',
+  },
+  {
+    label: '中文',
+    value: 'zh',
+  },
+  {
+    label: 'Русский',
+    value: 'ru',
+  },
+  {
+    label: 'Deutsch',
+    value: 'de',
+  },
+  {
+    label: 'Português',
+    value: 'pt',
+  },
+  {
+    label: 'Español',
+    value: 'es',
+  },
+  {
+    label: 'Français',
+    value: 'fr',
+  },
+  {
+    label: '日本語',
+    value: 'ja',
+  },
+  {
+    label: '한국어',
+    value: 'ko',
+  },
+];
+
+
+
 
 export default i18n;

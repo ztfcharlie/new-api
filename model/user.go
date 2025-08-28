@@ -42,6 +42,7 @@ type User struct {
 	DeletedAt        gorm.DeletedAt `gorm:"index"`
 	LinuxDOId        string         `json:"linux_do_id" gorm:"column:linux_do_id;index"`
 	Setting          string         `json:"setting" gorm:"type:text;column:setting"`
+	Remark           string         `json:"remark,omitempty" gorm:"type:varchar(255)" validate:"max=255"`
 }
 
 func (user *User) ToBaseUser() *UserBase {
@@ -114,7 +115,7 @@ func GetMaxUserId() int {
 	return user.Id
 }
 
-func GetAllUsers(startIdx int, num int) (users []*User, total int64, err error) {
+func GetAllUsers(pageInfo *common.PageInfo) (users []*User, total int64, err error) {
 	// Start transaction
 	tx := DB.Begin()
 	if tx.Error != nil {
@@ -134,7 +135,7 @@ func GetAllUsers(startIdx int, num int) (users []*User, total int64, err error) 
 	}
 
 	// Get paginated users within same transaction
-	err = tx.Unscoped().Order("id desc").Limit(num).Offset(startIdx).Omit("password").Find(&users).Error
+	err = tx.Unscoped().Order("id desc").Limit(pageInfo.GetPageSize()).Offset(pageInfo.GetStartIdx()).Omit("password").Find(&users).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, 0, err
@@ -167,7 +168,6 @@ func SearchUsers(keyword string, group string, inviter string, startIdx int, num
 	// 构建基础查询
 	query := tx.Unscoped().Model(&User{})
 
-	// 构建搜索条件
 	var inviterUser User
 	// 推荐人
 	if inviter != "" {
@@ -179,25 +179,31 @@ func SearchUsers(keyword string, group string, inviter string, startIdx int, num
 			query = query.Where("inviter_id = ?", inviterUser.Id)
 		}
 	}
-	if keyword != "" || group != "" {
-		likeCondition := "username LIKE ? OR email LIKE ? OR display_name LIKE ?"
 
-		// 尝试将关键字转换为整数ID
-		keywordInt, err := strconv.Atoi(keyword)
-		if err == nil {
-			// 如果是数字，同时搜索ID和其他字段
-			likeCondition = "id = ? OR " + likeCondition
-			if group != "" {
-				query = query.Where("("+likeCondition+") AND "+groupCol+" = ?",
-					keywordInt, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", group)
-			} else {
-				query = query.Where(likeCondition,
-					keywordInt, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
-			}
+	// 构建搜索条件
+	likeCondition := "username LIKE ? OR email LIKE ? OR display_name LIKE ?"
+
+	// 尝试将关键字转换为整数ID
+	keywordInt, err := strconv.Atoi(keyword)
+	if err == nil {
+		// 如果是数字，同时搜索ID和其他字段
+		likeCondition = "id = ? OR " + likeCondition
+		if group != "" {
+			query = query.Where("("+likeCondition+") AND "+commonGroupCol+" = ?",
+				keywordInt, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", group)
+		} else {
+			query = query.Where(likeCondition,
+				keywordInt, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
+		}
+	} else {
+		// 非数字关键字，只搜索字符串字段
+		if group != "" {
+			query = query.Where("("+likeCondition+") AND "+commonGroupCol+" = ?",
+				"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", group)
 		} else {
 			// 非数字关键字，只搜索字符串字段
 			if group != "" {
-				query = query.Where("("+likeCondition+") AND "+groupCol+" = ?",
+				query = query.Where("("+likeCondition+") AND "+commonGroupCol+" = ?",
 					"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", group)
 			} else {
 				query = query.Where(likeCondition,
@@ -389,6 +395,7 @@ func (user *User) Edit(updatePassword bool) error {
 		"display_name": newUser.DisplayName,
 		"group":        newUser.Group,
 		"quota":        newUser.Quota,
+		"remark":       newUser.Remark,
 	}
 	if updatePassword {
 		updates["password"] = newUser.Password
@@ -638,7 +645,7 @@ func GetUserGroup(id int, fromDB bool) (group string, err error) {
 		// Don't return error - fall through to DB
 	}
 	fromDB = true
-	err = DB.Model(&User{}).Where("id = ?", id).Select(groupCol).Find(&group).Error
+	err = DB.Model(&User{}).Where("id = ?", id).Select(commonGroupCol).Find(&group).Error
 	if err != nil {
 		return "", err
 	}
@@ -852,4 +859,10 @@ func RootUserExists() bool {
 		return false
 	}
 	return true
+}
+
+func GetUsersByIDs(ids []int) ([]User, error) {
+	var users []User
+	err := DB.Select("id", "username").Where("id IN ?", ids).Find(&users).Error
+	return users, err
 }

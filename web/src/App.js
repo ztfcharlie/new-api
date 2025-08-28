@@ -1,15 +1,15 @@
-import React, { lazy, Suspense, useContext, useEffect } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import Loading from './components/Loading';
+import Loading from './components/common/Loading.js';
 import User from './pages/User';
-import { PrivateRoute } from './components/PrivateRoute';
-import RegisterForm from './components/RegisterForm';
-import LoginForm from './components/LoginForm';
+import { AuthRedirect, PrivateRoute } from './helpers';
+import RegisterForm from './components/auth/RegisterForm.js';
+import LoginForm from './components/auth/LoginForm.js';
 import NotFound from './pages/NotFound';
 import Setting from './pages/Setting';
 import EditUser from './pages/User/EditUser';
-import PasswordResetForm from './components/PasswordResetForm';
-import PasswordResetConfirm from './components/PasswordResetConfirm';
+import PasswordResetForm from './components/auth/PasswordResetForm.js';
+import PasswordResetConfirm from './components/auth/PasswordResetConfirm.js';
 import Channel from './pages/Channel';
 import Token from './pages/Token';
 import EditChannel from './pages/Channel/EditChannel';
@@ -18,20 +18,21 @@ import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
 import Chat2Link from './pages/Chat2Link';
-import { Layout } from '@douyinfe/semi-ui';
 import Midjourney from './pages/Midjourney';
 import Pricing from './pages/Pricing/index.js';
 import Task from './pages/Task/index.js';
-import Playground from './pages/Playground/Playground.js';
-import OAuth2Callback from './components/OAuth2Callback.js';
-import PersonalSetting from './components/PersonalSetting.js';
+import Playground from './pages/Playground/index.js';
+import OAuth2Callback from './components/auth/OAuth2Callback.js';
+import PersonalSetting from './components/settings/PersonalSetting.js';
 import Setup from './pages/Setup/index.js';
-import SetupCheck from './components/SetupCheck';
+import SetupCheck from './components/layout/SetupCheck.js';
 
 const Home = lazy(() => import('./pages/Home'));
 const Detail = lazy(() => import('./pages/Detail'));
 const About = lazy(() => import('./pages/About'));
 const Faq = lazy(() => import('./pages/Faq'));
+const Docs = lazy(() => import('./pages/Docs'));
+const DocDetail = lazy(() => import('./pages/Docs/Detail'));
 
 function App() {
   const location = useLocation();
@@ -39,7 +40,7 @@ function App() {
   return (
     <SetupCheck>
       <Routes>
-      <Route
+        <Route
           path='/'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
@@ -56,7 +57,7 @@ function App() {
           }
         />
         <Route
-          path='/channel'
+          path='/console/channel'
           element={
             <PrivateRoute>
               <Channel />
@@ -64,7 +65,7 @@ function App() {
           }
         />
         <Route
-          path='/channel/edit/:id'
+          path='/console/channel/edit/:id'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
               <EditChannel />
@@ -72,7 +73,7 @@ function App() {
           }
         />
         <Route
-          path='/channel/add'
+          path='/console/channel/add'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
               <EditChannel />
@@ -80,7 +81,7 @@ function App() {
           }
         />
         <Route
-          path='/token'
+          path='/console/token'
           element={
             <PrivateRoute>
               <Token />
@@ -88,7 +89,7 @@ function App() {
           }
         />
         <Route
-          path='/playground'
+          path='/console/playground'
           element={
             <PrivateRoute>
               <Playground />
@@ -96,7 +97,7 @@ function App() {
           }
         />
         <Route
-          path='/redemption'
+          path='/console/redemption'
           element={
             <PrivateRoute>
               <Redemption />
@@ -104,7 +105,7 @@ function App() {
           }
         />
         <Route
-          path='/user'
+          path='/console/user'
           element={
             <PrivateRoute>
               <User />
@@ -112,7 +113,7 @@ function App() {
           }
         />
         <Route
-          path='/user/edit/:id'
+          path='/console/user/edit/:id'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
               <EditUser />
@@ -120,7 +121,7 @@ function App() {
           }
         />
         <Route
-          path='/user/edit'
+          path='/console/user/edit'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
               <EditUser />
@@ -139,7 +140,9 @@ function App() {
           path='/login'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
-              <LoginForm />
+              <AuthRedirect>
+                <LoginForm />
+              </AuthRedirect>
             </Suspense>
           }
         />
@@ -147,7 +150,9 @@ function App() {
           path='/register'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
-              <RegisterForm />
+              <AuthRedirect>
+                <RegisterForm />
+              </AuthRedirect>
             </Suspense>
           }
         />
@@ -184,7 +189,7 @@ function App() {
           }
         />
         <Route
-          path='/setting'
+          path='/console/setting'
           element={
             <PrivateRoute>
               <Suspense fallback={<Loading></Loading>} key={location.pathname}>
@@ -194,7 +199,7 @@ function App() {
           }
         />
         <Route
-          path='/personal'
+          path='/console/personal'
           element={
             <PrivateRoute>
               <Suspense fallback={<Loading></Loading>} key={location.pathname}>
@@ -204,7 +209,7 @@ function App() {
           }
         />
         <Route
-          path='/topup'
+          path='/console/topup'
           element={
             <PrivateRoute>
               <Suspense fallback={<Loading></Loading>} key={location.pathname}>
@@ -214,7 +219,7 @@ function App() {
           }
         />
         <Route
-          path='/log'
+          path='/console/log'
           element={
             <PrivateRoute>
               <Log />
@@ -222,7 +227,7 @@ function App() {
           }
         />
         <Route
-          path='/detail'
+          path='/console'
           element={
             <PrivateRoute>
               <Suspense fallback={<Loading></Loading>} key={location.pathname}>
@@ -232,7 +237,7 @@ function App() {
           }
         />
         <Route
-          path='/midjourney'
+          path='/console/midjourney'
           element={
             <PrivateRoute>
               <Suspense fallback={<Loading></Loading>} key={location.pathname}>
@@ -242,7 +247,7 @@ function App() {
           }
         />
         <Route
-          path='/task'
+          path='/console/task'
           element={
             <PrivateRoute>
               <Suspense fallback={<Loading></Loading>} key={location.pathname}>
@@ -276,7 +281,23 @@ function App() {
           }
         />
         <Route
-          path='/chat/:id?'
+          path='/docs'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <Docs />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/doc/:slug'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <DocDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/console/chat/:id?'
           element={
             <Suspense fallback={<Loading></Loading>} key={location.pathname}>
               <Chat />

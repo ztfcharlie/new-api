@@ -241,6 +241,7 @@
         "topup.error.min_amount": "充值金额不能低于 %d",
         "topup.error.get_group": "获取用户组失败",
         "topup.error.amount_too_low": "充值金额过低",
+        "topup.error.payment_method_does_not_exist": "支付方式不存在",
         "topup.error.no_payment_config": "当前管理员未配置支付信息",
         "topup.error.payment_failed": "发起支付失败",
         "topup.error.create_order": "创建订单失败",

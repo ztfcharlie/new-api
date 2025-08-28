@@ -161,3 +161,62 @@ func GetAllDocs(c *gin.Context) {
 	})
 
 }
+
+// 获取文档列表，不需要登录
+func GetDocList(c *gin.Context) {
+	keyword := c.Query("keyword")
+	p, _ := strconv.Atoi(c.Query("p"))
+	pageSize, _ := strconv.Atoi(c.Query("page_size"))
+	if p < 1 {
+		p = 1
+	}
+	if pageSize < 1 {
+		pageSize = common.ItemsPerPage
+	}
+	query := model.DocQuery{
+		Title:  keyword,
+		Status: 1,
+	}
+	startIdx := (p - 1) * pageSize
+	docs, total, err := model.GetAllDocs(query, startIdx, pageSize)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data": gin.H{
+			"items":     docs,
+			"total":     total,
+			"page":      p,
+			"page_size": pageSize,
+		},
+	})
+
+}
+
+// 获取文档详情，不需要登录
+func GetDocDetail(c *gin.Context) {
+
+	slug := c.Query("slug")
+	tmpDoc := model.Doc{Slug: slug, Status: 1}
+	doc, err := tmpDoc.GetDoc()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	doc.Increment("views")
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    doc,
+	})
+}

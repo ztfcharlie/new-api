@@ -115,15 +115,20 @@ func RequestEpay(c *gin.Context) {
 		return
 	}
 
+	if !setting.ContainsPayMethod(req.PaymentMethod) {
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.payment_method_does_not_exist")})
+		return
+	}
+
 	callBackAddress := service.GetCallbackAddress()
-	returnUrl, _ := url.Parse(setting.ServerAddress + "/log")
+	returnUrl, _ := url.Parse(setting.ServerAddress + "/console/log")
 	notifyUrl, _ := url.Parse(callBackAddress + "/api/user/epay/notify")
 	tradeNo := fmt.Sprintf("%s%d", common.GetRandomString(6), time.Now().Unix())
 	tradeNo = fmt.Sprintf("USR%dNO%s", id, tradeNo)
 
 	payType := PayTypeWxPay
 	switch req.PaymentMethod {
-	case "zfb":
+	case "zfb", "alipay":
 		payType = PayTypeAliPay
 	case "wx", "wxpay":
 		payType = PayTypeWxPay
@@ -192,7 +197,7 @@ func RequestEpay(c *gin.Context) {
 			ReturnUrl:      returnUrl,
 		})
 		if err != nil {
-			translated := lang.T(c, "topup.error.paypal_create_faild")
+			translated := lang.T(c, "topup.error.payment_failed")
 			fmt.Printf("Debug - Translated result: '%s'\n", translated)
 			c.JSON(200, gin.H{"message": "error", "data": translated})
 			return
@@ -613,4 +618,25 @@ func PaypalNotify(c *gin.Context) {
 	log.Println("PaypalNotify: Sending success response")
 	c.JSON(http.StatusOK, gin.H{"status": "success"})
 	//log.Println("PaypalNotify: Webhook handler completed successfully")
+}
+
+// 获取充值倍率
+func GetGroupRatio(c *gin.Context) {
+	id := c.GetInt("id")
+	group, err := model.GetUserGroup(id, true)
+	if err != nil {
+		c.JSON(200, gin.H{"message": "error", "data": lang.T(c, "topup.error.get_group")})
+		return
+	}
+	topupGroupRatio := common.GetTopupGroupRatio(group)
+	if topupGroupRatio == 0 {
+		topupGroupRatio = 1
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data": gin.H{
+			"ratio": topupGroupRatio,
+		},
+	})
 }

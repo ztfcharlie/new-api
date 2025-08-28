@@ -241,6 +241,7 @@
         "topup.error.min_amount": "Recharge amount cannot be less than %d",
         "topup.error.get_group": "Failed to get user group",
         "topup.error.amount_too_low": "Recharge amount is too low",
+        "topup.error.payment_method_does_not_exist": "Payment method does not exist",
         "topup.error.no_payment_config": "Current administrator has not configured payment information",
         "topup.error.payment_failed": "Failed to initiate payment",
         "topup.error.create_order": "Failed to create order",

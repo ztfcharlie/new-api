@@ -1,8 +1,7 @@
 import React from 'react';
-import { useTokenKeys } from '../../components/fetchTokenKeys';
-import { useTranslation } from 'react-i18next';
+import { useTokenKeys } from '../../hooks/useTokenKeys';
+
 const chat2page = () => {
-  const { t } = useTranslation();
   const { keys, chatLink, serverAddress, isLoading } = useTokenKeys();
 
   const comLink = (key) => {
@@ -18,8 +17,8 @@ const chat2page = () => {
   }
 
   return (
-    <div>
-        <h3>{t('正在加载，请稍候...')}</h3>
+    <div className="mt-[64px]">
+      <h3>正在加载，请稍候...</h3>
     </div>
   );
 };

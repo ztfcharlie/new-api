@@ -75,21 +75,22 @@ func Playground(c *gin.Context) {
 		c.Set("group", group)
 	}
 	c.Set("token_name", "playground-"+group)
-	channel, err := model.CacheGetRandomSatisfiedChannel(group, playgroundRequest.Model, 0)
+	channel, finalGroup, err := model.CacheGetRandomSatisfiedChannel(c, group, playgroundRequest.Model, 0)
 	if err != nil {
-		message := fmt.Sprintf(
-			lang.T(c, "playground.error.no_channel"),
-			group,
-			playgroundRequest.Model,
-		)
-		openaiErr = service.OpenAIErrorWrapperLocal(
-			errors.New(message),
-			"get_playground_channel_failed",
-			http.StatusInternalServerError,
-		)
+		message := fmt.Sprintf(lang.T(c, "playground.error.no_channel"), finalGroup, playgroundRequest.Model)
+		openaiErr = service.OpenAIErrorWrapperLocal(errors.New(message), "get_playground_channel_failed", http.StatusInternalServerError)
 		return
 	}
 	middleware.SetupContextForSelectedChannel(c, channel, playgroundRequest.Model)
-	c.Set(constant.ContextKeyRequestStartTime, time.Now())
+	common.SetContextKey(c, constant.ContextKeyRequestStartTime, time.Now())
+
+	// Write user context to ensure acceptUnsetRatio is available
+	userId := c.GetInt("id")
+	userCache, err := model.GetUserCache(userId)
+	if err != nil {
+		openaiErr = service.OpenAIErrorWrapperLocal(err, "get_user_cache_failed", http.StatusInternalServerError)
+		return
+	}
+	userCache.WriteContext(c)
 	Relay(c)
 }

@@ -241,6 +241,7 @@
     "topup.error.min_amount": "Сумма пополнения не может быть меньше %d",
     "topup.error.get_group": "Не удалось получить группу пользователей",
     "topup.error.amount_too_low": "Сумма пополнения слишком мала",
+    "topup.error.payment_method_does_not_exist": "Способ оплаты не существует",
     "topup.error.no_payment_config": "Текущий администратор не настроил информацию о платеже",
     "topup.error.payment_failed": "Не удалось инициировать платеж",
     "topup.error.create_order": "Не удалось создать заказ",

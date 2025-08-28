@@ -17,8 +17,8 @@ func GetAllTokens(c *gin.Context) {
 	userId := c.GetInt("id")
 	p, _ := strconv.Atoi(c.Query("p"))
 	size, _ := strconv.Atoi(c.Query("size"))
-	if p < 0 {
-		p = 0
+	if p < 1 {
+		p = 1
 	}
 	if size <= 0 {
 		size = common.ItemsPerPage
@@ -28,10 +28,22 @@ func GetAllTokens(c *gin.Context) {
 	var tokens []*model.Token
 	var err error
 	if isRootUser(c) {
-		tokens, err = model.GetRootAllUserTokens(0, p*size, size)
+		tokens, err = model.GetRootAllUserTokens(0, (p-1)*size, size)
 	} else {
-		tokens, err = model.GetAllUserTokens(userId, p*size, size)
+		tokens, err = model.GetAllUserTokens(userId, (p-1)*size, size)
 	}
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	// Get total count for pagination
+	total, _ := model.CountUserTokens(userId)
+
+	// 添加token所属的用户字段
+	userTokens, err := addTokenUsername(tokens)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -42,7 +54,12 @@ func GetAllTokens(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    tokens,
+		"data": gin.H{
+			"items":     userTokens,
+			"total":     total,
+			"page":      p,
+			"page_size": size,
+		},
 	})
 	return
 }
@@ -68,6 +85,16 @@ func SearchTokens(c *gin.Context) {
 	} else {
 		tokens, err = model.SearchUserTokens(userId, keyword, token)
 	}
+
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	// 添加token所属的用户字段
+	userTokens, err := addTokenUsername(tokens)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -78,7 +105,7 @@ func SearchTokens(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    tokens,
+		"data":    userTokens,
 	})
 	return
 }
@@ -303,8 +330,13 @@ func UpdateToken(c *gin.Context) {
 			return
 		}
 	}
+
+	originalUserId := cleanToken.UserId // 保存原始的用户ID
+
 	if statusOnly != "" {
 		cleanToken.Status = token.Status
+		// 确保在status_only模式下保持原始用户ID
+		cleanToken.UserId = originalUserId
 	} else {
 		// If you add more fields, please also update token.Update()
 		cleanToken.Name = token.Name
@@ -315,9 +347,15 @@ func UpdateToken(c *gin.Context) {
 		cleanToken.ModelLimits = token.ModelLimits
 		cleanToken.AllowIps = token.AllowIps
 		cleanToken.Group = token.Group
+
+		if isRootUser(c) {
+			cleanToken.UserId = token.UserId
+		} else {
+			cleanToken.UserId = originalUserId // 非管理员用户保持原始用户ID
+		}
 	}
+
 	if isRootUser(c) {
-		cleanToken.UserId = token.UserId
 		err = cleanToken.UpdateRoot()
 	} else {
 		err = cleanToken.Update()
@@ -335,4 +373,66 @@ func UpdateToken(c *gin.Context) {
 		"data":    cleanToken,
 	})
 	return
+}
+
+type TokenBatch struct {
+	Ids []int `json:"ids"`
+}
+
+func DeleteTokenBatch(c *gin.Context) {
+	tokenBatch := TokenBatch{}
+	if err := c.ShouldBindJSON(&tokenBatch); err != nil || len(tokenBatch.Ids) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "参数错误",
+		})
+		return
+	}
+	userId := c.GetInt("id")
+	count, err := model.BatchDeleteTokens(tokenBatch.Ids, userId)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    count,
+	})
+}
+
+type UserToken struct {
+	model.Token
+	Username string `json:"username"`
+}
+
+// 添加token所属的用户字段
+func addTokenUsername(tokens []*model.Token) ([]*UserToken, error) {
+	var userTokens []*UserToken
+	if len(tokens) > 0 {
+		var userIds []int
+		for _, token := range tokens {
+			fmt.Println(token.UserId)
+			userIds = append(userIds, token.UserId)
+		}
+		users, err := model.GetUsersByIDs(userIds)
+		userMap := make(map[int]string)
+		for _, user := range users {
+			userMap[user.Id] = user.Username
+		}
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range tokens {
+			item := UserToken{
+				Token: *v,
+			}
+			item.Username = userMap[v.UserId]
+			userTokens = append(userTokens, &item)
+		}
+	}
+	return userTokens, nil
 }
