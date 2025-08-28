@@ -2,14 +2,12 @@ version: '3.4'
 
 services:
   burncloud-aiapi:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: calciumion/new-api:latest
     container_name: burncloud-aiapi
     restart: always
     command: --log-dir /app/logs
-    # ports:
-    #  - "3002:3000"
+    ports:
+      - 3000:3000
     volumes:
       # - ./data:/data
       - ./logs:/app/logs
