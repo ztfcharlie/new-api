@@ -19,3 +19,4 @@ public/webHtml
 pythonTools/responses
 tiktoken_cache
 web-old/dist
+redis_data
