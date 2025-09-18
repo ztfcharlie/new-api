@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   burncloud-aiapi:
-    image: calciumion/new-api:latest
+    image: calciumion/new-api-horizon:latest
     container_name: burncloud-aiapi
     restart: always
     command: --log-dir /app/logs
