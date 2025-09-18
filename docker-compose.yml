@@ -28,6 +28,7 @@ services:
       - GENERATE_DEFAULT_TOKEN=${GENERATE_DEFAULT_TOKEN}
       - REDIS_CONN_STRING=${REDIS_CONN_STRING}
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录
+      - NODE_TYPE=${NODE_TYPE}
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
     depends_on:

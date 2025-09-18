@@ -28,6 +28,7 @@ services:
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
+      - NODE_TYPE=${NODE_TYPE}
     depends_on:
       - burncloud-aiapi-redis
       - burncloud-aiapi-mysql
