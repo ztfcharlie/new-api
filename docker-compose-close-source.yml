@@ -29,6 +29,8 @@ services:
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
       - NODE_TYPE=${NODE_TYPE}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - CRYPTO_SECRET=${CRYPTO_SECRET}
     depends_on:
       - burncloud-aiapi-redis
       - burncloud-aiapi-mysql
