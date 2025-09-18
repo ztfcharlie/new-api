@@ -30,6 +30,8 @@ services:
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
       - NODE_TYPE=slave
+      - SESSION_SECRET=210997cb19a5e0707734a6334a561572VGa
+      - CRYPTO_SECRET=Gr8oEuhFWItO0PGcvEaB3Nj95hlUww
     healthcheck:
       test: [ "CMD-SHELL", "curl -sf http://localhost:3000/api/status > /dev/null" ]
       interval: 30s
