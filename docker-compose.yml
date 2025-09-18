@@ -65,9 +65,6 @@ services:
     networks:
       - nginx-network  # 使用独立的虚拟网络
 
-volumes:
-  mysql_data:
-
 networks:
   nginx-network:
     external: true  # 声明为外部网络
