@@ -1,0 +1,47 @@
+version: '3.4'
+
+services:
+  burncloud-aiapi-test-only:
+    image: calciumion/new-api-horizon:latest
+    container_name: burncloud-aiapi-test-only
+    restart: always
+    command: --log-dir /app/logs
+    ports:
+      - 5000:3000
+    volumes:
+      # - ./data:/data
+      - ./logs:/app/logs
+      - ./public/static:/data/public/static
+      - ./public/uploads:/data/public/uploads
+    environment:
+      - SQL_DSN=${SQL_DSN}
+      - GLOBAL_API_RATE_LIMIT_ENABLE=false
+      - GLOBAL_API_RATE_LIMIT=300
+      - GLOBAL_API_RATE_LIMIT_DURATION=60
+      - GLOBAL_WEB_RATE_LIMIT_ENABLE=false
+      - GLOBAL_WEB_RATE_LIMIT=300
+      - GLOBAL_WEB_RATE_LIMIT_DURATION=60
+      - CONSOLE_JWT_SECRET=${CONSOLE_JWT_SECRET}
+      - CONSOLE_API_DOMAIN=${CONSOLE_API_DOMAIN}
+      - GENERATE_DEFAULT_TOKEN=${GENERATE_DEFAULT_TOKEN}
+      - REDIS_CONN_STRING=${REDIS_CONN_STRING}
+      - ERROR_LOG_ENABLED=true # 是否启用错误日志记录
+      #- TZ=Asia/Shanghai
+      - TZ=America/New_York
+    depends_on:
+      - burncloud-aiapi-redis
+      - burncloud-aiapi-mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:3000/api/status > /dev/null" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - nginx-network  # 使用独立的虚拟网络
+
+volumes:
+  mysql_data:
+
+networks:
+  nginx-network:
+    external: true  # 声明为外部网络
