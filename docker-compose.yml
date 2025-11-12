@@ -29,6 +29,7 @@ services:
       - REDIS_CONN_STRING=${REDIS_CONN_STRING}
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录
       - NODE_TYPE=${NODE_TYPE}
+      - API_REQUEST_LOG_ENABLED=${API_REQUEST_LOG_ENABLED} # 启用API请求详细追踪
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
     depends_on:
@@ -58,6 +59,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: burncloud123456!qwf
       MYSQL_DATABASE: new-api
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
     volumes:
       - ./mysql_data:/var/lib/mysql
     #ports:
