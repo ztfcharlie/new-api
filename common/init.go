@@ -76,6 +76,8 @@ func InitEnv() {
 	DebugEnabled = os.Getenv("DEBUG") == "true"
 	MemoryCacheEnabled = os.Getenv("MEMORY_CACHE_ENABLED") == "true"
 	IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
+	LogConsumeEnabled = GetEnvOrDefaultBool("LOG_CONSUME_ENABLED", true)
+	ApiRequestLogEnabled = GetEnvOrDefaultBool("API_REQUEST_LOG_ENABLED", false)
 
 	// Parse requestInterval and set RequestInterval
 	requestInterval, _ = strconv.Atoi(os.Getenv("POLLING_INTERVAL"))
