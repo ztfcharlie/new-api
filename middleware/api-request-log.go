@@ -59,8 +59,12 @@ func ApiRequestLog() gin.HandlerFunc {
 		startTime := time.Now()
 		requestId := model.GenerateRequestId()
 
-		// 将request_id存入context，便于后续使用
+	// 将request_id存入context，便于后续使用
 		c.Set("request_id", requestId)
+
+	// 创建一个用于存储上游请求信息的结构体，并放入context
+	upstreamInfo := &common.UpstreamRequestInfo{}
+	c.Set("upstream_request_info", upstreamInfo)
 
 		// 读取请求体
 		var requestBody []byte
@@ -154,6 +158,14 @@ func ApiRequestLog() gin.HandlerFunc {
 		}
 		if tokenNameStr, exists := c.Get("token_name"); exists {
 			apiLog.TokenName = tokenNameStr.(string)
+		}
+
+		// 从context中获取上游请求信息并添加到日志
+		if upstreamInfo, exists := c.Get("upstream_request_info"); exists {
+			if info, ok := upstreamInfo.(*common.UpstreamRequestInfo); ok {
+				apiLog.UpstreamRequestHeaders = truncateString(info.Headers, MaxTextFieldLength)
+				apiLog.UpstreamRequestBody = truncateString(info.Body, MaxTextFieldLength)
+			}
 		}
 
 		// 如果有错误信息，记录错误

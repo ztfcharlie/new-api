@@ -146,6 +146,12 @@ func InitOptionMap() {
 	common.OptionMap["AutomaticDisableKeywords"] = operation_setting.AutomaticDisableKeywordsToString()
 	common.OptionMap["ExposeRatioEnabled"] = strconv.FormatBool(ratio_setting.IsExposeRatioEnabled())
 
+	// 429监控配置
+	common.OptionMap["RateLimit429MonitorEnabled"] = "true"
+	common.OptionMap["RateLimit429Threshold"] = "1"
+	common.OptionMap["RateLimit429EmailRecipients"] = "burncloud@gmail.com,858377817@qq.com"
+	common.OptionMap["RateLimit429StatDuration"] = "1"
+
 	// 自动添加所有注册的模型配置
 	modelConfigs := config.GlobalConfig.ExportAllConfigs()
 	for k, v := range modelConfigs {
@@ -475,7 +481,10 @@ func handleConfigUpdate(key, value string) bool {
 	configMap := map[string]string{
 		configKey: value,
 	}
-	config.UpdateConfigFromMap(cfg, configMap)
+	err := config.UpdateConfigFromMap(cfg, configMap)
+	if err != nil {
+		common.SysLog("failed to update config " + configName + "." + configKey + ": " + err.Error())
+	}
 
 	return true // 已处理
 }

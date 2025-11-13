@@ -268,6 +268,7 @@ func migrateDB() error {
 		&TwoFA{},
 		&TwoFABackupCode{},
 		&ApiRequestLog{},
+		&RateLimit429Stat{},
 	)
 	if err != nil {
 		return err
@@ -302,6 +303,7 @@ func migrateDBFast() error {
 		{&TwoFA{}, "TwoFA"},
 		{&TwoFABackupCode{}, "TwoFABackupCode"},
 		{&ApiRequestLog{}, "ApiRequestLog"},
+		{&RateLimit429Stat{}, "RateLimit429Stat"},
 	}
 	// 动态计算migration数量，确保errChan缓冲区足够大
 	errChan := make(chan error, len(migrations))

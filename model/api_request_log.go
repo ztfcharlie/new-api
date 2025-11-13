@@ -23,6 +23,10 @@ type ApiRequestLog struct {
 	ResponseHeaders string `json:"response_headers" gorm:"type:text"`
 	ResponseBody    string `json:"response_body" gorm:"type:text"`
 
+	// 转发给大模型API的信息
+	UpstreamRequestHeaders string `json:"upstream_request_headers" gorm:"type:text"`
+	UpstreamRequestBody    string `json:"upstream_request_body" gorm:"type:text"`
+
 	// 额外信息
 	ModelName      string `json:"model_name" gorm:"type:varchar(100);index"`
 	ChannelId      int    `json:"channel_id" gorm:"index"`

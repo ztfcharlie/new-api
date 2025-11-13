@@ -39,12 +39,17 @@ import { isRoot } from '../../helpers';
 import OtherSetting from '../../components/settings/OtherSetting';
 import OperationSetting from '../../components/settings/OperationSetting';
 import RateLimitSetting from '../../components/settings/RateLimitSetting';
+import RateLimit429Setting from '../../components/settings/RateLimit429Setting';
 import ModelSetting from '../../components/settings/ModelSetting';
 import DashboardSetting from '../../components/settings/DashboardSetting';
 import RatioSetting from '../../components/settings/RatioSetting';
 import ChatsSetting from '../../components/settings/ChatsSetting';
 import DrawingSetting from '../../components/settings/DrawingSetting';
 import PaymentSetting from '../../components/settings/PaymentSetting';
+import {
+  ShieldAlert,
+  Activity,
+} from 'lucide-react';
 
 const Setting = () => {
   const { t } = useTranslation();
@@ -123,6 +128,16 @@ const Setting = () => {
       ),
       content: <RateLimitSetting />,
       itemKey: 'ratelimit',
+    });
+    panes.push({
+      tab: (
+        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <ShieldAlert size={18} />
+          {t('429统计监控')}
+        </span>
+      ),
+      content: <RateLimit429Setting />,
+      itemKey: 'rateLimit429',
     });
     panes.push({
       tab: (

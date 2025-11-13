@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -82,6 +83,8 @@ func DoApiRequest(a Adaptor, c *gin.Context, info *common.RelayInfo, requestBody
 	if err != nil {
 		return nil, fmt.Errorf("setup request header failed: %w", err)
 	}
+
+	
 	resp, err := doRequest(c, req, info)
 	if err != nil {
 		return nil, fmt.Errorf("do request failed: %w", err)
@@ -115,6 +118,8 @@ func DoFormRequest(a Adaptor, c *gin.Context, info *common.RelayInfo, requestBod
 	if err != nil {
 		return nil, fmt.Errorf("setup request header failed: %w", err)
 	}
+
+	
 	resp, err := doRequest(c, req, info)
 	if err != nil {
 		return nil, fmt.Errorf("do request failed: %w", err)
@@ -315,6 +320,34 @@ func DoTaskApiRequest(a TaskAdaptor, c *gin.Context, info *common.RelayInfo, req
 	if err != nil {
 		return nil, fmt.Errorf("setup request header failed: %w", err)
 	}
+
+	// 记录转发给大模型API的请求头和请求体
+	// 读取请求体内容用于记录
+	var bodyBytes []byte
+	if requestBody != nil {
+		bodyBytes, err = io.ReadAll(requestBody)
+		if err != nil {
+			bodyBytes = []byte{}
+		} else {
+			// 重新设置请求体，以便后续使用
+			req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+			// 更新GetBody函数
+			finalBodyBytes := bodyBytes
+			req.GetBody = func() (io.ReadCloser, error) {
+				return io.NopCloser(bytes.NewBuffer(finalBodyBytes)), nil
+			}
+		}
+	}
+
+	// 记录上游请求信息
+	headersMap := make(map[string]string)
+	for key, values := range req.Header {
+		if len(values) > 0 {
+			headersMap[key] = values[0]
+		}
+	}
+	common2.LogUpstreamRequestWithBodyBytes(c, headersMap, bodyBytes)
+
 	resp, err := doRequest(c, req, info)
 	if err != nil {
 		return nil, fmt.Errorf("do request failed: %w", err)

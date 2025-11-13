@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
+	common2 "github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/dto"
 	"github.com/QuantumNous/new-api/logger"
@@ -236,7 +236,7 @@ func (a *Adaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.RelayIn
 				if request.ReasoningEffort != "" && request.ReasoningEffort != "none" {
 					reasoning["effort"] = request.ReasoningEffort
 				}
-				marshal, err := common.Marshal(reasoning)
+				marshal, err := common2.Marshal(reasoning)
 				if err != nil {
 					return nil, fmt.Errorf("error marshalling reasoning: %w", err)
 				}
@@ -253,7 +253,7 @@ func (a *Adaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.RelayIn
 					}
 					if request.ReasoningEffort != "none" {
 						reasoning["effort"] = request.ReasoningEffort
-						marshal, err := common.Marshal(reasoning)
+						marshal, err := common2.Marshal(reasoning)
 						if err != nil {
 							return nil, fmt.Errorf("error marshalling reasoning: %w", err)
 						}
@@ -283,7 +283,7 @@ func (a *Adaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.RelayIn
 					MaxTokens: *thinking.BudgetTokens,
 				}
 
-				marshal, err := common.Marshal(reasoning)
+				marshal, err := common2.Marshal(reasoning)
 				if err != nil {
 					return nil, fmt.Errorf("error marshalling reasoning: %w", err)
 				}
@@ -356,7 +356,7 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 
 		writer.WriteField("model", request.Model)
 
-		formData, err2 := common.ParseMultipartFormReusable(c)
+		formData, err2 := common2.ParseMultipartFormReusable(c)
 		if err2 != nil {
 			return nil, fmt.Errorf("error parsing multipart form: %w", err2)
 		}
@@ -580,7 +580,8 @@ func (a *Adaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, request
 	} else if info.RelayMode == relayconstant.RelayModeRealtime {
 		return channel.DoWssRequest(a, c, info, requestBody)
 	} else {
-		return channel.DoApiRequest(a, c, info, requestBody)
+		// 对于常规API请求，在这里记录上游请求信息（在转换完成后）
+		return doRequestWithLogging(a, c, info, requestBody)
 	}
 }
 
@@ -646,4 +647,52 @@ func (a *Adaptor) GetChannelName() string {
 	default:
 		return ChannelName
 	}
+}
+
+// doRequestWithLogging 执行请求并记录上游请求信息
+func doRequestWithLogging(a *Adaptor, c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (any, error) {
+	fullRequestURL, err := a.GetRequestURL(info)
+	if err != nil {
+		return nil, fmt.Errorf("get request url failed: %w", err)
+	}
+
+	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("new request failed: %w", err)
+	}
+
+	headers := req.Header
+	err = a.SetupRequestHeader(c, &headers, info)
+	if err != nil {
+		return nil, fmt.Errorf("setup request header failed: %w", err)
+	}
+
+	// 记录转发给大模型API的请求头和请求体（在转换完成后）
+	// 读取请求体内容用于记录
+	var bodyBytes []byte
+	if requestBody != nil {
+		bodyBytes, err = io.ReadAll(requestBody)
+		if err != nil {
+			bodyBytes = []byte{}
+		} else {
+			// 重新设置请求体，以便后续使用
+			req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+	}
+
+	// 记录上游请求信息
+	headersMap := make(map[string]string)
+	for key, values := range headers {
+		if len(values) > 0 {
+			headersMap[key] = values[0]
+		}
+	}
+	common2.LogUpstreamRequestWithBodyBytes(c, headersMap, bodyBytes)
+
+	// 执行请求
+	resp, err := channel.DoRequest(c, req, info)
+	if err != nil {
+		return nil, fmt.Errorf("do request failed: %w", err)
+	}
+	return resp, nil
 }

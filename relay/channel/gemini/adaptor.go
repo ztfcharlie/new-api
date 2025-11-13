@@ -1,12 +1,14 @@
 package gemini
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
+	common2 "github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/dto"
 	"github.com/QuantumNous/new-api/relay/channel"
 	"github.com/QuantumNous/new-api/relay/channel/openai"
@@ -238,7 +240,50 @@ func (a *Adaptor) ConvertOpenAIResponsesRequest(c *gin.Context, info *relaycommo
 }
 
 func (a *Adaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (any, error) {
-	return channel.DoApiRequest(a, c, info, requestBody)
+	fullRequestURL, err := a.GetRequestURL(info)
+	if err != nil {
+		return nil, fmt.Errorf("get request url failed: %w", err)
+	}
+
+	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("new request failed: %w", err)
+	}
+
+	headers := req.Header
+	err = a.SetupRequestHeader(c, &headers, info)
+	if err != nil {
+		return nil, fmt.Errorf("setup request header failed: %w", err)
+	}
+
+	// 记录转发给大模型API的请求头和请求体（在转换完成后）
+	// 读取请求体内容用于记录
+	var bodyBytes []byte
+	if requestBody != nil {
+		bodyBytes, err = io.ReadAll(requestBody)
+		if err != nil {
+			bodyBytes = []byte{}
+		} else {
+			// 重新设置请求体，以便后续使用
+			req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+	}
+
+	// 记录上游请求信息
+	headersMap := make(map[string]string)
+	for key, values := range headers {
+		if len(values) > 0 {
+			headersMap[key] = values[0]
+		}
+	}
+	common2.LogUpstreamRequestWithBodyBytes(c, headersMap, bodyBytes)
+
+	// 执行请求
+	resp, err := channel.DoRequest(c, req, info)
+	if err != nil {
+		return nil, fmt.Errorf("do request failed: %w", err)
+	}
+	return resp, nil
 }
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (usage any, err *types.NewAPIError) {

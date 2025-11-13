@@ -121,6 +121,18 @@ func SetApiRouter(router *gin.Engine) {
 			optionRoute.POST("/rest_model_ratio", controller.ResetModelRatio)
 			optionRoute.POST("/migrate_console_setting", controller.MigrateConsoleSetting) // 用于迁移检测的旧键，下个版本会删除
 		}
+		// 429监控API
+		rateLimit429Route := apiRouter.Group("/rate_limit_429")
+		rateLimit429Route.Use(middleware.AdminAuth())
+		{
+			rateLimit429Route.GET("/stats", controller.GetRateLimit429Stats)
+			rateLimit429Route.GET("/summary", controller.GetRateLimit429Summary)
+			rateLimit429Route.GET("/channel/:channel_id", controller.GetRateLimit429StatsByChannel)
+			rateLimit429Route.GET("/time_range", controller.GetRateLimit429StatsByTimeRange)
+			rateLimit429Route.DELETE("/cleanup", controller.DeleteOldRateLimit429Stats)
+			rateLimit429Route.GET("/config", controller.GetRateLimit429Config)
+			rateLimit429Route.PUT("/config", controller.UpdateRateLimit429Config)
+		}
 		ratioSyncRoute := apiRouter.Group("/ratio_sync")
 		ratioSyncRoute.Use(middleware.RootAuth())
 		{
