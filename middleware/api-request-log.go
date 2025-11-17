@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"regexp"
 	"strings"
+	"unicode/utf8"
 	"time"
 
 	"github.com/QuantumNous/new-api/common"
@@ -43,6 +45,72 @@ func safeJSONMarshal(v interface{}) string {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return "{}"
+	}
+	return string(data)
+}
+
+// isValidUTF8Text 检查数据是否为有效的UTF-8文本
+func isValidUTF8Text(data []byte) bool {
+	if len(data) == 0 {
+		return true
+	}
+
+	// 检查是否包含gzip magic bytes (0x1F 0x8B)
+	if len(data) >= 2 && data[0] == 0x1F && data[1] == 0x8B {
+		return false
+	}
+
+	// 使用utf8.ValidString检查是否为有效的UTF-8
+	return utf8.ValidString(string(data))
+}
+
+// containsBase64 检查字符串是否包含base64编码的内容
+func containsBase64(content string) bool {
+	// 移除空白字符后检查是否为有效的base64
+	content = strings.ReplaceAll(content, " ", "")
+	content = strings.ReplaceAll(content, "\n", "")
+	content = strings.ReplaceAll(content, "\r", "")
+	content = strings.ReplaceAll(content, "\t", "")
+
+	if len(content) < 4 {
+		return false
+	}
+
+	// 检查是否是base64格式：只包含base64字符且长度是4的倍数
+	base64Pattern := `^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$`
+	matched, _ := regexp.MatchString(base64Pattern, content)
+
+	if matched {
+		// 额外检查：如果内容较长且完全是base64格式，很可能是base64编码
+		if len(content) > 20 {
+			return true
+		}
+	}
+
+	return false
+}
+
+// processRequestBody 处理请求体，如果包含base64内容则替换为占位符
+func processRequestBody(data []byte) string {
+	content := string(data)
+
+	// 首先检查是否为有效的UTF-8文本
+	if !isValidUTF8Text(data) {
+		return "it is not a text contents"
+	}
+
+	// 检查是否包含base64内容
+	if containsBase64(content) {
+		return "it contains base64 content"
+	}
+
+	return content
+}
+
+// processResponseBody 处理响应体，如果不是文本内容则替换为占位符
+func processResponseBody(data []byte) string {
+	if !isValidUTF8Text(data) {
+		return "it is not a text contents"
 	}
 	return string(data)
 }
@@ -125,9 +193,13 @@ func ApiRequestLog() gin.HandlerFunc {
 			}
 		}
 
-		// 截取长数据以防止数据库错误
-		truncatedRequestBody := truncateString(string(requestBody), MaxTextFieldLength)
-		truncatedResponseBody := truncateString(responseBodyWriter.body.String(), MaxTextFieldLength)
+		// 处理和截取长数据以防止数据库错误
+		// 处理请求体，检查是否包含base64内容
+		processedRequestBody := processRequestBody(requestBody)
+		truncatedRequestBody := truncateString(processedRequestBody, MaxTextFieldLength)
+		// 处理响应体，检查是否为文本内容
+		processedResponseBody := processResponseBody(responseBodyWriter.body.Bytes())
+		truncatedResponseBody := truncateString(processedResponseBody, MaxTextFieldLength)
 		truncatedRequestHeaders := truncateString(requestHeadersJSON, MaxTextFieldLength)
 		truncatedRequestParams := truncateString(requestParamsJSON, MaxTextFieldLength)
 		truncatedResponseHeaders := truncateString(responseHeadersJSON, MaxTextFieldLength)
