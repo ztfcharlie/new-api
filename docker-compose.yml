@@ -30,6 +30,7 @@ services:
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录
       - NODE_TYPE=${NODE_TYPE}
       - API_REQUEST_LOG_ENABLED=${API_REQUEST_LOG_ENABLED} # 启用API请求详细追踪
+      - GEMINI_VISION_MAX_IMAGE_NUM=${GEMINI_VISION_MAX_IMAGE_NUM}
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
     depends_on:
