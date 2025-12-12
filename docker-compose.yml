@@ -69,6 +69,23 @@ services:
     networks:
       - nginx-network  # 使用独立的虚拟网络
 
+  # 添加 phpMyAdmin 服务
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: burncloud-aiapi-phpmyadmin
+    restart: always
+    environment:
+      # 设置 phpMyAdmin 默认连接的主机名为 MySQL 服务的容器名称
+      PMA_HOST: burncloud-aiapi-mysql
+      # 允许使用 root 账户和密码登录（可选，更安全的方式是创建单独用户）
+      MYSQL_ROOT_PASSWORD: burncloud123456!qwf 
+    ports:
+      - "8080:80" # 将 phpMyAdmin 暴露在主机的 8080 端口
+    networks:
+      - nginx-network  # 加入同一个网络，确保能连接到 MySQL
+    depends_on:
+      - burncloud-aiapi-mysql
+
 networks:
   nginx-network:
     external: true  # 声明为外部网络
