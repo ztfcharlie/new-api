@@ -80,7 +80,7 @@ services:
       # 允许使用 root 账户和密码登录（可选，更安全的方式是创建单独用户）
       MYSQL_ROOT_PASSWORD: burncloud123456!qwf 
     ports:
-      - "8080:80" # 将 phpMyAdmin 暴露在主机的 8080 端口
+      - "8888:80" # 将 phpMyAdmin 暴露在主机的 8080 端口
     networks:
       - nginx-network  # 加入同一个网络，确保能连接到 MySQL
     depends_on:
