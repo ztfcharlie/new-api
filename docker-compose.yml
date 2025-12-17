@@ -55,13 +55,19 @@ services:
     image: mysql:8.2
     container_name: burncloud-aiapi-mysql
     restart: always
+    command:
+      - --server-id=1
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
     environment:
       MYSQL_ROOT_PASSWORD: burncloud123456!qwf
       MYSQL_DATABASE: new-api
     volumes:
       - ./mysql_data:/var/lib/mysql
-    #ports:
-    #  - "3306:3306"
+    ports:
+      - "127.0.0.1:33306:3306"
     networks:
       - nginx-network  # 使用独立的虚拟网络
 
