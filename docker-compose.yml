@@ -52,7 +52,7 @@ services:
       - nginx-network  # 使用独立的虚拟网络
 
   burncloud-aiapi-mysql:
-    image: mysql:8.2
+    image: mysql:8.0
     container_name: burncloud-aiapi-mysql
     restart: always
     command:
