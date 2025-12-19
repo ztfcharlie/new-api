@@ -1,5 +1,11 @@
 package common
 
+import (
+	"fmt"
+	"os"
+	"strconv"
+)
+
 var BatchUpdateInterval int
 
 var RelayTimeout int // unit is second
@@ -16,12 +22,6 @@ var ModerationTimeout int // ms
 var GeminiSafetySetting string
 
 // https://docs.cohere.com/docs/safety-modes Type; NONE/CONTEXTUAL/STRICT
-
-import (
-	"fmt"
-	"os"
-	"strconv"
-)
 
 func GetEnvOrDefault(env string, defaultValue int) int {
 	if env == "" || os.Getenv(env) == "" {
