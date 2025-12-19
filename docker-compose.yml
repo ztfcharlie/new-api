@@ -31,6 +31,12 @@ services:
       - NODE_TYPE=${NODE_TYPE}
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
+      # Moderation Configuration
+      - ENABLE_MODERATION=${ENABLE_MODERATION}
+      - MODERATION_URL=${MODERATION_URL}
+      - MODERATION_KEY=${MODERATION_KEY}
+      - MODERATION_MODEL=${MODERATION_MODEL}
+      - MODERATION_TIMEOUT=${MODERATION_TIMEOUT}
     depends_on:
       burncloud-aiapi-redis:
         condition: service_started
