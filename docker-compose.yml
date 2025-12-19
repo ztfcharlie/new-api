@@ -32,8 +32,10 @@ services:
       #- TZ=Asia/Shanghai
       - TZ=America/New_York
     depends_on:
-      - burncloud-aiapi-redis
-      - burncloud-aiapi-mysql
+      burncloud-aiapi-redis:
+        condition: service_started
+      burncloud-aiapi-mysql:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "curl -sf http://localhost:3000/api/status > /dev/null" ]
       interval: 30s
@@ -52,7 +54,7 @@ services:
       - nginx-network  # 使用独立的虚拟网络
 
   burncloud-aiapi-mysql:
-    image: mysql:8.0
+    image: mysql:8.2
     container_name: burncloud-aiapi-mysql
     restart: always
     command:
@@ -64,12 +66,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: burncloud123456!qwf
       MYSQL_DATABASE: new-api
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
     volumes:
       - ./mysql_data:/var/lib/mysql
     ports:
       - "127.0.0.1:${MYSQL_PORT}:3306"
-    networks:
-      - nginx-network  # 使用独立的虚拟网络
 
 networks:
   nginx-network:
