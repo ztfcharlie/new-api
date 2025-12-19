@@ -73,4 +73,5 @@ services:
 
 networks:
   nginx-network:
-    external: true  # 声明为外部网络
+    driver: bridge
+    name: nginx-network
