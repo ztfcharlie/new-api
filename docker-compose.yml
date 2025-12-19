@@ -41,8 +41,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      - nginx-network  # 使用独立的虚拟网络
 
   burncloud-aiapi-redis:
     image: redis:latest
@@ -50,8 +48,6 @@ services:
     restart: always
     volumes:
       - ./redis_data:/data
-    networks:
-      - nginx-network  # 使用独立的虚拟网络
 
   burncloud-aiapi-mysql:
     image: mysql:8.2
@@ -75,8 +71,3 @@ services:
       - ./mysql_data:/var/lib/mysql
     ports:
       - "127.0.0.1:${MYSQL_PORT}:3306"
-
-networks:
-  nginx-network:
-    driver: bridge
-    name: nginx-network
