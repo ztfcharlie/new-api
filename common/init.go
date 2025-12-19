@@ -93,6 +93,12 @@ func InitEnv() {
 	RelayMaxIdleConns = GetEnvOrDefault("RELAY_MAX_IDLE_CONNS", 500)
 	RelayMaxIdleConnsPerHost = GetEnvOrDefault("RELAY_MAX_IDLE_CONNS_PER_HOST", 100)
 
+	ModerationEnabled = GetEnvOrDefaultBool("ENABLE_MODERATION", false)
+	ModerationBaseURL = GetEnvOrDefaultString("MODERATION_URL", "https://api.openai.com")
+	ModerationKey = GetEnvOrDefaultString("MODERATION_KEY", "")
+	ModerationModel = GetEnvOrDefaultString("MODERATION_MODEL", "omni-moderation-latest")
+	ModerationTimeout = GetEnvOrDefault("MODERATION_TIMEOUT", 1000)
+
 	// Initialize string variables with GetEnvOrDefaultString
 	GeminiSafetySetting = GetEnvOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
 	CohereSafetySetting = GetEnvOrDefaultString("COHERE_SAFETY_SETTING", "NONE")
