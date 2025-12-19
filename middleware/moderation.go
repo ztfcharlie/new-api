@@ -53,8 +53,10 @@ func abortWithModerationError(c *gin.Context, status int, message string) {
 
 func OpenAIModeration() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// FORCE DEBUG LOG
+		fmt.Printf("[Moderation-Debug] Middleware invoked. Path: %s, Enabled: %v\n", c.Request.URL.Path, common.ModerationEnabled)
+
 		if !common.ModerationEnabled {
-			c.Next()
 			return
 		}
 
@@ -64,9 +66,11 @@ func OpenAIModeration() gin.HandlerFunc {
 		isChat := strings.HasSuffix(path, "/chat/completions") || strings.HasSuffix(path, "/messages") // OpenAI & Claude
 
 		if !isChat {
-			c.Next()
+			fmt.Printf("[Moderation-Debug] Path not matched: %s\n", path)
 			return
 		}
+
+		common.SysLog(fmt.Sprintf("Moderation middleware triggered for path: %s", path))
 
 		var inputs []ModerationInput
 
@@ -74,6 +78,7 @@ func OpenAIModeration() gin.HandlerFunc {
 		if isChat {
 			var chatReq dto.GeneralOpenAIRequest
 			if err := common.UnmarshalBodyReusable(c, &chatReq); err != nil {
+				common.SysError(fmt.Sprintf("Moderation: failed to unmarshal body: %v", err))
 				abortWithModerationError(c, http.StatusBadRequest, "Invalid request body for moderation")
 				return
 			}
@@ -96,9 +101,12 @@ func OpenAIModeration() gin.HandlerFunc {
 
 		// If no inputs found (empty request?), just proceed
 		if len(inputs) == 0 {
+			common.SysLog("Moderation: no text inputs found to check")
 			c.Next()
 			return
 		}
+
+		common.SysLog(fmt.Sprintf("Moderation: checking %d inputs", len(inputs)))
 
 		// Prepare Moderation Request
 		modReq := ModerationRequest{
@@ -122,6 +130,8 @@ func OpenAIModeration() gin.HandlerFunc {
 				url += "/v1/moderations"
 			}
 		}
+
+		common.SysLog(fmt.Sprintf("Moderation: sending request to %s", url))
 
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
 		if err != nil {
@@ -148,6 +158,8 @@ func OpenAIModeration() gin.HandlerFunc {
 			return
 		}
 		defer resp.Body.Close()
+
+		common.SysLog(fmt.Sprintf("Moderation: API returned status %d", resp.StatusCode))
 
 		if resp.StatusCode != http.StatusOK {
 			common.SysError(fmt.Sprintf("Moderation API returned status: %d", resp.StatusCode))
@@ -176,12 +188,14 @@ func OpenAIModeration() gin.HandlerFunc {
 						reasons = append(reasons, cat)
 					}
 				}
+				common.SysLog(fmt.Sprintf("Moderation: content flagged! Reasons: %v", reasons))
 				// Use standard sensitive word error message format
 				abortWithModerationError(c, http.StatusBadRequest, fmt.Sprintf("敏感词检测失败: %s", strings.Join(reasons, ", ")))
 				return
 			}
 		}
-
+		
+		common.SysLog("Moderation: content passed")
 		c.Next()
 	}
 }
