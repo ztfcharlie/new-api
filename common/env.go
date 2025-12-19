@@ -6,20 +6,11 @@ import (
 	"strconv"
 )
 
-var BatchUpdateInterval int
-
-var RelayTimeout int // unit is second
-
-var RelayMaxIdleConns int
-var RelayMaxIdleConnsPerHost int
-
 var ModerationEnabled bool
 var ModerationBaseURL string
 var ModerationKey string
 var ModerationModel string
 var ModerationTimeout int // ms
-
-var GeminiSafetySetting string
 
 // https://docs.cohere.com/docs/safety-modes Type; NONE/CONTEXTUAL/STRICT
 
