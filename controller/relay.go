@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/QuantumNous/new-api/common"
@@ -107,6 +109,10 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 						}
 					case *dto.ImageRequest:
 						contentToLog += fmt.Sprintf("[Prompt]: %s\n", r.Prompt)
+						// Try to save image if it's a file upload
+						if imgPath, err := saveRejectedImage(c, requestId); err == nil && imgPath != "" {
+							contentToLog += fmt.Sprintf("[Saved Image]: %s\n", imgPath)
+						}
 					case *dto.OpenAIResponsesRequest:
 						inputs := r.ParseInput()
 						for _, input := range inputs {
@@ -595,4 +601,53 @@ func shouldRetryTaskRelay(c *gin.Context, channelId int, taskErr *dto.TaskError,
 		return false
 	}
 	return true
+}
+
+func saveRejectedImage(c *gin.Context, requestId string) (string, error) {
+	if *common.LogDir == "" {
+		return "", nil
+	}
+	form, err := common.ParseMultipartFormReusable(c)
+	if err != nil || form == nil || form.File == nil {
+		return "", err
+	}
+
+	fhs, ok := form.File["image"]
+	if !ok || len(fhs) == 0 {
+		return "", nil
+	}
+
+	file, err := fhs[0].Open()
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	// Ensure directory exists
+	saveDir := filepath.Join(*common.LogDir, "rejected_images")
+	if _, err := os.Stat(saveDir); os.IsNotExist(err) {
+		_ = os.MkdirAll(saveDir, 0755)
+	}
+
+	// Determine extension (simple check)
+	ext := ".png"
+	if strings.HasSuffix(strings.ToLower(fhs[0].Filename), ".jpg") || strings.HasSuffix(strings.ToLower(fhs[0].Filename), ".jpeg") {
+		ext = ".jpg"
+	}
+
+	fileName := fmt.Sprintf("%s%s", requestId, ext)
+	savePath := filepath.Join(saveDir, fileName)
+
+	out, err := os.Create(savePath)
+	if err != nil {
+		return "", err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, file)
+	if err != nil {
+		return "", err
+	}
+
+	return savePath, nil
 }
