@@ -54,9 +54,9 @@ func abortWithModerationError(c *gin.Context, status int, message string) {
 func OpenAIModeration() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// FORCE DEBUG LOG
-		fmt.Printf("[Moderation-Debug] Middleware invoked. Path: %s, Enabled: %v\n", c.Request.URL.Path, common.ModerationEnabled)
+		fmt.Printf("[Moderation-Debug] Middleware invoked. Path: %s, ModEnabled: %v, AzureEnabled: %v\n", c.Request.URL.Path, common.ModerationEnabled, common.AzureContentFilterEnabled)
 
-		if !common.ModerationEnabled {
+		if !common.ModerationEnabled && !common.AzureContentFilterEnabled {
 			return
 		}
 
@@ -108,96 +108,99 @@ func OpenAIModeration() gin.HandlerFunc {
 
 		common.SysLog(fmt.Sprintf("Moderation: checking %d inputs", len(inputs)))
 
-		// Prepare Moderation Request
-		modReq := ModerationRequest{
-			Model: common.ModerationModel,
-			Input: inputs,
-		}
-
-		reqBody, err := json.Marshal(modReq)
-		if err != nil {
-			abortWithModerationError(c, http.StatusInternalServerError, "Failed to build moderation request")
-			return
-		}
-
-		// Call Moderation API
-		// Prepare URL
-		url := common.ModerationBaseURL
-		if strings.HasSuffix(url, "/") {
-			url += "v1/moderations"
-		} else {
-			if !strings.HasSuffix(url, "/v1/moderations") {
-				url += "/v1/moderations"
+		// 1. OpenAI Moderation Check
+		if common.ModerationEnabled {
+			// Prepare Moderation Request
+			modReq := ModerationRequest{
+				Model: common.ModerationModel,
+				Input: inputs,
 			}
-		}
 
-		common.SysLog(fmt.Sprintf("Moderation: sending request to %s", url))
-
-		req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
-		if err != nil {
-			abortWithModerationError(c, http.StatusInternalServerError, "Failed to create moderation request")
-			return
-		}
-
-		req.Header.Set("Content-Type", "application/json")
-		if common.ModerationKey != "" {
-			req.Header.Set("Authorization", "Bearer "+common.ModerationKey)
-		}
-
-		// Wait for moderation result as configured (default 1000ms)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(common.ModerationTimeout)*time.Millisecond)
-		defer cancel()
-		req = req.WithContext(ctx)
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			common.SysError(fmt.Sprintf("Moderation API failed: %v", err))
-			// Timed out or failed, reject request as requested
-			abortWithModerationError(c, http.StatusServiceUnavailable, "Content moderation service timed out or failed")
-			return
-		}
-		defer resp.Body.Close()
-
-		common.SysLog(fmt.Sprintf("Moderation: API returned status %d", resp.StatusCode))
-
-		if resp.StatusCode != http.StatusOK {
-			common.SysError(fmt.Sprintf("Moderation API returned status: %d", resp.StatusCode))
-			abortWithModerationError(c, http.StatusServiceUnavailable, fmt.Sprintf("Content moderation failed with status %d", resp.StatusCode))
-			return
-		}
-
-		var modResp ModerationResponse
-		if err := json.NewDecoder(resp.Body).Decode(&modResp); err != nil {
-			abortWithModerationError(c, http.StatusInternalServerError, "Failed to parse moderation response")
-			return
-		}
-
-		if modResp.Error != nil {
-			abortWithModerationError(c, http.StatusBadRequest, "Moderation API Error: "+modResp.Error.Message)
-			return
-		}
-
-		// Check results
-		for _, res := range modResp.Results {
-			if res.Flagged {
-				// Build reason
-				var reasons []string
-				for cat, flagged := range res.Categories {
-					if flagged {
-						reasons = append(reasons, cat)
-					}
-				}
-				common.SysLog(fmt.Sprintf("Moderation: content flagged! Reasons: %v", reasons))
-				// Use standard sensitive word error message format
-				abortWithModerationError(c, http.StatusBadRequest, fmt.Sprintf("敏感词检测失败: %s", strings.Join(reasons, ", ")))
+			reqBody, err := json.Marshal(modReq)
+			if err != nil {
+				abortWithModerationError(c, http.StatusInternalServerError, "Failed to build moderation request")
 				return
 			}
-		}
-		
-		common.SysLog("Moderation: content passed")
 
-		// Azure Content Filter Check
+			// Call Moderation API
+			// Prepare URL
+			url := common.ModerationBaseURL
+			if strings.HasSuffix(url, "/") {
+				url += "v1/moderations"
+			} else {
+				if !strings.HasSuffix(url, "/v1/moderations") {
+					url += "/v1/moderations"
+				}
+			}
+
+			common.SysLog(fmt.Sprintf("Moderation: sending request to %s", url))
+
+			req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
+			if err != nil {
+				abortWithModerationError(c, http.StatusInternalServerError, "Failed to create moderation request")
+				return
+			}
+
+			req.Header.Set("Content-Type", "application/json")
+			if common.ModerationKey != "" {
+				req.Header.Set("Authorization", "Bearer "+common.ModerationKey)
+			}
+
+			// Wait for moderation result as configured (default 1000ms)
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(common.ModerationTimeout)*time.Millisecond)
+			defer cancel()
+			req = req.WithContext(ctx)
+
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				common.SysError(fmt.Sprintf("Moderation API failed: %v", err))
+				// Timed out or failed, reject request as requested
+				abortWithModerationError(c, http.StatusServiceUnavailable, "Content moderation service timed out or failed")
+				return
+			}
+			defer resp.Body.Close()
+
+			common.SysLog(fmt.Sprintf("Moderation: API returned status %d", resp.StatusCode))
+
+			if resp.StatusCode != http.StatusOK {
+				common.SysError(fmt.Sprintf("Moderation API returned status: %d", resp.StatusCode))
+				abortWithModerationError(c, http.StatusServiceUnavailable, fmt.Sprintf("Content moderation failed with status %d", resp.StatusCode))
+				return
+			}
+
+			var modResp ModerationResponse
+			if err := json.NewDecoder(resp.Body).Decode(&modResp); err != nil {
+				abortWithModerationError(c, http.StatusInternalServerError, "Failed to parse moderation response")
+				return
+			}
+
+			if modResp.Error != nil {
+				abortWithModerationError(c, http.StatusBadRequest, "Moderation API Error: "+modResp.Error.Message)
+				return
+			}
+
+			// Check results
+			for _, res := range modResp.Results {
+				if res.Flagged {
+					// Build reason
+					var reasons []string
+					for cat, flagged := range res.Categories {
+						if flagged {
+							reasons = append(reasons, cat)
+						}
+					}
+					common.SysLog(fmt.Sprintf("Moderation: content flagged! Reasons: %v", reasons))
+					// Use standard sensitive word error message format
+					abortWithModerationError(c, http.StatusBadRequest, fmt.Sprintf("敏感词检测失败: %s", strings.Join(reasons, ", ")))
+					return
+				}
+			}
+
+			common.SysLog("Moderation: content passed")
+		}
+
+		// 2. Azure Content Filter Check
 		if common.AzureContentFilterEnabled {
 			common.SysLog("Moderation: checking with Azure Content Filter")
 			for _, input := range inputs {
