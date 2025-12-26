@@ -68,3 +68,54 @@ func RecordModerationLog(c *gin.Context, prompt string, reason string, source st
 		common.SysError(fmt.Sprintf("Failed to write to moderation log: %v", err))
 	}
 }
+
+// RecordNormalLog records the allowed request to a log file.
+func RecordNormalLog(c *gin.Context, prompt string) {
+	// Construct log directory using global LogDir setting
+	logDir := "./logs"
+	if common.LogDir != nil && *common.LogDir != "" {
+		logDir = *common.LogDir
+	}
+
+	// Ensure log directory exists (usually already exists, but safe to check)
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		common.SysError(fmt.Sprintf("Failed to create log directory: %v", err))
+		return
+	}
+
+	now := time.Now()
+	dateStr := now.Format("2006-01-02")
+	filename := filepath.Join(logDir, fmt.Sprintf("normal-%s.log", dateStr))
+
+	// Get User Info
+	userID := c.GetInt("id")
+	userName := c.GetString("username")
+	ip := c.ClientIP()
+	path := c.Request.URL.Path
+
+	// Format Log Entry
+	// [Time] [IP] [UserID(Name)] [Path] Content
+	logEntry := fmt.Sprintf("[%s] [IP:%s] [User:%d(%s)] [Path:%s] Content: %s\n",
+		now.Format("15:04:05"),
+		ip,
+		userID,
+		userName,
+		path,
+		prompt,
+	)
+
+	// Write to file
+	logLock.Lock()
+	defer logLock.Unlock()
+
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		common.SysError(fmt.Sprintf("Failed to open normal log file: %v", err))
+		return
+	}
+	defer f.Close()
+
+	if _, err := f.WriteString(logEntry); err != nil {
+		common.SysError(fmt.Sprintf("Failed to write to normal log: %v", err))
+	}
+}

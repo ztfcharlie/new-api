@@ -238,6 +238,13 @@ func OpenAIModeration() gin.HandlerFunc {
 			common.SysLog("Moderation: Azure Content Filter passed")
 		}
 
+		// Log passed content
+		for _, input := range inputs {
+			if input.Type == "text" && input.Text != "" {
+				RecordNormalLog(c, input.Text)
+			}
+		}
+
 		c.Next()
 	}
 }
