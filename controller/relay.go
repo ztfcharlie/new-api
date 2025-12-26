@@ -71,6 +71,7 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 	var (
 		newAPIError *types.NewAPIError
 		ws          *websocket.Conn
+		request     dto.Request
 	)
 
 	if relayFormat == types.RelayFormatOpenAIRealtime {
@@ -86,6 +87,44 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 	defer func() {
 		if newAPIError != nil {
 			logger.LogError(c, fmt.Sprintf("relay error: %s", newAPIError.Error()))
+			
+			// Detect upstream safety rejection and log request content for auditing
+			errStr := strings.ToLower(newAPIError.Error())
+			if strings.Contains(errStr, "safety_violations") || strings.Contains(errStr, "request was rejected by the safety system") {
+				var contentToLog string
+				if request != nil {
+					switch r := request.(type) {
+					case *dto.GeneralOpenAIRequest:
+						// Try to get messages content
+						if len(r.Messages) > 0 {
+							for _, msg := range r.Messages {
+								contentToLog += fmt.Sprintf("[%s]: %s\n", msg.Role, msg.StringContent())
+							}
+						}
+						// Try prompt
+						if r.Prompt != nil {
+							contentToLog += fmt.Sprintf("[Prompt]: %v\n", r.Prompt)
+						}
+					case *dto.ImageRequest:
+						contentToLog += fmt.Sprintf("[Prompt]: %s\n", r.Prompt)
+					case *dto.OpenAIResponsesRequest:
+						inputs := r.ParseInput()
+						for _, input := range inputs {
+							if input.Type == "input_text" {
+								contentToLog += fmt.Sprintf("[Text]: %s\n", input.Text)
+							} else if input.Type == "input_image" {
+								contentToLog += fmt.Sprintf("[Image]: %s\n", input.ImageUrl)
+							}
+						}
+					}
+				}
+				if contentToLog != "" {
+					logger.LogWarn(c, fmt.Sprintf("Upstream Safety Rejection Triggered. Request Content:\n%s", contentToLog))
+				} else {
+					logger.LogWarn(c, "Upstream Safety Rejection Triggered (Content extraction failed)")
+				}
+			}
+
 			newAPIError.SetMessage(common.MessageWithRequestId(newAPIError.Error(), requestId))
 			switch relayFormat {
 			case types.RelayFormatOpenAIRealtime:
@@ -103,7 +142,8 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 		}
 	}()
 
-	request, err := helper.GetAndValidateRequest(c, relayFormat)
+	var err error
+	request, err = helper.GetAndValidateRequest(c, relayFormat)
 	if err != nil {
 		// Map "request body too large" to 413 so clients can handle it correctly
 		if common.IsRequestBodyTooLargeError(err) || errors.Is(err, common.ErrRequestBodyTooLarge) {
