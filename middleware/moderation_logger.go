@@ -12,15 +12,21 @@ import (
 )
 
 var (
-	logDir  = "logs/moderation"
 	logLock sync.Mutex
 )
 
 // RecordModerationLog records the blocked moderation request to a log file.
 func RecordModerationLog(c *gin.Context, prompt string, reason string, source string) {
+	// Construct log directory using global LogDir setting
+	// If common.LogDir is set (via flag), use it. Otherwise default to ./logs
+	logDir := "./logs"
+	if common.LogDir != nil && *common.LogDir != "" {
+		logDir = *common.LogDir
+	}
+	
 	// Ensure log directory exists
 	if err := os.MkdirAll(logDir, 0755); err != nil {
-		common.SysError(fmt.Sprintf("Failed to create moderation log directory: %v", err))
+		common.SysError(fmt.Sprintf("Failed to create log directory: %v", err))
 		return
 	}
 
