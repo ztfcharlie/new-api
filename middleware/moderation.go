@@ -71,8 +71,9 @@ func OpenAIModeration() gin.HandlerFunc {
 		isImageVariations := strings.HasSuffix(path, "/images/variations")
 		isAudioTranscriptions := strings.HasSuffix(path, "/audio/transcriptions")
 		isAudioTranslations := strings.HasSuffix(path, "/audio/translations")
+		isResponses := strings.HasSuffix(path, "/v1/responses")
 
-		if !isChat && !isImageGenerations && !isImageEdits && !isImageVariations && !isAudioTranscriptions && !isAudioTranslations {
+		if !isChat && !isImageGenerations && !isImageEdits && !isImageVariations && !isAudioTranscriptions && !isAudioTranslations && !isResponses {
 			fmt.Printf("[Moderation-Debug] Path not matched: %s\n", path)
 			return
 		}
@@ -102,6 +103,31 @@ func OpenAIModeration() gin.HandlerFunc {
 							})
 						}
 					}
+				}
+			}
+		} else if isResponses {
+			var respReq dto.OpenAIResponsesRequest
+			if err := common.UnmarshalBodyReusable(c, &respReq); err != nil {
+				common.SysError(fmt.Sprintf("Moderation: failed to unmarshal responses body: %v", err))
+				abortWithModerationError(c, http.StatusBadRequest, "Invalid request body for moderation")
+				return
+			}
+			mediaInputs := respReq.ParseInput()
+			for _, media := range mediaInputs {
+				if media.Type == "input_text" {
+					inputs = append(inputs, ModerationInput{
+						Type: "text",
+						Text: media.Text,
+					})
+				} else if media.Type == "input_image" && common.ImageModerationEnabled {
+					inputs = append(inputs, ModerationInput{
+						Type: "image_url",
+						ImageUrl: &struct {
+							Url string `json:"url"`
+						}{
+							Url: media.ImageUrl,
+						},
+					})
 				}
 			}
 		} else if isImageGenerations {
