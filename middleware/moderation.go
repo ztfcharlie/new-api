@@ -81,6 +81,7 @@ func OpenAIModeration() gin.HandlerFunc {
 		common.SysLog(fmt.Sprintf("Moderation middleware triggered for path: %s", path))
 
 		var inputs []ModerationInput
+		var extractImageFunc func() []ModerationInput
 
 		// Parse Request
 		if isChat {
@@ -162,32 +163,36 @@ func OpenAIModeration() gin.HandlerFunc {
 			if imgReq.Mask != "" {
 				inputs = append(inputs, ModerationInput{Type: "text", Text: imgReq.Mask})
 			}
-			// Image Content Moderation
+			// Image Content Moderation (Lazy Extraction)
 			if common.ImageModerationEnabled {
-				form, err := common.ParseMultipartFormReusable(c)
-				if err == nil && form != nil && form.File != nil {
-					if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
-						file, err := fhs[0].Open()
-						if err == nil {
-							defer file.Close()
-							fileBytes, err := io.ReadAll(file)
+				extractImageFunc = func() []ModerationInput {
+					var imgInputs []ModerationInput
+					form, err := common.ParseMultipartFormReusable(c)
+					if err == nil && form != nil && form.File != nil {
+						if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
+							file, err := fhs[0].Open()
 							if err == nil {
-								// Detect mime type or default to png
-								mimeType := http.DetectContentType(fileBytes)
-								base64Str := base64.StdEncoding.EncodeToString(fileBytes)
-								dataURL := fmt.Sprintf("data:%s;base64,%s", mimeType, base64Str)
-								inputs = append(inputs, ModerationInput{
-									Type: "image_url",
-									ImageUrl: &struct {
-										Url string `json:"url"`
-									}{
-										Url: dataURL,
-									},
-								})
-								common.SysLog("Moderation: added image content for checking")
+								defer file.Close()
+								fileBytes, err := io.ReadAll(file)
+								if err == nil {
+									// Detect mime type or default to png
+									mimeType := http.DetectContentType(fileBytes)
+									base64Str := base64.StdEncoding.EncodeToString(fileBytes)
+									dataURL := fmt.Sprintf("data:%s;base64,%s", mimeType, base64Str)
+									imgInputs = append(imgInputs, ModerationInput{
+										Type: "image_url",
+										ImageUrl: &struct {
+											Url string `json:"url"`
+										}{
+											Url: dataURL,
+										},
+									})
+									common.SysLog("Moderation: added image content for checking")
+								}
 							}
 						}
 					}
+					return imgInputs
 				}
 			}
 		} else if isImageVariations {
@@ -236,7 +241,9 @@ func OpenAIModeration() gin.HandlerFunc {
 		}
 
 		// If no inputs found (empty request?), just proceed
-		if len(inputs) == 0 {
+		// Note: inputs might be empty if there is only image content and we are waiting for lazy extraction
+		// So we check inputs OR extractImageFunc
+		if len(inputs) == 0 && extractImageFunc == nil {
 			common.SysLog("Moderation: no text inputs found to check")
 			c.Next()
 			return
@@ -246,103 +253,117 @@ func OpenAIModeration() gin.HandlerFunc {
 
 		// 1. OpenAI Moderation Check
 		if common.ModerationEnabled {
-			// Prepare Moderation Request
-			modReq := ModerationRequest{
-				Model: common.ModerationModel,
-				Input: inputs,
+			// For OpenAI, we prefer Batching.
+			openAIInputs := inputs
+			if extractImageFunc != nil {
+				openAIInputs = append(openAIInputs, extractImageFunc()...)
 			}
-
-			reqBody, err := json.Marshal(modReq)
-			if err != nil {
-				abortWithModerationError(c, http.StatusInternalServerError, "Failed to build moderation request")
-				return
-			}
-
-			// Call Moderation API
-			// Prepare URL
-			url := common.ModerationBaseURL
-			if strings.HasSuffix(url, "/") {
-				url += "v1/moderations"
-			} else {
-				if !strings.HasSuffix(url, "/v1/moderations") {
-					url += "/v1/moderations"
+			
+			if len(openAIInputs) > 0 {
+				// Prepare Moderation Request
+				modReq := ModerationRequest{
+					Model: common.ModerationModel,
+					Input: openAIInputs,
 				}
-			}
 
-			common.SysLog(fmt.Sprintf("Moderation: sending request to %s", url))
-
-			req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
-			if err != nil {
-				abortWithModerationError(c, http.StatusInternalServerError, "Failed to create moderation request")
-				return
-			}
-
-			req.Header.Set("Content-Type", "application/json")
-			if common.ModerationKey != "" {
-				req.Header.Set("Authorization", "Bearer "+common.ModerationKey)
-			}
-
-			// Wait for moderation result as configured (default 1000ms)
-			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(common.ModerationTimeout)*time.Millisecond)
-			defer cancel()
-			req = req.WithContext(ctx)
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				common.SysError(fmt.Sprintf("Moderation API failed: %v", err))
-				// Timed out or failed, reject request as requested
-				abortWithModerationError(c, http.StatusServiceUnavailable, "Content moderation service timed out or failed")
-				return
-			}
-			defer resp.Body.Close()
-
-			common.SysLog(fmt.Sprintf("Moderation: API returned status %d", resp.StatusCode))
-
-			if resp.StatusCode != http.StatusOK {
-				common.SysError(fmt.Sprintf("Moderation API returned status: %d", resp.StatusCode))
-				abortWithModerationError(c, http.StatusServiceUnavailable, fmt.Sprintf("Content moderation failed with status %d", resp.StatusCode))
-				return
-			}
-
-			var modResp ModerationResponse
-			if err := json.NewDecoder(resp.Body).Decode(&modResp); err != nil {
-				abortWithModerationError(c, http.StatusInternalServerError, "Failed to parse moderation response")
-				return
-			}
-
-			if modResp.Error != nil {
-				abortWithModerationError(c, http.StatusBadRequest, "Moderation API Error: "+modResp.Error.Message)
-				return
-			}
-
-			// Check results
-			for i, res := range modResp.Results {
-				if res.Flagged {
-					// Build reason
-					var reasons []string
-					for cat, flagged := range res.Categories {
-						if flagged {
-							reasons = append(reasons, cat)
-						}
-					}
-					common.SysLog(fmt.Sprintf("Moderation: content flagged! Reasons: %v", reasons))
-					
-					// Record Log
-					RecordModerationLog(c, inputs[i].Text, strings.Join(reasons, ", "), "OpenAI Moderation")
-
-					// Use standard sensitive word error message format
-					abortWithModerationError(c, http.StatusBadRequest, fmt.Sprintf("敏感词检测失败: %s", strings.Join(reasons, ", ")))
+				reqBody, err := json.Marshal(modReq)
+				if err != nil {
+					abortWithModerationError(c, http.StatusInternalServerError, "Failed to build moderation request")
 					return
 				}
-			}
 
-			common.SysLog("Moderation: content passed")
+				// Call Moderation API
+				// Prepare URL
+				url := common.ModerationBaseURL
+				if strings.HasSuffix(url, "/") {
+					url += "v1/moderations"
+				} else {
+					if !strings.HasSuffix(url, "/v1/moderations") {
+						url += "/v1/moderations"
+					}
+				}
+
+				common.SysLog(fmt.Sprintf("Moderation: sending request to %s", url))
+
+				req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
+				if err != nil {
+					abortWithModerationError(c, http.StatusInternalServerError, "Failed to create moderation request")
+					return
+				}
+
+				req.Header.Set("Content-Type", "application/json")
+				if common.ModerationKey != "" {
+					req.Header.Set("Authorization", "Bearer "+common.ModerationKey)
+				}
+
+				// Wait for moderation result as configured (default 1000ms)
+				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(common.ModerationTimeout)*time.Millisecond)
+				defer cancel()
+				req = req.WithContext(ctx)
+
+				client := &http.Client{}
+				resp, err := client.Do(req)
+				if err != nil {
+					common.SysError(fmt.Sprintf("Moderation API failed: %v", err))
+					// Timed out or failed, reject request as requested
+					abortWithModerationError(c, http.StatusServiceUnavailable, "Content moderation service timed out or failed")
+					return
+				}
+				defer resp.Body.Close()
+
+				common.SysLog(fmt.Sprintf("Moderation: API returned status %d", resp.StatusCode))
+
+				if resp.StatusCode != http.StatusOK {
+					common.SysError(fmt.Sprintf("Moderation API returned status: %d", resp.StatusCode))
+					abortWithModerationError(c, http.StatusServiceUnavailable, fmt.Sprintf("Content moderation failed with status %d", resp.StatusCode))
+					return
+				}
+
+				var modResp ModerationResponse
+				if err := json.NewDecoder(resp.Body).Decode(&modResp); err != nil {
+					abortWithModerationError(c, http.StatusInternalServerError, "Failed to parse moderation response")
+					return
+				}
+
+				if modResp.Error != nil {
+					abortWithModerationError(c, http.StatusBadRequest, "Moderation API Error: "+modResp.Error.Message)
+					return
+				}
+
+				// Check results
+				for i, res := range modResp.Results {
+					if res.Flagged {
+						// Build reason
+						var reasons []string
+						for cat, flagged := range res.Categories {
+							if flagged {
+								reasons = append(reasons, cat)
+							}
+						}
+						common.SysLog(fmt.Sprintf("Moderation: content flagged! Reasons: %v", reasons))
+						
+						// Record Log
+						text := "image_content"
+						if i < len(openAIInputs) && openAIInputs[i].Type == "text" {
+							text = openAIInputs[i].Text
+						}
+						RecordModerationLog(c, text, strings.Join(reasons, ", "), "OpenAI Moderation")
+
+						// Use standard sensitive word error message format
+						abortWithModerationError(c, http.StatusBadRequest, fmt.Sprintf("敏感词检测失败: %s", strings.Join(reasons, ", ")))
+						return
+					}
+				}
+
+				common.SysLog("Moderation: content passed")
+			}
 		}
 
 		// 2. Azure Content Filter Check
 		if common.AzureContentFilterEnabled {
 			common.SysLog("Moderation: checking with Azure Content Filter")
+			
+			// Check Text Inputs FIRST
 			for _, input := range inputs {
 				if input.Type == "text" && input.Text != "" {
 					if err := checkAzureContentFilter(c.Request.Context(), input.Text); err != nil {
@@ -354,21 +375,30 @@ func OpenAIModeration() gin.HandlerFunc {
 						abortWithModerationError(c, http.StatusBadRequest, err.Error())
 						return
 					}
-				} else if input.Type == "image_url" && input.ImageUrl != nil && input.ImageUrl.Url != "" {
-					// Extract Base64 from Data URL
-					// data:image/png;base64,.....
-					parts := strings.Split(input.ImageUrl.Url, ",")
-					if len(parts) == 2 {
-						b64Data := parts[1]
-						if err := checkAzureImageContentFilter(c.Request.Context(), b64Data); err != nil {
-							common.SysLog(fmt.Sprintf("Azure Content Filter (Image): %v", err))
-							RecordModerationLog(c, "image_content", err.Error(), "Azure Content Filter")
-							abortWithModerationError(c, http.StatusBadRequest, err.Error())
-							return
+				}
+			}
+			
+			// Check Image Inputs (Lazy Load)
+			if extractImageFunc != nil {
+				imgInputs := extractImageFunc()
+				for _, input := range imgInputs {
+					if input.Type == "image_url" && input.ImageUrl != nil && input.ImageUrl.Url != "" {
+						// Extract Base64 from Data URL
+						// data:image/png;base64,.....
+						parts := strings.Split(input.ImageUrl.Url, ",")
+						if len(parts) == 2 {
+							b64Data := parts[1]
+							if err := checkAzureImageContentFilter(c.Request.Context(), b64Data); err != nil {
+								common.SysLog(fmt.Sprintf("Azure Content Filter (Image): %v", err))
+								RecordModerationLog(c, "image_content", err.Error(), "Azure Content Filter")
+								abortWithModerationError(c, http.StatusBadRequest, err.Error())
+								return
+							}
 						}
 					}
 				}
 			}
+
 			common.SysLog("Moderation: Azure Content Filter passed")
 		}
 
