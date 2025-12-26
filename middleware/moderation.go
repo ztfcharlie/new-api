@@ -64,9 +64,14 @@ func OpenAIModeration() gin.HandlerFunc {
 		// We check for suffixes to match standard OpenAI paths
 		path := c.Request.URL.Path
 		isChat := strings.HasSuffix(path, "/chat/completions") || strings.HasSuffix(path, "/messages") // OpenAI & Claude
-		isImage := strings.HasSuffix(path, "/images/generations")
+		isChat := strings.HasSuffix(path, "/chat/completions") || strings.HasSuffix(path, "/messages") // OpenAI & Claude
+		isImageGenerations := strings.HasSuffix(path, "/images/generations")
+		isImageEdits := strings.HasSuffix(path, "/images/edits")
+		isImageVariations := strings.HasSuffix(path, "/images/variations")
+		isAudioTranscriptions := strings.HasSuffix(path, "/audio/transcriptions")
+		isAudioTranslations := strings.HasSuffix(path, "/audio/translations")
 
-		if !isChat && !isImage {
+		if !isChat && !isImageGenerations && !isImageEdits && !isImageVariations && !isAudioTranscriptions && !isAudioTranslations {
 			fmt.Printf("[Moderation-Debug] Path not matched: %s\n", path)
 			return
 		}
@@ -98,7 +103,7 @@ func OpenAIModeration() gin.HandlerFunc {
 					}
 				}
 			}
-		} else if isImage {
+		} else if isImageGenerations {
 			var imgReq dto.ImageRequest
 			if err := common.UnmarshalBodyReusable(c, &imgReq); err != nil {
 				common.SysError(fmt.Sprintf("Moderation: failed to unmarshal image body: %v", err))
@@ -111,6 +116,67 @@ func OpenAIModeration() gin.HandlerFunc {
 					Type: "text",
 					Text: imgReq.Prompt,
 				})
+			}
+		} else if isImageEdits {
+			type ImageEditRequest struct {
+				Prompt string `json:"prompt"`
+				Mask   string `json:"mask"` // mask 可能是文件也可能是 URL/Base64 字符串（极少情况），如果是文件则 parseMultipartFormData 不会填充此字段
+			}
+			var imgReq ImageEditRequest
+			if err := common.UnmarshalBodyReusable(c, &imgReq); err != nil {
+				common.SysError(fmt.Sprintf("Moderation: failed to unmarshal image edit body: %v", err))
+				abortWithModerationError(c, http.StatusBadRequest, "Invalid request body for moderation")
+				return
+			}
+			if imgReq.Prompt != "" {
+				inputs = append(inputs, ModerationInput{Type: "text", Text: imgReq.Prompt})
+			}
+			// 如果 mask 被解析为字符串（说明不是文件上传），则纳入检测
+			if imgReq.Mask != "" {
+				inputs = append(inputs, ModerationInput{Type: "text", Text: imgReq.Mask})
+			}
+		} else if isImageVariations {
+			type ImageVariationRequest struct {
+				Prompt string `json:"prompt"` // Variation 理论上没有 prompt，但为了保险加上
+			}
+			var imgReq ImageVariationRequest
+			if err := common.UnmarshalBodyReusable(c, &imgReq); err != nil {
+				common.SysError(fmt.Sprintf("Moderation: failed to unmarshal image variation body: %v", err))
+				abortWithModerationError(c, http.StatusBadRequest, "Invalid request body for moderation")
+				return
+			}
+			if imgReq.Prompt != "" {
+				inputs = append(inputs, ModerationInput{Type: "text", Text: imgReq.Prompt})
+			}
+		} else if isAudioTranscriptions {
+			type AudioTranscriptionRequest struct {
+				Prompt   string `json:"prompt"`
+				Language string `json:"language"`
+			}
+			var audioReq AudioTranscriptionRequest
+			if err := common.UnmarshalBodyReusable(c, &audioReq); err != nil {
+				common.SysError(fmt.Sprintf("Moderation: failed to unmarshal audio transcription body: %v", err))
+				abortWithModerationError(c, http.StatusBadRequest, "Invalid request body for moderation")
+				return
+			}
+			if audioReq.Prompt != "" {
+				inputs = append(inputs, ModerationInput{Type: "text", Text: audioReq.Prompt})
+			}
+			if audioReq.Language != "" {
+				inputs = append(inputs, ModerationInput{Type: "text", Text: audioReq.Language})
+			}
+		} else if isAudioTranslations {
+			type AudioTranslationRequest struct {
+				Prompt string `json:"prompt"`
+			}
+			var audioReq AudioTranslationRequest
+			if err := common.UnmarshalBodyReusable(c, &audioReq); err != nil {
+				common.SysError(fmt.Sprintf("Moderation: failed to unmarshal audio translation body: %v", err))
+				abortWithModerationError(c, http.StatusBadRequest, "Invalid request body for moderation")
+				return
+			}
+			if audioReq.Prompt != "" {
+				inputs = append(inputs, ModerationInput{Type: "text", Text: audioReq.Prompt})
 			}
 		}
 
