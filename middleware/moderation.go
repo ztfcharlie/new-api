@@ -81,6 +81,7 @@ func OpenAIModeration() gin.HandlerFunc {
 		common.SysLog(fmt.Sprintf("Moderation middleware triggered for path: %s", path))
 
 		var inputs []ModerationInput
+		var imgInputs []ModerationInput
 		var extractImageFunc func() []ModerationInput
 
 		// Parse Request
@@ -166,7 +167,9 @@ func OpenAIModeration() gin.HandlerFunc {
 			// Image Content Moderation (Lazy Extraction)
 			if common.ImageModerationEnabled {
 				extractImageFunc = func() []ModerationInput {
-					var imgInputs []ModerationInput
+					if len(imgInputs) > 0 {
+						return imgInputs
+					}
 					form, err := common.ParseMultipartFormReusable(c)
 					if err == nil && form != nil && form.File != nil {
 						if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
@@ -406,6 +409,13 @@ func OpenAIModeration() gin.HandlerFunc {
 		for _, input := range inputs {
 			if input.Type == "text" && input.Text != "" {
 				RecordNormalLog(c, input.Text)
+			}
+		}
+		
+		// Log passed image content
+		if len(imgInputs) > 0 {
+			for range imgInputs {
+				RecordNormalLog(c, "【图片内容已审核】")
 			}
 		}
 
