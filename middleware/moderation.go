@@ -60,12 +60,13 @@ func OpenAIModeration() gin.HandlerFunc {
 			return
 		}
 
-		// Only check Chat endpoints
+		// Only check Chat & Image endpoints
 		// We check for suffixes to match standard OpenAI paths
 		path := c.Request.URL.Path
 		isChat := strings.HasSuffix(path, "/chat/completions") || strings.HasSuffix(path, "/messages") // OpenAI & Claude
+		isImage := strings.HasSuffix(path, "/images/generations")
 
-		if !isChat {
+		if !isChat && !isImage {
 			fmt.Printf("[Moderation-Debug] Path not matched: %s\n", path)
 			return
 		}
@@ -96,6 +97,20 @@ func OpenAIModeration() gin.HandlerFunc {
 						}
 					}
 				}
+			}
+		} else if isImage {
+			var imgReq dto.ImageRequest
+			if err := common.UnmarshalBodyReusable(c, &imgReq); err != nil {
+				common.SysError(fmt.Sprintf("Moderation: failed to unmarshal image body: %v", err))
+				abortWithModerationError(c, http.StatusBadRequest, "Invalid request body for moderation")
+				return
+			}
+			
+			if imgReq.Prompt != "" {
+				inputs = append(inputs, ModerationInput{
+					Type: "text",
+					Text: imgReq.Prompt,
+				})
 			}
 		}
 
