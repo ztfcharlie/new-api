@@ -196,6 +196,120 @@ func OpenAIModeration() gin.HandlerFunc {
 		}
 		
 		common.SysLog("Moderation: content passed")
+
+		// Azure Content Filter Check
+		if common.AzureContentFilterEnabled {
+			common.SysLog("Moderation: checking with Azure Content Filter")
+			for _, input := range inputs {
+				if input.Type == "text" && input.Text != "" {
+					if err := checkAzureContentFilter(c.Request.Context(), input.Text); err != nil {
+						common.SysLog(fmt.Sprintf("Azure Content Filter: %v", err))
+						abortWithModerationError(c, http.StatusBadRequest, err.Error())
+						return
+					}
+				}
+			}
+			common.SysLog("Moderation: Azure Content Filter passed")
+		}
+
 		c.Next()
 	}
+}
+
+type AzureContentSafetyRequest struct {
+	Text       string   `json:"text"`
+	Categories []string `json:"categories,omitempty"`
+	OutputType string   `json:"outputType,omitempty"` // "FourSeverityLevels"
+}
+
+type AzureContentSafetyResponse struct {
+	CategoriesAnalysis []struct {
+		Category string `json:"category"`
+		Severity int    `json:"severity"`
+	} `json:"categoriesAnalysis"`
+	Error *struct {
+		Code    string `json:"code"`
+		Message string `json:"message"`
+	} `json:"error,omitempty"`
+}
+
+func checkAzureContentFilter(ctx context.Context, text string) error {
+	endpoint := common.AzureContentFilterEndpoint
+	key := common.AzureContentFilterKey
+	if endpoint == "" || key == "" {
+		return fmt.Errorf("Azure Content Filter configuration missing")
+	}
+
+	// Clean endpoint URL
+	endpoint = strings.TrimSuffix(endpoint, "/")
+	// Construct full URL
+	// Default Azure Content Safety API path
+	url := fmt.Sprintf("%s/contentsafety/text:analyze?api-version=2023-10-01", endpoint)
+
+	reqBody := AzureContentSafetyRequest{
+		Text:       text,
+		OutputType: "FourSeverityLevels",
+	}
+	jsonBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to marshal Azure Content Safety request: %v", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return fmt.Errorf("failed to create Azure Content Safety request: %v", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Ocp-Apim-Subscription-Key", key)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("Azure Content Safety API request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errResp AzureContentSafetyResponse
+		_ = json.NewDecoder(resp.Body).Decode(&errResp)
+		errMsg := "unknown error"
+		if errResp.Error != nil {
+			errMsg = errResp.Error.Message
+		}
+		return fmt.Errorf("Azure Content Safety API returned status %d: %s", resp.StatusCode, errMsg)
+	}
+
+	var safetyResp AzureContentSafetyResponse
+	if err := json.NewDecoder(resp.Body).Decode(&safetyResp); err != nil {
+		return fmt.Errorf("failed to decode Azure Content Safety response: %v", err)
+	}
+
+	allowedLevel := common.AzureContentFilterHarmLevel
+	// -1: Zero Tolerance (Pass if Severity == 0)
+	// >=0: Pass if Severity < AllowedLevel
+
+	for _, analysis := range safetyResp.CategoriesAnalysis {
+		sev := analysis.Severity
+		blocked := false
+
+		if allowedLevel == -1 {
+			if sev > 0 {
+				blocked = true
+			}
+		} else {
+			// User: "小于设置允许的危害等级的才可以通过" -> Pass if Severity < AllowedLevel
+			if sev >= allowedLevel {
+				blocked = true
+			}
+		}
+
+		if blocked {
+			// Translate category to user friendly message or keep English?
+			// User requested "返回内容违规不通过的信息" (Return content violation info)
+			return fmt.Errorf("内容违规: %s (等级 %d)", analysis.Category, sev)
+		}
+	}
+
+	return nil
 }

@@ -99,6 +99,11 @@ func InitEnv() {
 	ModerationModel = GetEnvOrDefaultString("MODERATION_MODEL", "omni-moderation-latest")
 	ModerationTimeout = GetEnvOrDefault("MODERATION_TIMEOUT", 1000)
 
+	AzureContentFilterEnabled = GetEnvOrDefaultBool("ENABLE_AZURE_CONTENT_FILTER", false)
+	AzureContentFilterEndpoint = GetEnvOrDefaultString("AZURE_CONTENT_FILTER_ENDPOINT", "")
+	AzureContentFilterKey = GetEnvOrDefaultString("AZURE_CONTENT_FILTER_KEY", "")
+	AzureContentFilterHarmLevel = GetEnvOrDefault("AZURE_CONTENT_FILTER_HARM_LEVEL", -1)
+
 	// Initialize string variables with GetEnvOrDefaultString
 	GeminiSafetySetting = GetEnvOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
 	CohereSafetySetting = GetEnvOrDefaultString("COHERE_SAFETY_SETTING", "NONE")
