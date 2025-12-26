@@ -196,7 +196,7 @@ func OpenAIModeration() gin.HandlerFunc {
 			}
 
 			// Check results
-			for _, res := range modResp.Results {
+			for i, res := range modResp.Results {
 				if res.Flagged {
 					// Build reason
 					var reasons []string
@@ -206,6 +206,10 @@ func OpenAIModeration() gin.HandlerFunc {
 						}
 					}
 					common.SysLog(fmt.Sprintf("Moderation: content flagged! Reasons: %v", reasons))
+					
+					// Record Log
+					RecordModerationLog(c, inputs[i].Text, strings.Join(reasons, ", "), "OpenAI Moderation")
+
 					// Use standard sensitive word error message format
 					abortWithModerationError(c, http.StatusBadRequest, fmt.Sprintf("敏感词检测失败: %s", strings.Join(reasons, ", ")))
 					return
@@ -222,6 +226,10 @@ func OpenAIModeration() gin.HandlerFunc {
 				if input.Type == "text" && input.Text != "" {
 					if err := checkAzureContentFilter(c.Request.Context(), input.Text); err != nil {
 						common.SysLog(fmt.Sprintf("Azure Content Filter: %v", err))
+
+						// Record Log
+						RecordModerationLog(c, input.Text, err.Error(), "Azure Content Filter")
+
 						abortWithModerationError(c, http.StatusBadRequest, err.Error())
 						return
 					}
