@@ -75,6 +75,34 @@ func LogDebug(ctx context.Context, msg string, args ...any) {
 	}
 }
 
+func LogSafetyReject(ctx context.Context, msg string) {
+	if *common.LogDir == "" {
+		// If log dir is not set, fallback to Warn log
+		LogWarn(ctx, msg)
+		return
+	}
+	
+	// Create/Append to safety_reject-YYYYMMDD.log
+	logPath := filepath.Join(*common.LogDir, fmt.Sprintf("safety_reject-%s.log", time.Now().Format("20060102")))
+	fd, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		// Fallback
+		LogWarn(ctx, "Failed to open safety reject log file: "+err.Error())
+		LogWarn(ctx, msg)
+		return
+	}
+	defer fd.Close()
+
+	id := ctx.Value(common.RequestIdKey)
+	if id == nil {
+		id = "SYSTEM"
+	}
+	now := time.Now()
+	logEntry := fmt.Sprintf("[%s] %v | %s | %s \n", "SAFETY_REJECT", now.Format("2006/01/02 - 15:04:05"), id, msg)
+	
+	_, _ = fd.WriteString(logEntry)
+}
+
 func logHelper(ctx context.Context, level string, msg string) {
 	writer := gin.DefaultErrorWriter
 	if level == loggerINFO {

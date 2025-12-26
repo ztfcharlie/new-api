@@ -119,9 +119,9 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 					}
 				}
 				if contentToLog != "" {
-					logger.LogWarn(c, fmt.Sprintf("Upstream Safety Rejection Triggered. Request Content:\n%s", contentToLog))
+					logger.LogSafetyReject(c, fmt.Sprintf("Upstream Safety Rejection Triggered. Request Content:\n%s", contentToLog))
 				} else {
-					logger.LogWarn(c, "Upstream Safety Rejection Triggered (Content extraction failed)")
+					logger.LogSafetyReject(c, "Upstream Safety Rejection Triggered (Content extraction failed)")
 				}
 			}
 
