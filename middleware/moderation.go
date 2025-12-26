@@ -3,8 +3,10 @@ package middleware
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -63,7 +65,6 @@ func OpenAIModeration() gin.HandlerFunc {
 		// Only check Chat & Image endpoints
 		// We check for suffixes to match standard OpenAI paths
 		path := c.Request.URL.Path
-		isChat := strings.HasSuffix(path, "/chat/completions") || strings.HasSuffix(path, "/messages") // OpenAI & Claude
 		isChat := strings.HasSuffix(path, "/chat/completions") || strings.HasSuffix(path, "/messages") // OpenAI & Claude
 		isImageGenerations := strings.HasSuffix(path, "/images/generations")
 		isImageEdits := strings.HasSuffix(path, "/images/edits")
@@ -134,6 +135,34 @@ func OpenAIModeration() gin.HandlerFunc {
 			// 如果 mask 被解析为字符串（说明不是文件上传），则纳入检测
 			if imgReq.Mask != "" {
 				inputs = append(inputs, ModerationInput{Type: "text", Text: imgReq.Mask})
+			}
+			// Image Content Moderation
+			if common.ImageModerationEnabled {
+				form, err := common.ParseMultipartFormReusable(c)
+				if err == nil && form != nil && form.File != nil {
+					if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
+						file, err := fhs[0].Open()
+						if err == nil {
+							defer file.Close()
+							fileBytes, err := io.ReadAll(file)
+							if err == nil {
+								// Detect mime type or default to png
+								mimeType := http.DetectContentType(fileBytes)
+								base64Str := base64.StdEncoding.EncodeToString(fileBytes)
+								dataURL := fmt.Sprintf("data:%s;base64,%s", mimeType, base64Str)
+								inputs = append(inputs, ModerationInput{
+									Type: "image_url",
+									ImageUrl: &struct {
+										Url string `json:"url"`
+									}{
+										Url: dataURL,
+									},
+								})
+								common.SysLog("Moderation: added image content for checking")
+							}
+						}
+					}
+				}
 			}
 		} else if isImageVariations {
 			type ImageVariationRequest struct {
@@ -299,6 +328,19 @@ func OpenAIModeration() gin.HandlerFunc {
 						abortWithModerationError(c, http.StatusBadRequest, err.Error())
 						return
 					}
+				} else if input.Type == "image_url" && input.ImageUrl != nil && input.ImageUrl.Url != "" {
+					// Extract Base64 from Data URL
+					// data:image/png;base64,.....
+					parts := strings.Split(input.ImageUrl.Url, ",")
+					if len(parts) == 2 {
+						b64Data := parts[1]
+						if err := checkAzureImageContentFilter(c.Request.Context(), b64Data); err != nil {
+							common.SysLog(fmt.Sprintf("Azure Content Filter (Image): %v", err))
+							RecordModerationLog(c, "image_content", err.Error(), "Azure Content Filter")
+							abortWithModerationError(c, http.StatusBadRequest, err.Error())
+							return
+						}
+					}
 				}
 			}
 			common.SysLog("Moderation: Azure Content Filter passed")
@@ -407,6 +449,87 @@ func checkAzureContentFilter(ctx context.Context, text string) error {
 			// Translate category to user friendly message or keep English?
 			// User requested "返回内容违规不通过的信息" (Return content violation info)
 			return fmt.Errorf("内容违规: %s (等级 %d)", analysis.Category, sev)
+		}
+	}
+
+	return nil
+}
+
+type AzureImageContentSafetyRequest struct {
+	Image      AzureImage `json:"image"`
+	Categories []string   `json:"categories,omitempty"`
+	OutputType string     `json:"outputType,omitempty"` // "FourSeverityLevels"
+}
+
+type AzureImage struct {
+	Content string `json:"content"` // Base64 string
+}
+
+func checkAzureImageContentFilter(ctx context.Context, b64Image string) error {
+	endpoint := common.AzureContentFilterEndpoint
+	key := common.AzureContentFilterKey
+	if endpoint == "" || key == "" {
+		return fmt.Errorf("Azure Content Filter configuration missing")
+	}
+
+	endpoint = strings.TrimSuffix(endpoint, "/")
+	url := fmt.Sprintf("%s/contentsafety/image:analyze?api-version=2023-10-01", endpoint)
+
+	reqBody := AzureImageContentSafetyRequest{
+		Image:      AzureImage{Content: b64Image},
+		OutputType: "FourSeverityLevels",
+	}
+	jsonBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to marshal Azure Image Content Safety request: %v", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return fmt.Errorf("failed to create Azure Image Content Safety request: %v", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Ocp-Apim-Subscription-Key", key)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("Azure Image Content Safety API request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errResp AzureContentSafetyResponse
+		_ = json.NewDecoder(resp.Body).Decode(&errResp)
+		errMsg := "unknown error"
+		if errResp.Error != nil {
+			errMsg = errResp.Error.Message
+		}
+		return fmt.Errorf("Azure Image Content Safety API returned status %d: %s", resp.StatusCode, errMsg)
+	}
+
+	var safetyResp AzureContentSafetyResponse
+	if err := json.NewDecoder(resp.Body).Decode(&safetyResp); err != nil {
+		return fmt.Errorf("failed to decode Azure Image Content Safety response: %v", err)
+	}
+
+	allowedLevel := common.AzureContentFilterHarmLevel
+	for _, analysis := range safetyResp.CategoriesAnalysis {
+		sev := analysis.Severity
+		blocked := false
+		if allowedLevel == -1 {
+			if sev > 0 {
+				blocked = true
+			}
+		} else {
+			if sev >= allowedLevel {
+				blocked = true
+			}
+		}
+
+		if blocked {
+			return fmt.Errorf("图片内容违规: %s (等级 %d)", analysis.Category, sev)
 		}
 	}
 

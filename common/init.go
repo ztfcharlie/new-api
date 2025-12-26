@@ -99,6 +99,8 @@ func InitEnv() {
 	ModerationModel = GetEnvOrDefaultString("MODERATION_MODEL", "omni-moderation-latest")
 	ModerationTimeout = GetEnvOrDefault("MODERATION_TIMEOUT", 1000)
 
+	ImageModerationEnabled = GetEnvOrDefaultBool("ENABLE_IMAGE_MODERATION", false)
+
 	AzureContentFilterEnabled = GetEnvOrDefaultBool("ENABLE_AZURE_CONTENT_FILTER", false)
 	AzureContentFilterEndpoint = GetEnvOrDefaultString("AZURE_CONTENT_FILTER_ENDPOINT", "")
 	AzureContentFilterKey = GetEnvOrDefaultString("AZURE_CONTENT_FILTER_KEY", "")

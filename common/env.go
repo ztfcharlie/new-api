@@ -12,6 +12,8 @@ var ModerationKey string
 var ModerationModel string
 var ModerationTimeout int // ms
 
+var ImageModerationEnabled bool
+
 var AzureContentFilterEnabled bool
 var AzureContentFilterEndpoint string
 var AzureContentFilterKey string
