@@ -39,15 +39,17 @@ func RecordModerationLog(c *gin.Context, prompt string, reason string, source st
 	userName := c.GetString("username")
 	ip := c.ClientIP()
 	path := c.Request.URL.Path
+	reqID := c.GetString(common.RequestIdKey)
 
 	// Format Log Entry
-	// [Time] [IP] [UserID(Name)] [Path] [Source] [Reason] Content
-	logEntry := fmt.Sprintf("[%s] [IP:%s] [User:%d(%s)] [Path:%s] [Source:%s] [Reason:%s] Content: %s\n",
+	// [Time] [IP] [UserID(Name)] [Path] [ReqID] [Source] [Reason] Content
+	logEntry := fmt.Sprintf("[%s] [IP:%s] [User:%d(%s)] [Path:%s] [ReqID:%s] [Source:%s] [Reason:%s] Content: %s\n",
 		now.Format("15:04:05"),
 		ip,
 		userID,
 		userName,
 		path,
+		reqID,
 		source,
 		reason,
 		prompt,
@@ -100,15 +102,17 @@ func RecordNormalLog(c *gin.Context, prompt string) {
 	userName := c.GetString("username")
 	ip := c.ClientIP()
 	path := c.Request.URL.Path
+	reqID := c.GetString(common.RequestIdKey)
 
 	// Format Log Entry
-	// [Time] [IP] [UserID(Name)] [Path] Content
-	logEntry := fmt.Sprintf("[%s] [IP:%s] [User:%d(%s)] [Path:%s] Content: %s\n",
+	// [Time] [IP] [UserID(Name)] [Path] [ReqID] Content
+	logEntry := fmt.Sprintf("[%s] [IP:%s] [User:%d(%s)] [Path:%s] [ReqID:%s] Content: %s\n",
 		now.Format("15:04:05"),
 		ip,
 		userID,
 		userName,
 		path,
+		reqID,
 		prompt,
 	)
 
