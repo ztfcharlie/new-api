@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -110,8 +111,11 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 					case *dto.ImageRequest:
 						contentToLog += fmt.Sprintf("[Prompt]: %s\n", r.Prompt)
 						// Try to save image if it's a file upload
-						if imgPath, err := saveRejectedImage(c, requestId); err == nil && imgPath != "" {
+						imgPath, err := saveRejectedImage(c, requestId)
+						if err == nil && imgPath != "" {
 							contentToLog += fmt.Sprintf("[Saved Image]: %s\n", imgPath)
+						} else if err != nil {
+							contentToLog += fmt.Sprintf("[Image Save Failed]: %v\n", err)
 						}
 					case *dto.OpenAIResponsesRequest:
 						inputs := r.ParseInput()
@@ -608,31 +612,78 @@ func saveRejectedImage(c *gin.Context, requestId string) (string, error) {
 		return "", nil
 	}
 	form, err := common.ParseMultipartFormReusable(c)
-	if err != nil || form == nil || form.File == nil {
-		return "", err
+	if err != nil {
+		return "", fmt.Errorf("parse multipart form failed: %v", err)
+	}
+	if form == nil || form.File == nil || len(form.File) == 0 {
+		return "", nil // Not a multipart request or no files
 	}
 
-	fhs, ok := form.File["image"]
-	if !ok || len(fhs) == 0 {
-		return "", nil
+	// Try to find a suitable file
+	var fileHeader *multipart.FileHeader
+
+	// Priority 1: "image"
+	if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
+		fileHeader = fhs[0]
+	}
+	// Priority 2: "file"
+	if fileHeader == nil {
+		if fhs, ok := form.File["file"]; ok && len(fhs) > 0 {
+			fileHeader = fhs[0]
+		}
+	}
+	// Priority 3: any first file
+	if fileHeader == nil {
+		for _, fhs := range form.File {
+			if len(fhs) > 0 {
+				fileHeader = fhs[0]
+				break
+			}
+		}
 	}
 
-	file, err := fhs[0].Open()
+	if fileHeader == nil {
+		return "", fmt.Errorf("no file found in request")
+	}
+
+	file, err := fileHeader.Open()
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
+	// Detect content type
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil && err != io.EOF {
+		return "", fmt.Errorf("read file header failed: %v", err)
+	}
+	// Reset file pointer
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return "", fmt.Errorf("reset file pointer failed: %v", err)
+	}
+
+	contentType := http.DetectContentType(buffer)
+	ext := ".png" // default
+	switch contentType {
+	case "image/jpeg":
+		ext = ".jpg"
+	case "image/gif":
+		ext = ".gif"
+	case "image/webp":
+		ext = ".webp"
+	case "image/png":
+		ext = ".png"
+	}
+
 	// Ensure directory exists
 	saveDir := filepath.Join(*common.LogDir, "rejected_images")
 	if _, err := os.Stat(saveDir); os.IsNotExist(err) {
-		_ = os.MkdirAll(saveDir, 0755)
-	}
-
-	// Determine extension (simple check)
-	ext := ".png"
-	if strings.HasSuffix(strings.ToLower(fhs[0].Filename), ".jpg") || strings.HasSuffix(strings.ToLower(fhs[0].Filename), ".jpeg") {
-		ext = ".jpg"
+		err = os.MkdirAll(saveDir, 0755)
+		if err != nil {
+			return "", fmt.Errorf("create rejected_images dir failed: %v", err)
+		}
 	}
 
 	fileName := fmt.Sprintf("%s%s", requestId, ext)
