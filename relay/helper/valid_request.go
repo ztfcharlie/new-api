@@ -164,6 +164,8 @@ func GetAndValidOpenAIImageRequest(c *gin.Context, relayMode int) (*dto.ImageReq
 						}
 						savePath := filepath.Join(saveDir, fmt.Sprintf("%s%s", requestId, ext))
 
+						logger.LogInfo(c, fmt.Sprintf("Saving uploaded image to %s", savePath))
+
 						out, err := os.Create(savePath)
 						if err == nil {
 							_, _ = io.Copy(out, file)
