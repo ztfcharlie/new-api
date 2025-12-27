@@ -64,6 +64,11 @@ func RecordModerationLog(c *gin.Context, prompt string, reason string, source st
 	}
 	defer f.Close()
 
+	// Add BOM for Windows compatibility if file is new
+	if stat, err := f.Stat(); err == nil && stat.Size() == 0 {
+		f.WriteString("\xEF\xBB\xBF")
+	}
+
 	if _, err := f.WriteString(logEntry); err != nil {
 		common.SysError(fmt.Sprintf("Failed to write to moderation log: %v", err))
 	}
@@ -117,6 +122,11 @@ func RecordNormalLog(c *gin.Context, prompt string) {
 		return
 	}
 	defer f.Close()
+
+	// Add BOM for Windows compatibility if file is new
+	if stat, err := f.Stat(); err == nil && stat.Size() == 0 {
+		f.WriteString("\xEF\xBB\xBF")
+	}
 
 	if _, err := f.WriteString(logEntry); err != nil {
 		common.SysError(fmt.Sprintf("Failed to write to normal log: %v", err))
