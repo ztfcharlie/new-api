@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strings"
@@ -141,8 +142,15 @@ func GetAndValidOpenAIImageRequest(c *gin.Context, relayMode int) (*dto.ImageReq
 
 			// Save All Images Logic
 			if common.SaveAllImages && form.File != nil {
-				if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
-					fileHeader := fhs[0]
+				var fileHeaders []*multipart.FileHeader
+				if fhs, ok := form.File["image"]; ok {
+					fileHeaders = append(fileHeaders, fhs...)
+				}
+				if fhs, ok := form.File["image[]"]; ok {
+					fileHeaders = append(fileHeaders, fhs...)
+				}
+
+				for i, fileHeader := range fileHeaders {
 					file, err := fileHeader.Open()
 					if err == nil {
 						// Determine extension
@@ -162,7 +170,8 @@ func GetAndValidOpenAIImageRequest(c *gin.Context, relayMode int) (*dto.ImageReq
 						if requestId == "" {
 							requestId = fmt.Sprintf("req_%d", common.GetTimestamp())
 						}
-						savePath := filepath.Join(saveDir, fmt.Sprintf("%s%s", requestId, ext))
+						// User suggested format: RequestID + Index + Suffix
+						savePath := filepath.Join(saveDir, fmt.Sprintf("%s_%d%s", requestId, i, ext))
 
 						logger.LogInfo(c, fmt.Sprintf("Saving uploaded image to %s", savePath))
 

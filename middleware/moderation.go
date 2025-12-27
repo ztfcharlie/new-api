@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
@@ -172,11 +173,19 @@ func OpenAIModeration() gin.HandlerFunc {
 					}
 					form, err := common.ParseMultipartFormReusable(c)
 					if err == nil && form != nil && form.File != nil {
-						if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
-							file, err := fhs[0].Open()
+						var fileHeaders []*multipart.FileHeader
+						if fhs, ok := form.File["image"]; ok {
+							fileHeaders = append(fileHeaders, fhs...)
+						}
+						if fhs, ok := form.File["image[]"]; ok {
+							fileHeaders = append(fileHeaders, fhs...)
+						}
+
+						for _, fh := range fileHeaders {
+							file, err := fh.Open()
 							if err == nil {
-								defer file.Close()
 								fileBytes, err := io.ReadAll(file)
+								file.Close()
 								if err == nil {
 									// Detect mime type or default to png
 									mimeType := http.DetectContentType(fileBytes)
