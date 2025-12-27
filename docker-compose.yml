@@ -43,6 +43,7 @@ services:
       - AZURE_CONTENT_FILTER_KEY=${AZURE_CONTENT_FILTER_KEY}
       - AZURE_CONTENT_FILTER_HARM_LEVEL=${AZURE_CONTENT_FILTER_HARM_LEVEL}
       - ENABLE_IMAGE_MODERATION=${ENABLE_IMAGE_MODERATION}
+      - DISABLE_NORMAL_LOG=${DISABLE_NORMAL_LOG}
     depends_on:
       burncloud-aiapi-redis:
         condition: service_started

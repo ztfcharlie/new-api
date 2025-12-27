@@ -19,6 +19,8 @@ var AzureContentFilterEndpoint string
 var AzureContentFilterKey string
 var AzureContentFilterHarmLevel int // -1: Zero tolerance, >=0: Allowed level
 
+var DisableNormalLog bool
+
 // https://docs.cohere.com/docs/safety-modes Type; NONE/CONTEXTUAL/STRICT
 
 func GetEnvOrDefault(env string, defaultValue int) int {

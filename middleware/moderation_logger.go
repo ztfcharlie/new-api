@@ -71,6 +71,9 @@ func RecordModerationLog(c *gin.Context, prompt string, reason string, source st
 
 // RecordNormalLog records the allowed request to a log file.
 func RecordNormalLog(c *gin.Context, prompt string) {
+	if common.DisableNormalLog {
+		return
+	}
 	// Construct log directory using global LogDir setting
 	logDir := "./logs"
 	if common.LogDir != nil && *common.LogDir != "" {
