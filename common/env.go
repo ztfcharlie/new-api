@@ -21,6 +21,7 @@ var AzureContentFilterHarmLevel int      // -1: Zero tolerance, >=0: Allowed lev
 var AzureContentFilterImageHarmLevel int // Separate level for images
 
 var DisableNormalLog bool
+var SaveAllImages bool // If true, save all uploaded images to logs/rejected_images/
 
 // https://docs.cohere.com/docs/safety-modes Type; NONE/CONTEXTUAL/STRICT
 

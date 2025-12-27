@@ -21,6 +21,16 @@ import (
 )
 
 func ImageHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types.NewAPIError) {
+	// Save original Content-Type and restore it upon return.
+	// This ensures that even if an adaptor modifies the Content-Type (e.g. constructing a new multipart body),
+	// the safety logger (running in a higher-level defer) sees the original Content-Type matching the cached original body.
+	originalContentType := c.Request.Header.Get("Content-Type")
+	defer func() {
+		if originalContentType != "" {
+			c.Request.Header.Set("Content-Type", originalContentType)
+		}
+	}()
+
 	info.InitChannelMeta(c)
 
 	imageReq, ok := info.Request.(*dto.ImageRequest)

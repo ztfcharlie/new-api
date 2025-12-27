@@ -108,6 +108,7 @@ func InitEnv() {
 	AzureContentFilterImageHarmLevel = GetEnvOrDefault("AZURE_CONTENT_FILTER_IMAGE_HARM_LEVEL", AzureContentFilterHarmLevel)
 
 	DisableNormalLog = GetEnvOrDefaultBool("DISABLE_NORMAL_LOG", false)
+	SaveAllImages = GetEnvOrDefaultBool("SAVE_ALL_IMAGES", false)
 
 	// Initialize string variables with GetEnvOrDefaultString
 	GeminiSafetySetting = GetEnvOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")

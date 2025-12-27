@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/QuantumNous/new-api/common"
@@ -134,6 +137,43 @@ func GetAndValidOpenAIImageRequest(c *gin.Context, relayMode int) (*dto.ImageReq
 			form, err := common.ParseMultipartFormReusable(c)
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse image edit form request: %w", err)
+			}
+
+			// Save All Images Logic
+			if common.SaveAllImages && form.File != nil {
+				if fhs, ok := form.File["image"]; ok && len(fhs) > 0 {
+					fileHeader := fhs[0]
+					file, err := fileHeader.Open()
+					if err == nil {
+						// Determine extension
+						ext := filepath.Ext(fileHeader.Filename)
+						if ext == "" {
+							ext = ".png"
+						}
+						// Use LogDir
+						logDir := "./logs"
+						if common.LogDir != nil && *common.LogDir != "" {
+							logDir = *common.LogDir
+						}
+						saveDir := filepath.Join(logDir, "rejected_images")
+						_ = os.MkdirAll(saveDir, 0755)
+
+						requestId := c.GetString(common.RequestIdKey)
+						if requestId == "" {
+							requestId = fmt.Sprintf("req_%d", common.GetTimestamp())
+						}
+						savePath := filepath.Join(saveDir, fmt.Sprintf("%s%s", requestId, ext))
+
+						out, err := os.Create(savePath)
+						if err == nil {
+							_, _ = io.Copy(out, file)
+							out.Close()
+							// Reset file pointer for subsequent reads
+							_, _ = file.Seek(0, 0)
+						}
+						file.Close()
+					}
+				}
 			}
 
 			getValue := func(key string) string {
