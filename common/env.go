@@ -17,7 +17,8 @@ var ImageModerationEnabled bool
 var AzureContentFilterEnabled bool
 var AzureContentFilterEndpoint string
 var AzureContentFilterKey string
-var AzureContentFilterHarmLevel int // -1: Zero tolerance, >=0: Allowed level
+var AzureContentFilterHarmLevel int      // -1: Zero tolerance, >=0: Allowed level
+var AzureContentFilterImageHarmLevel int // Separate level for images
 
 var DisableNormalLog bool
 

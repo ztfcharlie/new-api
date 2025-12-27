@@ -580,7 +580,7 @@ func checkAzureImageContentFilter(ctx context.Context, b64Image string) error {
 		return fmt.Errorf("failed to decode Azure Image Content Safety response: %v", err)
 	}
 
-	allowedLevel := common.AzureContentFilterHarmLevel
+	allowedLevel := common.AzureContentFilterImageHarmLevel
 	for _, analysis := range safetyResp.CategoriesAnalysis {
 		sev := analysis.Severity
 		blocked := false

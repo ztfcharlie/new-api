@@ -105,6 +105,7 @@ func InitEnv() {
 	AzureContentFilterEndpoint = GetEnvOrDefaultString("AZURE_CONTENT_FILTER_ENDPOINT", "")
 	AzureContentFilterKey = GetEnvOrDefaultString("AZURE_CONTENT_FILTER_KEY", "")
 	AzureContentFilterHarmLevel = GetEnvOrDefault("AZURE_CONTENT_FILTER_HARM_LEVEL", -1)
+	AzureContentFilterImageHarmLevel = GetEnvOrDefault("AZURE_CONTENT_FILTER_IMAGE_HARM_LEVEL", AzureContentFilterHarmLevel)
 
 	DisableNormalLog = GetEnvOrDefaultBool("DISABLE_NORMAL_LOG", false)
 
