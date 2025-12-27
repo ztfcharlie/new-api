@@ -90,7 +90,7 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 	defer func() {
 		if newAPIError != nil {
 			logger.LogError(c, fmt.Sprintf("relay error: %s", newAPIError.Error()))
-			
+
 			// Detect upstream safety rejection and log request content for auditing
 			errStr := strings.ToLower(newAPIError.Error())
 			if strings.Contains(errStr, "safety_violations") || strings.Contains(errStr, "request was rejected by the safety system") {
@@ -613,7 +613,9 @@ func saveRejectedImage(c *gin.Context, requestId string) (string, error) {
 	}
 	form, err := common.ParseMultipartFormReusable(c)
 	if err != nil {
-		return "", fmt.Errorf("parse multipart form failed: %v", err)
+		reqBody, _ := common.GetRequestBody(c)
+		contentType := c.Request.Header.Get("Content-Type")
+		return "", fmt.Errorf("parse multipart form failed: %v. Content-Type: %s. Body Len: %d", err, contentType, len(reqBody))
 	}
 	if form == nil || form.File == nil || len(form.File) == 0 {
 		return "", nil // Not a multipart request or no files
