@@ -164,6 +164,43 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 		return
 	}
 
+	// TEST MODE: Trigger safety reject
+	if request != nil {
+		shouldTrigger := false
+		switch r := request.(type) {
+		case *dto.GeneralOpenAIRequest:
+			for _, msg := range r.Messages {
+				if strings.Contains(msg.StringContent(), "TEST_SAFETY_REJECT") {
+					shouldTrigger = true
+					break
+				}
+			}
+			if !shouldTrigger && strings.Contains(fmt.Sprintf("%v", r.Prompt), "TEST_SAFETY_REJECT") {
+				shouldTrigger = true
+			}
+		case *dto.ImageRequest:
+			if strings.Contains(r.Prompt, "TEST_SAFETY_REJECT") {
+				shouldTrigger = true
+			}
+		case *dto.OpenAIResponsesRequest:
+			for _, input := range r.ParseInput() {
+				if strings.Contains(input.Text, "TEST_SAFETY_REJECT") {
+					shouldTrigger = true
+					break
+				}
+			}
+		}
+
+		if shouldTrigger {
+			newAPIError = types.WithOpenAIError(types.OpenAIError{
+				Message: "Request was rejected by the safety system (TEST_MODE_TRIGGER)",
+				Type:    "invalid_request_error",
+				Code:    "safety_violations",
+			}, http.StatusBadRequest)
+			return
+		}
+	}
+
 	relayInfo, err := relaycommon.GenRelayInfo(c, relayFormat, request, ws)
 	if err != nil {
 		newAPIError = types.NewError(err, types.ErrorCodeGenRelayInfoFailed)
