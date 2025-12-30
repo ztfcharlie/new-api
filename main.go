@@ -86,6 +86,9 @@ func main() {
 		go model.SyncChannelCache(common.SyncFrequency)
 	}
 
+	// Start image cleaner
+	service.StartImageCleaner()
+
 	// 热更新配置
 	go model.SyncOptions(common.SyncFrequency)
 

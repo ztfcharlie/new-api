@@ -13,6 +13,7 @@ services:
     volumes:
       # - ./data:/data
       - ./logs:/app/logs
+      - /mnt/burncloud-aiapi-rejected-images:/app/logs/rejected_images
       - ./public/static:/data/public/static
       - ./public/uploads:/data/public/uploads
     environment:
