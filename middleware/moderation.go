@@ -272,6 +272,17 @@ func OpenAIModeration() gin.HandlerFunc {
 			}
 			
 			if len(openAIInputs) > 0 {
+				// Truncate text inputs for OpenAI Moderation to avoid token limits (approx 32k tokens)
+				// We truncate to 50000 characters to be safe and avoid timeouts
+				for i, input := range openAIInputs {
+					if input.Type == "text" && len(input.Text) > 50000 {
+						runes := []rune(input.Text)
+						if len(runes) > 50000 {
+							openAIInputs[i].Text = string(runes[:50000])
+						}
+					}
+				}
+
 				// Prepare Moderation Request
 				modReq := ModerationRequest{
 					Model: common.ModerationModel,
@@ -454,6 +465,15 @@ func checkAzureContentFilter(ctx context.Context, text string) error {
 	key := common.AzureContentFilterKey
 	if endpoint == "" || key == "" {
 		return fmt.Errorf("Azure Content Filter configuration missing")
+	}
+
+	// Truncate text if it exceeds the limit (10000 characters) to avoid 400 error
+	// We truncate to 9000 to be safe.
+	if len(text) > 10000 {
+		runes := []rune(text)
+		if len(runes) > 10000 {
+			text = string(runes[:9000])
+		}
 	}
 
 	// Clean endpoint URL
