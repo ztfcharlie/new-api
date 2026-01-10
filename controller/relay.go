@@ -140,6 +140,12 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 				})
 			}
 		}
+		
+		recordModel := ""
+		if relayInfo != nil {
+			recordModel = relayInfo.OriginModelName
+		}
+		logRequest(c, request, recordModel)
 	}()
 
 	var err error
@@ -632,5 +638,55 @@ func shouldRetryTaskRelay(c *gin.Context, channelId int, taskErr *dto.TaskError,
 		return false
 	}
 	return true
+}
+
+func logRequest(c *gin.Context, request dto.Request, modelName string) {
+	if !common.LogArtifactsEnabled {
+		return
+	}
+	if request == nil {
+		return
+	}
+
+	userId := c.GetInt("id")
+	tokenId := c.GetInt("token_id")
+	// Use the last used channel or 0
+	channelId := c.GetInt("channel_id")
+
+	// Sanitize
+	reqMap := make(map[string]interface{})
+	jsonBytes, err := common.Marshal(request)
+	if err != nil {
+		return
+	}
+	err = common.Unmarshal(jsonBytes, &reqMap)
+	if err != nil {
+		return
+	}
+
+	sanitizeLogPayload(reqMap)
+
+	sanitizedJson, _ := common.Marshal(reqMap)
+
+	model.RecordRequestLog(c, userId, channelId, modelName, c.GetString("token_name"), string(sanitizedJson), tokenId, c.GetString("group"))
+}
+
+func sanitizeLogPayload(m map[string]interface{}) {
+	for k, v := range m {
+		switch val := v.(type) {
+		case string:
+			if (k == "url" || k == "image_url" || k == "data" || k == "file_data") && (strings.HasPrefix(val, "data:") || len(val) > 1024) {
+				m[k] = "[LARGE DATA REMOVED]"
+			}
+		case map[string]interface{}:
+			sanitizeLogPayload(val)
+		case []interface{}:
+			for _, item := range val {
+				if itemMap, ok := item.(map[string]interface{}); ok {
+					sanitizeLogPayload(itemMap)
+				}
+			}
+		}
+	}
 }
 
