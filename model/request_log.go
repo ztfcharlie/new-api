@@ -1,16 +1,18 @@
 package model
 
 import (
+	"time"
+
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/logger"
 	"github.com/gin-gonic/gin"
 )
 
 type RequestLog struct {
-	Id        int    `json:"id" gorm:"primaryKey"`
-	UserId    int    `json:"user_id" gorm:"index"`
-	CreatedAt int64  `json:"created_at" gorm:"bigint;index"`
-	Content   string `json:"content" gorm:"type:longtext"`
+	Id        int       `json:"id" gorm:"primaryKey"`
+	UserId    int       `json:"user_id" gorm:"index"`
+	CreatedAt time.Time `json:"created_at" gorm:"index"`
+	Content   string    `json:"content" gorm:"type:longtext"`
 	Username  string `json:"username" gorm:"index;default:''"`
 	TokenName string `json:"token_name" gorm:"index;default:''"`
 	ModelName string `json:"model_name" gorm:"index;default:''"`
@@ -45,7 +47,7 @@ func RecordRequestLog(c *gin.Context, userId int, channelId int, modelName strin
 
 	logEntry := &RequestLog{
 		UserId:    userId,
-		CreatedAt: common.GetTimestamp(),
+		CreatedAt: time.Now().UTC(),
 		Content:   content,
 		Username:  username,
 		TokenName: tokenName,
