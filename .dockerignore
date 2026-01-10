@@ -6,4 +6,8 @@
 Makefile
 docs
 .eslintcache
+mysql_data
+redis_data
+logs
+.env
 .gocache
