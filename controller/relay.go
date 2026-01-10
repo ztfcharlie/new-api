@@ -643,9 +643,12 @@ func shouldRetryTaskRelay(c *gin.Context, channelId int, taskErr *dto.TaskError,
 
 func logRequest(c *gin.Context, request dto.Request, modelName string) {
 	if !common.LogArtifactsEnabled {
+		// common.SysLog("LogArtifactsEnabled is false")
 		return
 	}
+	common.SysLog(fmt.Sprintf("logRequest triggered for model: %s", modelName))
 	if request == nil {
+		common.SysLog("logRequest: request is nil")
 		return
 	}
 
