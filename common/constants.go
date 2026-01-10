@@ -72,7 +72,7 @@ var DebugEnabled bool
 var MemoryCacheEnabled bool
 
 var LogConsumeEnabled = true
-var LogArtifactsEnabled = GetEnvOrDefaultBool("LOG_ARTIFACTS_ENABLED", false)
+var LogArtifactsEnabled = false
 
 var SMTPServer = ""
 var SMTPPort = 587

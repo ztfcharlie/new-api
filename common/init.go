@@ -109,6 +109,7 @@ func InitEnv() {
 
 	DisableNormalLog = GetEnvOrDefaultBool("DISABLE_NORMAL_LOG", false)
 	SaveAllImages = GetEnvOrDefaultBool("SAVE_ALL_IMAGES", false)
+	LogArtifactsEnabled = GetEnvOrDefaultBool("LOG_ARTIFACTS_ENABLED", false)
 
 	// Initialize string variables with GetEnvOrDefaultString
 	GeminiSafetySetting = GetEnvOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
