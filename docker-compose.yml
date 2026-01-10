@@ -47,6 +47,7 @@ services:
       - ENABLE_IMAGE_MODERATION=${ENABLE_IMAGE_MODERATION}
       - SAVE_ALL_IMAGES=${SAVE_ALL_IMAGES}
       - DISABLE_NORMAL_LOG=${DISABLE_NORMAL_LOG}
+      - LOG_ARTIFACTS_ENABLED=${LOG_ARTIFACTS_ENABLED}
     depends_on:
       burncloud-aiapi-redis:
         condition: service_started

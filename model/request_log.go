@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/logger"
 	"github.com/gin-gonic/gin"
@@ -25,7 +24,6 @@ func RecordRequestLog(c *gin.Context, userId int, channelId int, modelName strin
 	if !common.LogArtifactsEnabled {
 		return
 	}
-	common.SysLog(fmt.Sprintf("RecordRequestLog: Preparing to insert log for user %d, content length: %d", userId, len(content)))
 	
 	username := c.GetString("username")
 	if username == "" && userId != 0 {
