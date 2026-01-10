@@ -675,8 +675,17 @@ func sanitizeLogPayload(m map[string]interface{}) {
 	for k, v := range m {
 		switch val := v.(type) {
 		case string:
-			if (k == "url" || k == "image_url" || k == "data" || k == "file_data") && (strings.HasPrefix(val, "data:") || len(val) > 1024) {
-				m[k] = "[LARGE DATA REMOVED]"
+			// 1. Handle known large fields (images, audio, video)
+			if k == "url" || k == "image_url" || k == "video_url" || k == "data" || k == "file_data" {
+				if strings.HasPrefix(val, "data:") || len(val) > 1024 {
+					m[k] = "[LARGE DATA REMOVED]"
+					continue
+				}
+			}
+			// 2. Generic safety net for ANY field: truncate if extremely long (e.g. > 100KB) to prevent DB errors
+			// This handles unexpected large fields while keeping normal long prompts (usually < 100KB)
+			if len(val) > 100*1024 {
+				m[k] = val[:100*1024] + "...[TRUNCATED]"
 			}
 		case map[string]interface{}:
 			sanitizeLogPayload(val)
