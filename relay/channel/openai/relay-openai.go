@@ -110,6 +110,7 @@ func OaiStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Re
 	}
 
 	defer service.CloseResponseBodyGracefully(resp)
+	copyAzureResponseHeader(c, resp)
 
 	model := info.UpstreamModelName
 	var responseId string
@@ -195,6 +196,7 @@ func OaiStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Re
 
 func OpenaiHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Response) (*dto.Usage, *types.NewAPIError) {
 	defer service.CloseResponseBodyGracefully(resp)
+	copyAzureResponseHeader(c, resp)
 
 	var simpleResponse dto.OpenAITextResponse
 	responseBody, err := io.ReadAll(resp.Body)
@@ -553,6 +555,7 @@ func preConsumeUsage(ctx *gin.Context, info *relaycommon.RelayInfo, usage *dto.R
 
 func OpenaiHandlerWithUsage(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Response) (*dto.Usage, *types.NewAPIError) {
 	defer service.CloseResponseBodyGracefully(resp)
+	copyAzureResponseHeader(c, resp)
 
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -638,4 +641,17 @@ func extractCachedTokensFromBody(body []byte) (int, bool) {
 		return *payload.Usage.PromptCacheHitTokens, true
 	}
 	return 0, false
+}
+
+func copyAzureResponseHeader(c *gin.Context, resp *http.Response) {
+	if resp == nil {
+		return
+	}
+	// Copy specific Azure headers
+	azureHeaders := []string{"apim-request-id", "x-ms-request-id", "x-ms-client-request-id"}
+	for _, header := range azureHeaders {
+		if value := resp.Header.Get(header); value != "" {
+			c.Writer.Header().Set(header, value)
+		}
+	}
 }
