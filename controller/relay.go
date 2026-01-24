@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/constant"
@@ -85,14 +86,33 @@ func Relay(c *gin.Context, relayFormat types.RelayFormat) {
 		defer ws.Close()
 	}
 
-	defer func() {
-		if newAPIError != nil {
-			logger.LogError(c, fmt.Sprintf("relay error: %s", newAPIError.Error()))
+			defer func() {
 
-			// Detect upstream safety rejection and log request content for auditing
-			errStr := strings.ToLower(newAPIError.Error())
-			if strings.Contains(errStr, "safety_violations") || strings.Contains(errStr, "request was rejected by the safety system") {
-				var contentToLog string
+			if newAPIError != nil {
+
+				logger.LogError(c, fmt.Sprintf("relay error: %s", newAPIError.Error()))
+
+	
+
+							// Detect upstream safety rejection and log request content for auditing
+
+	
+
+							errStr := strings.ToLower(newAPIError.Error())
+
+	
+
+							if strings.Contains(errStr, "safety_violations") || strings.Contains(errStr, "request was rejected") {
+
+	
+
+								c.Set("reject_flage", time.Now().Unix())
+
+	
+
+								var contentToLog string
+
+	
 				if request != nil {
 					switch r := request.(type) {
 					case *dto.GeneralOpenAIRequest:
