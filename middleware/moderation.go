@@ -14,6 +14,7 @@ import (
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/new-api/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -94,6 +95,24 @@ func OpenAIModeration() gin.HandlerFunc {
 				return
 			}
 
+			// 敏感词检测
+			modified, err := service.FilterRequest(&chatReq)
+			if err != nil {
+				abortWithModerationError(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			if modified {
+				jsonBytes, err := json.Marshal(chatReq)
+				if err != nil {
+					common.SysError("Moderation: failed to marshal modified body")
+					abortWithModerationError(c, http.StatusInternalServerError, "Internal Server Error")
+					return
+				}
+				c.Request.Body = io.NopCloser(bytes.NewBuffer(jsonBytes))
+				c.Request.ContentLength = int64(len(jsonBytes))
+				c.Request.Header.Set("Content-Length", fmt.Sprintf("%d", len(jsonBytes)))
+			}
+
 			// Extract user content
 			for _, msg := range chatReq.Messages {
 				if msg.Role == "user" {
@@ -140,7 +159,25 @@ func OpenAIModeration() gin.HandlerFunc {
 				abortWithModerationError(c, http.StatusBadRequest, "Invalid request body for moderation")
 				return
 			}
-			
+
+			// 敏感词检测
+			modified, err := service.FilterRequest(&imgReq)
+			if err != nil {
+				abortWithModerationError(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			if modified {
+				jsonBytes, err := json.Marshal(imgReq)
+				if err != nil {
+					common.SysError("Moderation: failed to marshal modified image body")
+					abortWithModerationError(c, http.StatusInternalServerError, "Internal Server Error")
+					return
+				}
+				c.Request.Body = io.NopCloser(bytes.NewBuffer(jsonBytes))
+				c.Request.ContentLength = int64(len(jsonBytes))
+				c.Request.Header.Set("Content-Length", fmt.Sprintf("%d", len(jsonBytes)))
+			}
+
 			if imgReq.Prompt != "" {
 				inputs = append(inputs, ModerationInput{
 					Type: "text",
@@ -270,7 +307,7 @@ func OpenAIModeration() gin.HandlerFunc {
 			if extractImageFunc != nil {
 				openAIInputs = append(openAIInputs, extractImageFunc()...)
 			}
-			
+
 			if len(openAIInputs) > 0 {
 				// Truncate text inputs for OpenAI Moderation to avoid token limits (approx 32k tokens)
 				// We truncate to 50000 characters to be safe and avoid timeouts
@@ -364,7 +401,7 @@ func OpenAIModeration() gin.HandlerFunc {
 							}
 						}
 						common.SysLog(fmt.Sprintf("Moderation: content flagged! Reasons: %v", reasons))
-						
+
 						// Record Log
 						text := "image_content"
 						if i < len(openAIInputs) && openAIInputs[i].Type == "text" {
@@ -373,7 +410,7 @@ func OpenAIModeration() gin.HandlerFunc {
 						RecordModerationLog(c, text, strings.Join(reasons, ", "), "OpenAI Moderation")
 
 						// Use standard sensitive word error message format
-						abortWithModerationError(c, http.StatusBadRequest, fmt.Sprintf("敏感词检测失败: %s", strings.Join(reasons, ", ")))
+						abortWithModerationError(c, http.StatusBadRequest, fmt.Sprintf("发现敏感词: %s", strings.Join(reasons, ", ")))
 						return
 					}
 				}
@@ -385,7 +422,7 @@ func OpenAIModeration() gin.HandlerFunc {
 		// 2. Azure Content Filter Check
 		if common.AzureContentFilterEnabled {
 			common.SysLog("Moderation: checking with Azure Content Filter")
-			
+
 			// Check Text Inputs FIRST
 			for _, input := range inputs {
 				if input.Type == "text" && input.Text != "" {
@@ -400,7 +437,7 @@ func OpenAIModeration() gin.HandlerFunc {
 					}
 				}
 			}
-			
+
 			// Check Image Inputs (Lazy Load)
 			if extractImageFunc != nil {
 				imgInputs := extractImageFunc()
@@ -431,7 +468,7 @@ func OpenAIModeration() gin.HandlerFunc {
 				RecordNormalLog(c, input.Text)
 			}
 		}
-		
+
 		// Log passed image content
 		if len(imgInputs) > 0 {
 			for range imgInputs {
