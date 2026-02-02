@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/dto"
 )
 
@@ -20,43 +21,62 @@ const (
 
 // FilterResult 过滤结果
 type FilterResult struct {
-	Action     FilterAction
-	Modified   bool
-	NewContent string
-	Reason     string
+	Action         FilterAction
+	Modified       bool
+	NewContent     string
+	Reason         string
+	TriggeredWords []string
 }
 
 // FilterRequest 对请求进行敏感词过滤
-// 如果返回 error，说明被拦截 (Block)
-// 如果返回 bool=true，说明请求内容被修改，需要更新请求体
-func FilterRequest(request dto.Request) (bool, error) {
-	modified := false
+// 返回 FilterResult 指针，如果为 nil 表示无操作或错误（错误包含在 result.Reason 中? 不，还是保留 error 为好，或者 error 放到 result 里?）
+// 保持 error 用于返回严重的系统错误。但对于 Block，我们以前是返回 error。
+// 新设计：返回 (*FilterResult, error)。
+// 如果 Action == ActionBlock，则 FilterResult.Action = ActionBlock，同时返回 error = nil (或者 error = "blocked"?)
+// 为了兼容性尽量少改动逻辑：
+// 以前: (bool, error). error != nil implies Block.
+// 现在: (*FilterResult, error).
+// 如果 ActionBlock, return result, nil. 调用方检查 result.Action.
+func FilterRequest(request dto.Request) (*FilterResult, error) {
+	result := &FilterResult{
+		Action: ActionPass,
+	}
 
 	switch r := request.(type) {
 	case *dto.GeneralOpenAIRequest:
 		// 1. 检查 Prompt (Completions)
 		if r.Prompt != nil {
-			// Prompt 可能是 string 或 []string
 			if str, ok := r.Prompt.(string); ok {
-				newStr, changed, err := processText(str)
+				newStr, res, err := processText(str)
 				if err != nil {
-					return false, err
+					return nil, err // 系统错误? processText以前返回 error 是 Block。现在 processText 应该返回 result。
 				}
-				if changed {
+				// Merge result
+				if res.Action > result.Action {
+					result.Action = res.Action
+					result.Reason = res.Reason
+					result.TriggeredWords = append(result.TriggeredWords, res.TriggeredWords...)
+				}
+				if res.Modified {
 					r.Prompt = newStr
-					modified = true
+					result.Modified = true
 				}
 			} else if strs, ok := r.Prompt.([]interface{}); ok {
 				var newStrs []interface{}
 				arrChanged := false
 				for _, item := range strs {
 					if str, ok := item.(string); ok {
-						newStr, changed, err := processText(str)
+						newStr, res, err := processText(str)
 						if err != nil {
-							return false, err
+							return nil, err
+						}
+						if res.Action > result.Action {
+							result.Action = res.Action
+							result.Reason = res.Reason
+							result.TriggeredWords = append(result.TriggeredWords, res.TriggeredWords...)
 						}
 						newStrs = append(newStrs, newStr)
-						if changed {
+						if res.Modified {
 							arrChanged = true
 						}
 					} else {
@@ -65,7 +85,7 @@ func FilterRequest(request dto.Request) (bool, error) {
 				}
 				if arrChanged {
 					r.Prompt = newStrs
-					modified = true
+					result.Modified = true
 				}
 			}
 		}
@@ -73,18 +93,22 @@ func FilterRequest(request dto.Request) (bool, error) {
 		// 2. 检查 Messages (Chat)
 		for i := range r.Messages {
 			msg := &r.Messages[i]
-			// 解析 content
 			contentList := msg.ParseContent()
 			contentChanged := false
 
 			for j := range contentList {
 				item := &contentList[j]
 				if item.Type == dto.ContentTypeText && item.Text != "" {
-					newText, changed, err := processText(item.Text)
+					newText, res, err := processText(item.Text)
 					if err != nil {
-						return false, err
+						return nil, err
 					}
-					if changed {
+					if res.Action > result.Action {
+						result.Action = res.Action
+						result.Reason = res.Reason
+						result.TriggeredWords = append(result.TriggeredWords, res.TriggeredWords...)
+					}
+					if res.Modified {
 						item.Text = newText
 						contentChanged = true
 					}
@@ -93,66 +117,144 @@ func FilterRequest(request dto.Request) (bool, error) {
 
 			if contentChanged {
 				msg.SetMediaContent(contentList)
-				modified = true
+				result.Modified = true
 			}
 		}
 
 	case *dto.ImageRequest:
 		// 检查图片生成 Prompt
 		if r.Prompt != "" {
-			newText, changed, err := processText(r.Prompt)
+			newText, res, err := processText(r.Prompt)
 			if err != nil {
-				return false, err
+				return nil, err
 			}
-			if changed {
+			if res.Action > result.Action {
+				result.Action = res.Action
+				result.Reason = res.Reason
+				result.TriggeredWords = append(result.TriggeredWords, res.TriggeredWords...)
+			}
+			if res.Modified {
 				r.Prompt = newText
-				modified = true
+				result.Modified = true
 			}
 		}
 	}
 
-	return modified, nil
+	// 如果 Block，为了保持兼容性，以前是返回 error。
+	// 但现在我们希望返回 result 给调用者记录日志，然后再决定怎么处理。
+	// 所以这里我们只返回 result，不返回 error (除非真正的系统错误)。
+	// Block 状态包含在 result.Action 中。
+
+	return result, nil
 }
 
 // processText 处理单段文本
-// 返回: 新文本, 是否修改, 错误(拦截)
-// 优先级:
-// 1. 拦截 (Block) - 生物武器、图片生成
-// 2. 替换 (Replace) - COT
-// 3. 上下文 (Context) - 生物科研
-func processText(text string) (string, bool, error) {
-	// 1. 拦截检测 (Block)
-	// 合并 生物武器 和 图片生成 进行检测
-	blockDict := append(SensitiveWordsBioWeapon, SensitiveWordsImgGen...)
-	// 使用 str.go 中的 AcSearch
-	if found, words := AcSearch(text, blockDict, true); found {
-		return "", false, fmt.Errorf("request blocked: contains sensitive words (%s)", strings.Join(words, ", "))
+// 返回: 新文本, 结果详情, 错误(系统错误)
+func processText(text string) (string, *FilterResult, error) {
+	result := &FilterResult{
+		Action: ActionPass,
 	}
 
 	currentText := text
 	modified := false
 
-	// 2. 替换检测 (Replace) - COT
-	// 含有COT词汇 -> 静默替换 (替换为空或指定字符)
-	foundCOT, _ := AcSearch(currentText, SensitiveWordsCOT, false)
-	if foundCOT {
-		// 执行替换
-		_, _, replaced := sensitiveWordReplaceWith(currentText, SensitiveWordsCOT, "") // 也可以替换为 "*COT*"
-		if replaced != currentText {
-			currentText = replaced
-			modified = true
+	// Helper to check and apply action
+	checkAndApply := func(dict []string, modeStr string, dictName string) {
+		if len(dict) == 0 {
+			return
+		}
+
+		// Parse mode
+		action := parseAction(modeStr)
+		if action == ActionPass {
+			return
+		}
+
+		// Check depends on action type
+		// If Block or Context, we just need to know if it exists (stopImmediately=true)
+		// If Replace, we need to find occurrences to replace (stopImmediately=false)
+
+		stopImmediately := true
+		if action == ActionReplace {
+			stopImmediately = false
+		}
+
+		found, words := AcSearch(currentText, dict, stopImmediately)
+		if !found {
+			return
+		}
+
+		switch action {
+		case ActionBlock:
+			if ActionBlock > result.Action {
+				result.Action = ActionBlock
+				result.Reason = fmt.Sprintf("sensitive words detected (%s): %s", dictName, strings.Join(words, ", "))
+			}
+			result.TriggeredWords = append(result.TriggeredWords, words...)
+
+		case ActionReplace:
+			_, _, replaced := sensitiveWordReplaceWith(currentText, dict, "")
+			if replaced != currentText {
+				currentText = replaced
+				modified = true
+				if ActionReplace > result.Action {
+					result.Action = ActionReplace
+					result.Reason = fmt.Sprintf("sensitive words replaced (%s)", dictName)
+				}
+				result.TriggeredWords = append(result.TriggeredWords, words...)
+			}
+
+		case ActionContext:
+			if !strings.HasSuffix(currentText, BioResearchContextSuffix) {
+				currentText = currentText + BioResearchContextSuffix
+				modified = true
+				if ActionContext > result.Action {
+					result.Action = ActionContext
+					result.Reason = fmt.Sprintf("context added (%s)", dictName)
+				}
+				result.TriggeredWords = append(result.TriggeredWords, words...)
+			}
 		}
 	}
 
-	// 3. 上下文检测 (Context) - 生物科研
-	// 含有生物科研词汇 -> 添加上下文
-	foundBio, _ := AcSearch(currentText, SensitiveWordsBioResearch, true) // 只要有一个就触发
-	if foundBio {
-		currentText = currentText + BioResearchContextSuffix
-		modified = true
+	// 1. Check BioWeapon
+	checkAndApply(SensitiveWordsBioWeapon, common.BioWeaponFilterMode, "BioWeapon")
+	if result.Action == ActionBlock {
+		return text, result, nil
 	}
 
-	return currentText, modified, nil
+	// 2. Check ImageGen
+	checkAndApply(SensitiveWordsImgGen, common.ImageGenFilterMode, "ImageGen")
+	if result.Action == ActionBlock {
+		return text, result, nil
+	}
+
+	// 3. Check COT
+	checkAndApply(SensitiveWordsCOT, common.CotFilterMode, "COT")
+
+	// 4. Check BioResearch
+	checkAndApply(SensitiveWordsBioResearch, common.BioResearchFilterMode, "BioResearch")
+
+	result.Modified = modified
+	result.NewContent = currentText
+
+	return currentText, result, nil
+}
+
+func parseAction(mode string) FilterAction {
+	mode = strings.ToUpper(mode)
+	switch mode {
+	case "BLOCK", "STRICT":
+		return ActionBlock
+	case "REPLACE":
+		return ActionReplace
+	case "CONTEXT", "MODERATE":
+		return ActionContext
+	case "NONE", "PASS":
+		return ActionPass
+	default:
+		return ActionPass
+	}
 }
 
 // sensitiveWordReplaceWith 是 str.go 中 SensitiveWordReplace 的定制版，支持自定义替换内容

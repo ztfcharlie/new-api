@@ -3,10 +3,17 @@ package service
 import (
 	"testing"
 
+	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/dto"
 )
 
 func TestFilterRequest(t *testing.T) {
+	// Setup default configuration for tests
+	common.BioWeaponFilterMode = "BLOCK"
+	common.ImageGenFilterMode = "BLOCK"
+	common.CotFilterMode = "REPLACE"
+	common.BioResearchFilterMode = "CONTEXT"
+
 	// Setup test cases
 	tests := []struct {
 		name           string
@@ -79,11 +86,14 @@ func TestFilterRequest(t *testing.T) {
 				Prompt: tt.inputPrompt,
 			}
 
-			modified, err := FilterRequest(req)
+			result, err := FilterRequest(req)
 
 			if tt.shouldBlock {
-				if err == nil {
-					t.Errorf("Expected block but got nil error")
+				if err != nil {
+					t.Errorf("Unexpected error during block check: %v", err)
+				}
+				if result == nil || result.Action != ActionBlock {
+					t.Errorf("Expected block action, got %v", result)
 				}
 				return
 			}
@@ -93,11 +103,18 @@ func TestFilterRequest(t *testing.T) {
 				return
 			}
 
-			if modified != tt.shouldModify {
-				t.Errorf("Expected modified=%v, got %v", tt.shouldModify, modified)
+			if result == nil {
+				if tt.shouldModify {
+					t.Errorf("Expected result to be non-nil when modification expected")
+				}
+				return
 			}
 
-			if modified {
+			if result.Modified != tt.shouldModify {
+				t.Errorf("Expected modified=%v, got %v", tt.shouldModify, result.Modified)
+			}
+
+			if result.Modified {
 				// Assert prompt content
 				if finalPrompt, ok := req.Prompt.(string); ok {
 					if finalPrompt != tt.expectedPrompt {

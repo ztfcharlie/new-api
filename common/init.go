@@ -94,6 +94,13 @@ func InitEnv() {
 	RelayMaxIdleConnsPerHost = GetEnvOrDefault("RELAY_MAX_IDLE_CONNS_PER_HOST", 100)
 
 	ModerationEnabled = GetEnvOrDefaultBool("ENABLE_MODERATION", false)
+	EnableContentFilter2026 = GetEnvOrDefaultBool("ENABLE_CONTENT_FILTER_2026", false)
+
+	BioWeaponFilterMode = GetEnvOrDefaultString("BIO_WEAPON_FILTER_MODE", "BLOCK")
+	ImageGenFilterMode = GetEnvOrDefaultString("IMAGE_GEN_FILTER_MODE", "BLOCK")
+	CotFilterMode = GetEnvOrDefaultString("COT_FILTER_MODE", "REPLACE")
+	BioResearchFilterMode = GetEnvOrDefaultString("BIO_RESEARCH_FILTER_MODE", "CONTEXT")
+
 	ModerationBaseURL = GetEnvOrDefaultString("MODERATION_URL", "https://api.openai.com")
 	ModerationKey = GetEnvOrDefaultString("MODERATION_KEY", "")
 	ModerationModel = GetEnvOrDefaultString("MODERATION_MODEL", "omni-moderation-latest")

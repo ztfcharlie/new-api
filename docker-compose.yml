@@ -48,6 +48,12 @@ services:
       - SAVE_ALL_IMAGES=${SAVE_ALL_IMAGES}
       - DISABLE_NORMAL_LOG=${DISABLE_NORMAL_LOG}
       - LOG_ARTIFACTS_ENABLED=${LOG_ARTIFACTS_ENABLED}
+      # Local Content Filter Configuration
+      - ENABLE_CONTENT_FILTER_2026=${ENABLE_CONTENT_FILTER_2026}
+      - BIO_WEAPON_FILTER_MODE=${BIO_WEAPON_FILTER_MODE}
+      - IMAGE_GEN_FILTER_MODE=${IMAGE_GEN_FILTER_MODE}
+      - COT_FILTER_MODE=${COT_FILTER_MODE}
+      - BIO_RESEARCH_FILTER_MODE=${BIO_RESEARCH_FILTER_MODE}
     depends_on:
       burncloud-aiapi-redis:
         condition: service_started
@@ -80,7 +86,7 @@ services:
       MYSQL_ROOT_PASSWORD: burncloud123456!qwf
       MYSQL_DATABASE: new-api
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$MYSQL_ROOT_PASSWORD || exit 1"]
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p$MYSQL_ROOT_PASSWORD || exit 1" ]
       interval: 5s
       timeout: 5s
       retries: 20

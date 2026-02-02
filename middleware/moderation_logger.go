@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -23,7 +24,7 @@ func RecordModerationLog(c *gin.Context, prompt string, reason string, source st
 	if common.LogDir != nil && *common.LogDir != "" {
 		logDir = *common.LogDir
 	}
-	
+
 	// Ensure log directory exists
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		common.SysError(fmt.Sprintf("Failed to create log directory: %v", err))
@@ -134,5 +135,67 @@ func RecordNormalLog(c *gin.Context, prompt string) {
 
 	if _, err := f.WriteString(logEntry); err != nil {
 		common.SysError(fmt.Sprintf("Failed to write to normal log: %v", err))
+	}
+}
+
+// RecordFilterLog records the content filter action to a log file.
+func RecordFilterLog(c *gin.Context, action string, reason string, triggeredWords []string) {
+	// Construct log directory using global LogDir setting
+	logDir := "./logs"
+	if common.LogDir != nil && *common.LogDir != "" {
+		logDir = *common.LogDir
+	}
+
+	// Ensure log directory exists
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		common.SysError(fmt.Sprintf("Failed to create log directory: %v", err))
+		return
+	}
+
+	now := time.Now()
+	dateStr := now.Format("2006-01-02")
+	filename := filepath.Join(logDir, fmt.Sprintf("filter-%s.log", dateStr))
+
+	// Get User Info
+	userID := c.GetInt("id")
+	userName := c.GetString("username")
+	ip := c.ClientIP()
+	path := c.Request.URL.Path
+	reqID := c.GetString(common.RequestIdKey)
+
+	wordsStr := strings.Join(triggeredWords, ", ")
+
+	// Format Log Entry
+	// [Time] [IP] [UserID(Name)] [Path] [ReqID] [Action] [Reason] [Words]
+	logEntry := fmt.Sprintf("[%s] [IP:%s] [User:%d(%s)] [Path:%s] [ReqID:%s] [Action:%s] [Reason:%s] [Words:%s]\n",
+		now.Format("15:04:05"),
+		ip,
+		userID,
+		userName,
+		path,
+		reqID,
+		action,
+		reason,
+		wordsStr,
+	)
+
+	// Write to file (using mutex to prevent concurrent write issues)
+	logLock.Lock()
+	defer logLock.Unlock()
+
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		common.SysError(fmt.Sprintf("Failed to open filter log file: %v", err))
+		return
+	}
+	defer f.Close()
+
+	// Add BOM for Windows compatibility if file is new
+	if stat, err := f.Stat(); err == nil && stat.Size() == 0 {
+		f.WriteString("\xEF\xBB\xBF")
+	}
+
+	if _, err := f.WriteString(logEntry); err != nil {
+		common.SysError(fmt.Sprintf("Failed to write to filter log: %v", err))
 	}
 }

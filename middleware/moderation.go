@@ -58,9 +58,9 @@ func abortWithModerationError(c *gin.Context, status int, message string) {
 func OpenAIModeration() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// FORCE DEBUG LOG
-		fmt.Printf("[Moderation-Debug] Middleware invoked. Path: %s, ModEnabled: %v, AzureEnabled: %v\n", c.Request.URL.Path, common.ModerationEnabled, common.AzureContentFilterEnabled)
+		fmt.Printf("[Moderation-Debug] Middleware invoked. Path: %s, ModEnabled: %v, AzureEnabled: %v, ContentFilterEnabled: %v\n", c.Request.URL.Path, common.ModerationEnabled, common.AzureContentFilterEnabled, common.EnableContentFilter2026)
 
-		if !common.ModerationEnabled && !common.AzureContentFilterEnabled {
+		if !common.ModerationEnabled && !common.AzureContentFilterEnabled && !common.EnableContentFilter2026 {
 			return
 		}
 
@@ -96,21 +96,44 @@ func OpenAIModeration() gin.HandlerFunc {
 			}
 
 			// 敏感词检测
-			modified, err := service.FilterRequest(&chatReq)
-			if err != nil {
-				abortWithModerationError(c, http.StatusBadRequest, err.Error())
-				return
-			}
-			if modified {
-				jsonBytes, err := json.Marshal(chatReq)
+			if common.EnableContentFilter2026 {
+				filterResult, err := service.FilterRequest(&chatReq)
 				if err != nil {
-					common.SysError("Moderation: failed to marshal modified body")
-					abortWithModerationError(c, http.StatusInternalServerError, "Internal Server Error")
+					abortWithModerationError(c, http.StatusBadRequest, err.Error())
 					return
 				}
-				c.Request.Body = io.NopCloser(bytes.NewBuffer(jsonBytes))
-				c.Request.ContentLength = int64(len(jsonBytes))
-				c.Request.Header.Set("Content-Length", fmt.Sprintf("%d", len(jsonBytes)))
+
+				// Log filter result if not pass
+				if filterResult != nil && filterResult.Action != service.ActionPass {
+					actionStr := "UNKNOWN"
+					switch filterResult.Action {
+					case service.ActionBlock:
+						actionStr = "BLOCK"
+					case service.ActionReplace:
+						actionStr = "REPLACE"
+					case service.ActionContext:
+						actionStr = "CONTEXT"
+					}
+					RecordFilterLog(c, actionStr, filterResult.Reason, filterResult.TriggeredWords)
+				}
+
+				// Handle Block
+				if filterResult != nil && filterResult.Action == service.ActionBlock {
+					abortWithModerationError(c, http.StatusBadRequest, filterResult.Reason)
+					return
+				}
+
+				if filterResult != nil && filterResult.Modified {
+					jsonBytes, err := json.Marshal(chatReq)
+					if err != nil {
+						common.SysError("Moderation: failed to marshal modified body")
+						abortWithModerationError(c, http.StatusInternalServerError, "Internal Server Error")
+						return
+					}
+					c.Request.Body = io.NopCloser(bytes.NewBuffer(jsonBytes))
+					c.Request.ContentLength = int64(len(jsonBytes))
+					c.Request.Header.Set("Content-Length", fmt.Sprintf("%d", len(jsonBytes)))
+				}
 			}
 
 			// Extract user content
@@ -161,21 +184,44 @@ func OpenAIModeration() gin.HandlerFunc {
 			}
 
 			// 敏感词检测
-			modified, err := service.FilterRequest(&imgReq)
-			if err != nil {
-				abortWithModerationError(c, http.StatusBadRequest, err.Error())
-				return
-			}
-			if modified {
-				jsonBytes, err := json.Marshal(imgReq)
+			if common.EnableContentFilter2026 {
+				filterResult, err := service.FilterRequest(&imgReq)
 				if err != nil {
-					common.SysError("Moderation: failed to marshal modified image body")
-					abortWithModerationError(c, http.StatusInternalServerError, "Internal Server Error")
+					abortWithModerationError(c, http.StatusBadRequest, err.Error())
 					return
 				}
-				c.Request.Body = io.NopCloser(bytes.NewBuffer(jsonBytes))
-				c.Request.ContentLength = int64(len(jsonBytes))
-				c.Request.Header.Set("Content-Length", fmt.Sprintf("%d", len(jsonBytes)))
+
+				// Log filter result if not pass
+				if filterResult != nil && filterResult.Action != service.ActionPass {
+					actionStr := "UNKNOWN"
+					switch filterResult.Action {
+					case service.ActionBlock:
+						actionStr = "BLOCK"
+					case service.ActionReplace:
+						actionStr = "REPLACE"
+					case service.ActionContext:
+						actionStr = "CONTEXT"
+					}
+					RecordFilterLog(c, actionStr, filterResult.Reason, filterResult.TriggeredWords)
+				}
+
+				// Handle Block
+				if filterResult != nil && filterResult.Action == service.ActionBlock {
+					abortWithModerationError(c, http.StatusBadRequest, filterResult.Reason)
+					return
+				}
+
+				if filterResult != nil && filterResult.Modified {
+					jsonBytes, err := json.Marshal(imgReq)
+					if err != nil {
+						common.SysError("Moderation: failed to marshal modified image body")
+						abortWithModerationError(c, http.StatusInternalServerError, "Internal Server Error")
+						return
+					}
+					c.Request.Body = io.NopCloser(bytes.NewBuffer(jsonBytes))
+					c.Request.ContentLength = int64(len(jsonBytes))
+					c.Request.Header.Set("Content-Length", fmt.Sprintf("%d", len(jsonBytes)))
+				}
 			}
 
 			if imgReq.Prompt != "" {

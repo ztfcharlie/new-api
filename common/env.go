@@ -22,6 +22,12 @@ var AzureContentFilterImageHarmLevel int // Separate level for images
 
 var DisableNormalLog bool
 var SaveAllImages bool // If true, save all uploaded images to logs/rejected_images/
+var EnableContentFilter2026 bool
+
+var BioWeaponFilterMode string
+var ImageGenFilterMode string
+var CotFilterMode string
+var BioResearchFilterMode string
 
 // https://docs.cohere.com/docs/safety-modes Type; NONE/CONTEXTUAL/STRICT
 
