@@ -16,10 +16,11 @@ new-api
 tiktoken_cache
 .eslintcache
 .gocache
+.gomodcache/
 .cache
 web/bun.lock
+plans
 
 electron/node_modules
 electron/dist
 data/
-pythonStatic

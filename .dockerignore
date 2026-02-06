@@ -11,3 +11,4 @@ redis_data
 logs
 .env
 .gocache
+/web/node_modules
