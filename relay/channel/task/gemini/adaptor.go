@@ -90,9 +90,21 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 	if err := taskcommon.UnmarshalMetadata(req.Metadata, params); err != nil {
 		return nil, errors.Wrap(err, "unmarshal metadata failed")
 	}
+
+	// Veo 3.1 requires generateAudio parameter
+	if params.GenerateAudio == nil {
+		defaultAudio := true
+		params.GenerateAudio = &defaultAudio
+	}
+
 	if params.DurationSeconds == 0 && req.Duration > 0 {
 		params.DurationSeconds = req.Duration
 	}
+	// Validate duration for Veo 3.1 (must be 4, 6, or 8 seconds)
+	if params.DurationSeconds != 0 && params.DurationSeconds != 4 && params.DurationSeconds != 6 && params.DurationSeconds != 8 {
+		return nil, fmt.Errorf("invalid duration: %d, must be 4, 6, or 8 for Veo 3", params.DurationSeconds)
+	}
+
 	if params.Resolution == "" && req.Size != "" {
 		params.Resolution = SizeToVeoResolution(req.Size)
 	}
@@ -100,7 +112,19 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		params.AspectRatio = SizeToVeoAspectRatio(req.Size)
 	}
 	params.Resolution = strings.ToLower(params.Resolution)
-	params.SampleCount = 1
+
+	// Support user n parameter for sampleCount (Veo allows 1-4)
+	// Priority: req.N > metadata.sampleCount > default (1)
+	if req.N > 0 {
+		params.SampleCount = req.N
+	}
+	// Validate and clamp sampleCount range (1-4)
+	if params.SampleCount == 0 || params.SampleCount < 1 {
+		params.SampleCount = 1
+	}
+	if params.SampleCount > 4 {
+		params.SampleCount = 4
+	}
 
 	body := VeoRequestPayload{
 		Instances:  []VeoInstance{instance},
